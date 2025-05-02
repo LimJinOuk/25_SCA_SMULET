@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>로그인 페이지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100 flex flex-col min-h-screen">
+    <!-- 헤더 -->
+    <header
+      class="bg-white p-5 shadow-md flex justify-between items-center border-b"
+    >
+      <h1
+        class="text-4xl font-bold text-blue-600"
+        style="font-family: 'Montserrat', sans-serif"
+      >
+        SMULET
+      </h1>
+      <nav>
+        <a href="#" class="text-gray-600 mx-5">이용안내</a>
+        <a href="#" class="text-gray-600 mx-5">로그인</a>
+        <a href="#" class="text-gray-600 mx-5">회원가입</a>
+      </nav>
+    </header>
+
+    <!-- 로그인 영역 -->
+    <main class="flex flex-1 items-center justify-center">
+      <div class="bg-white p-8 rounded-lg shadow-md w-96">
+        <h2 class="text-2xl font-bold mb-4 text-center">로그인</h2>
+        <form action="#" method="POST">
+          <div class="mb-4">
+            <label
+              for="email"
+              class="block text-sm font-medium text-gray-700"
+              >학교 이메일</label
+            >
+            <input
+              type="text"
+              id="email"
+              name="email"
+              required
+              class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              for="pw"
+              class="block text-sm font-medium text-gray-700"
+              >비밀번호</label
+            >
+            <input
+              type="password"
+              id="pw"
+              name="pw"
+              required
+              class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+          >
+            로그인
+          </button>
+        </form>
+        <p class="text-sm text-center text-gray-600 mt-4">
+          계정이 없으신가요?
+          <a href="#" class="text-blue-500 hover:underline">회원가입</a>
+        </p>
+      </div>
+    </main>
+  </body>
+</html>

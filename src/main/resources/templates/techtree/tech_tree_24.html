@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>전공 이수 체계도</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .grid-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        max-width: 1200px;
+        margin: 50px auto;
+        position: relative;
+      }
+      .year-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #ddd;
+        border-radius: 20px;
+        padding: 10px;
+      }
+      .semester-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        gap: 10px;
+        background-color: #bbb;
+        padding: 10px;
+        border-radius: 10px;
+        width: 100%;
+      }
+      .course {
+        background-color: white;
+        border: 2px solid black;
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+
+        /* 수정: 테두리를 둥글게 */
+        border-radius: 12px;
+
+        min-width: 100px;
+      }
+      .course.blue {
+        background-color: #6ec6ff;
+      }
+      .course.yellow {
+        background-color: #ffeb3b;
+      }
+      .course.dashed {
+        border-style: dashed;
+      }
+      .double-border {
+        position: relative;
+        padding: 10px;
+        background-color: white;
+        z-index: 0;
+        border: 2px solid black;
+        border-radius: 12px;
+      }
+
+      .double-border::before {
+        content: '';
+        position: absolute;
+        top: -4px;
+        left: -4px;
+        right: -4px;
+        bottom: -4px;
+        border: 2px solid black;
+        z-index: -1;
+        border-radius: 12px;
+      }
+
+      /* 수정: 두꺼운 테두리 클래스 
+      .thick-border {
+        border-width: 6px !important;
+      }*/
+
+      /* 범례 스타일 */
+      .legend {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-size: 14px;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .legend-box {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        border: 1px solid black;
+      }
+      .legend-bsm {
+        background-color: #ffeb3b;
+      }
+      .legend-design {
+        background-color: #6ec6ff;
+      }
+      .legend-thick {
+        width: 16px;
+        height: 16px;
+        border: 4px solid black;
+        background-color: white;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <header
+      class="bg-white p-4 shadow-md flex justify-between items-center border-b"
+    >
+      <h1 class="text-4xl font-bold text-blue-600">SMULET</h1>
+      <a href="#" class="text-blue-600 font-bold text-lg hover:underline"
+        >시간표</a
+      >
+    </header>
+
+    <!-- 제목과 범례를 나란히 배치 -->
+    <div class="flex justify-center items-center gap-8 my-6">
+      <h1 class="text-3xl font-bold text-center">전공 이수 체계도(24학번)</h1>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-box legend-bsm"></div>
+          <span>BSM</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box legend-design"></div>
+          <span>설계</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-thick"></div>
+          <span>전공 심화</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-container" id="grid"></div>
+
+    <script>
+      const courseData = [
+        {
+          year: 1,
+          semesters: [
+            ['컴퓨터수학', '파이썬 프로그래밍', '공학설계입문'],
+            ['C프로그래밍 I', '선형대수학 I', '통계적분석'],
+          ],
+        },
+        {
+          year: 2,
+          semesters: [
+            [
+              'C프로그래밍 II',
+              '자료구조',
+              '이산수학',
+              '논리회로',
+              '선형대수학 II',
+              '인공지능',
+            ],
+            [
+              '객체지향 프로그래밍',
+              '데이터베이스',
+              '알고리즘',
+              '시스템 소프트웨어',
+              '컴퓨터구조',
+              '정보보호',
+            ],
+          ],
+        },
+        {
+          year: 3,
+          semesters: [
+            [
+              '소프트웨어공학',
+              '운영체제',
+              '데이터모델링과마이닝',
+              'GPU 프로그래밍',
+              '컴퓨터네트워크',
+              '디지털 신호처리',
+            ],
+            [
+              '고급객체지향프로그래밍',
+              '지능형사용자인터페이스',
+              '분산시스템',
+              '프로그래밍 언어론',
+              '유닉스 프로그래밍',
+              '사물인터넷 프로그래밍',
+              '네트워크 보안',
+            ],
+          ],
+        },
+        {
+          year: 4,
+          semesters: [
+            ['캡스톤디자인 I', '빅데이터와 딥러닝'],
+            ['캡스톤디자인 II', '클라우드 플랫폼', '고급문제 해결기법'],
+          ],
+        },
+      ];
+
+      const groups = {
+        pink: [
+          '공학설계입문',
+          'ICT 공학설계 I',
+          'ICT 공학설계 II',
+          '캡스톤디자인 I',
+          '캡스톤디자인 II',
+        ],
+        green: ['컴퓨터네트워크', '네트워크 보안', '사물인터넷 프로그래밍'],
+        //purple: ['선형대수학 I', '선형대수학 II', '디지털 신호처리'],
+        orange: ['컴퓨터수학', '정보보호', '네트워크 보안'],
+        navy: [
+          '자료구조',
+          '데이터베이스',
+          '데이터모델링과마이닝',
+          '빅데이터와 딥러닝',
+        ],
+        black: [
+          '파이썬 프로그래밍',
+          'C프로그래밍 I',
+          'C프로그래밍 II',
+          '객체지향 프로그래밍',
+          'GPU 프로그래밍',
+          '유닉스 프로그래밍',
+          '클라우드 플랫폼',
+        ],
+        gray: ['컴퓨터구조', '시스템 소프트웨어', '운영체제'],
+        cobalt: ['선형대수학 I', '선형대수학 II', '디지털 신호처리'],
+        gold: ['컴퓨터네트워크', '분산시스템'],
+        wine: ['통계적분석', '인공지능', '빅데이터와 딥러닝'],
+        coral: ['자료구조', '알고리즘'],
+        red: ['컴퓨터수학', '이산수학', '알고리즘'],
+        orchid: [
+          '파이썬 프로그래밍',
+          'C프로그래밍 I',
+          'C프로그래밍 II',
+          '객체지향 프로그래밍',
+          '고급객체지향프로그래밍',
+        ],
+      };
+
+      const colors = {
+        pink: 'pink',
+        green: 'lightgreen',
+        purple: 'violet',
+        orange: 'orange',
+        navy: 'navy',
+        mint: 'mediumaquamarine',
+        black: 'black',
+        gray: 'gray',
+        cobalt: 'blue',
+        brown: 'saddlebrown',
+        red: 'red',
+        gold: 'goldenrod',
+        wine: 'darkred',
+        coral: 'coral',
+        beige: 'beige',
+        orchid: 'orchid',
+      };
+
+      const yellowCourses = [
+        '컴퓨터수학',
+        '선형대수학 I',
+        '선형대수학 II',
+        '이산수학',
+        '통계적분석',
+      ];
+      const blueCourses = [
+        '공학설계입문',
+        '논리회로',
+        '시스템 소프트웨어',
+        '소프트웨어공학',
+        '캡스톤디자인 I',
+        '빅데이터응용',
+        '캡스톤디자인 II',
+      ];
+      const thickBorderCourses = [
+        '운영체제',
+        '컴퓨터네트워크',
+        '프로그래밍 언어론',
+        '소프트웨어공학',
+        '데이터모델링과마이닝',
+        '유닉스 프로그래밍',
+        '네트워크 보안',
+        '고급객체지향프로그래밍',
+      ];
+      const doubleBorderCourses = [
+        '운영체제',
+        '디지털 신호처리',
+        '컴퓨터네트워크',
+        '소프트웨어공학',
+        'GPU 프로그래밍',
+        '데이터모델링과마이닝',
+        '사물인터넷 프로그래밍',
+        '지능형사용자인터페이스',
+        '분산시스템',
+        '네트워크 보안',
+        '유닉스 프로그래밍',
+        '고급객체지향프로그래밍',
+        '프로그래밍 언어론',
+        '고급문제 해결기법법',
+      ];
+
+      const courseYearMap = {};
+      const courseSemesterMap = {};
+
+      function createGrid() {
+        const grid = document.getElementById('grid');
+        courseData.forEach((yearObj) => {
+          const year = yearObj.year;
+          const yearDiv = document.createElement('div');
+          yearDiv.className = 'year-container';
+          yearDiv.innerHTML = `<div class="text-2xl font-bold">${year}학년</div>`;
+
+          yearObj.semesters.forEach((semester, i) => {
+            const semesterNum = i + 1;
+            const semDiv = document.createElement('div');
+            semDiv.className = 'semester-container';
+            const label = document.createElement('div');
+            label.className = 'text-xl font-bold text-center my-6';
+            label.textContent = `${semesterNum}학기`;
+            semDiv.appendChild(label);
+
+            semester.forEach((course) => {
+              courseYearMap[course] = year;
+              courseSemesterMap[course] = { year: year, semester: semesterNum };
+
+              const c = document.createElement('div');
+              c.className = 'course';
+              c.textContent = course;
+              if (yellowCourses.includes(course)) c.classList.add('yellow');
+              if (blueCourses.includes(course)) c.classList.add('blue');
+              if (thickBorderCourses.includes(course))
+                c.classList.add('thick-border');
+              if (doubleBorderCourses.includes(course)) {
+                c.classList.add('double-border');
+              }
+
+              semDiv.appendChild(c);
+            });
+
+            yearDiv.appendChild(semDiv);
+          });
+
+          grid.appendChild(yearDiv);
+        });
+      }
+
+      function highlight(groupCourses, color, selectedYear, selectedSemester) {
+        document.querySelectorAll('.course').forEach((el) => {
+          const course = el.innerText.trim();
+          const info = courseSemesterMap[course];
+          if (
+            groupCourses.includes(course) &&
+            (info.year < selectedYear ||
+              (info.year === selectedYear && info.semester <= selectedSemester))
+          ) {
+            if (!el.dataset.originalBg) {
+              el.dataset.originalBg =
+                el.style.backgroundColor ||
+                window.getComputedStyle(el).backgroundColor;
+              el.dataset.originalColor =
+                el.style.color || window.getComputedStyle(el).color;
+            }
+            el.style.backgroundColor = color;
+            el.style.color = color === 'black' ? 'white' : 'black';
+          }
+        });
+      }
+
+      function reset(groupCourses) {
+        document.querySelectorAll('.course').forEach((el) => {
+          const course = el.innerText.trim();
+          if (groupCourses.includes(course)) {
+            if (el.dataset.originalBg) {
+              el.style.backgroundColor = el.dataset.originalBg;
+              el.style.color = el.dataset.originalColor;
+            }
+          }
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        createGrid();
+        const allCourses = document.querySelectorAll('.course');
+        allCourses.forEach((el) => {
+          const course = el.innerText.trim();
+          const courseInfo = courseSemesterMap[course];
+          for (const group in groups) {
+            if (groups[group].includes(course)) {
+              el.addEventListener('mouseenter', () => {
+                highlight(
+                  groups[group],
+                  colors[group],
+                  courseInfo.year,
+                  courseInfo.semester
+                );
+              });
+              el.addEventListener('mouseleave', () => {
+                reset(groups[group]);
+              });
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

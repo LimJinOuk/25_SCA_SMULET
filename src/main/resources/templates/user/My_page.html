@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SMULET</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        background: url('png/smu.jpg') no-repeat center center fixed;
+        background-size: cover;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 40px;
+        border-bottom: 1px solid #ccc;
+        background-color: rgba(255, 255, 255, 0.8);
+      }
+
+      header h1 {
+        color: #3b82f6;
+        font-size: 36px;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      nav a {
+        margin-left: 20px;
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+        transition: color 0.2s ease;
+      }
+
+      nav a:hover {
+        color: #3b82f6;
+      }
+
+      .links {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 30px;
+        margin: 40px auto;
+        max-width: 700px;
+      }
+
+      .logo-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100px;
+        position: relative;
+      }
+
+      .logo-box {
+        width: 100px;
+        height: 127px;
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .logo-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .logo-caption {
+        color: white;
+        font-weight: bold;
+        font-size: 13px;
+        margin-top: 8px;
+        transition: opacity 0.3s ease;
+      }
+
+      .logo-box:hover {
+        transform: scale(1.07);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .logo-box:hover + .logo-caption {
+        opacity: 0;
+      }
+
+      main {
+        margin-top: 40px;
+        background-color: rgba(255, 255, 255, 0.85);
+        padding: 50px 20px;
+        border-radius: 30px;
+        margin: 40px auto;
+        max-width: 500px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        font-size: 28px;
+        margin-bottom: 30px;
+        color: #3b82f6;
+        font-weight: 700;
+      }
+
+      .login-btn {
+        display: inline-block;
+        border: none;
+        padding: 15px 40px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        border-radius: 12px;
+        background: #60a5fa;
+        color: white;
+        transform: scale(1.05);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .login-btn a {
+        color: white; /* 흰색 글씨 */
+        text-decoration: none; /* 밑줄 제거 */
+      }
+      .login-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>SMULET</h1>
+      <nav>
+        <a href="#">이용안내</a>
+        <a href="/Register">회원가입</a>
+      </nav>
+    </header>
+
+    <div class="links">
+      <div class="logo-container">
+        <a href="https://www.smu.ac.kr" class="logo-box" target="_blank">
+          <img src="src/main/resources/png/상명대 로고.jpg" alt="상명대 로고" />
+        </a>
+        <div class="logo-caption">상명대</div>
+      </div>
+
+      <div class="logo-container">
+        <a href="https://lib.smu.ac.kr" class="logo-box" target="_blank">
+          <img src="src/main/resources/png/학술정보관.png" alt="학술정보관" />
+        </a>
+        <div class="logo-caption">학술정보관</div>
+      </div>
+
+      <div class="logo-container">
+        <a href="https://ecampus.smu.ac.kr" class="logo-box" target="_blank">
+          <img src="src/main/resources/png/코스모스.png" alt="e-campus" />
+        </a>
+        <div class="logo-caption">e-campus</div>
+      </div>
+
+      <div class="logo-container">
+        <a
+          href="https://sso.smu.ac.kr/sso/index.jsp"
+          class="logo-box"
+          target="_blank"
+        >
+          <img src="src/main/resources/png/샘물.png" alt="샘물" />
+        </a>
+        <div class="logo-caption">샘물</div>
+      </div>
+    </div>
+
+    <main>
+      <div class="title">상명대 컴퓨터과학과</div>
+      <div class="subtitle">SMULET</div>
+      <div class="login-btn"><a href="/login_page">로그인</a></div>
+    </main>
+  </body>
+</html>

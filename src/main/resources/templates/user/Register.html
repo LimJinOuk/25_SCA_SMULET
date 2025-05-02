@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>회원가입 - SMULET</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100 flex flex-col min-h-screen">
+    <!-- 헤더 -->
+    <header
+      class="bg-white p-4 shadow-md flex justify-between items-center border-b"
+    >
+      <h1
+        class="text-4xl font-bold text-blue-600"
+        style="font-family: 'Montserrat', sans-serif"
+      >
+        SMULET
+      </h1>
+    </header>
+
+    <!-- 회원가입 폼 -->
+    <main class="flex flex-1 items-center justify-center">
+      <div class="bg-white p-8 rounded-lg shadow-md w-96">
+        <h2 class="text-2xl font-bold mb-4 text-center">회원가입</h2>
+        <form action="#" method="POST">
+          <!-- 이름 입력 -->
+          <div class="mb-4">
+            <label for="name" class="block text-sm font-medium text-gray-700"
+              >이름</label
+            >
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
+            />
+          </div>
+
+          <!-- 아이디 입력 -->
+          <div class="mb-4">
+            <label
+              for="username"
+              class="block text-sm font-medium text-gray-700"
+              >아이디</label
+            >
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
+            />
+          </div>
+
+          <!-- 이메일 입력 -->
+          <div class="mb-4">
+            <label for="email" class="block text-sm font-medium text-gray-700"
+              >이메일(학번+sangmyung.kr)</label
+            >
+            <div class="flex gap-2">
+              <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      required
+                      class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
+                      placeholder="학교 이메일 입력"
+              />
+              <button
+                      type="submit"
+                      onclick="sendVerificationCode()"
+                      class="bg-gray-300 px-3 py-2 rounded-lg hover:bg-gray-400 text-sm whitespace-nowrap"
+              >
+                인증번호 전송
+              </button>
+            </div>
+            </div>
+
+
+
+          <!-- 인증번호 입력 -->
+          <div class="mb-4">
+            <label
+              for="verification"
+              class="block text-sm font-medium text-gray-700"
+              >인증번호</label
+            >
+            <input
+              type="text"
+              id="verification"
+              name="verification"
+              class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
+              placeholder="인증번호 입력"
+            />
+          </div>
+
+          <!-- 비밀번호 입력 -->
+          <div class="mb-4">
+            <label
+              for="password"
+              class="block text-sm font-medium text-gray-700"
+              >비밀번호</label
+            >
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
+            />
+          </div>
+
+          <!-- 회원가입 버튼 -->
+          <button
+            type="submit"
+            class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+          >
+            회원가입
+          </button>
+        </form>
+
+        <!-- 로그인 페이지로 이동 -->
+        <p class="text-sm text-center text-gray-600 mt-4">
+          이미 계정이 있으신가요?
+          <a href="login.html" class="text-blue-500 hover:underline">로그인</a>
+        </p>
+      </div>
+    </main>
+
+    <!-- 이메일 도메인 검사 스크립트 -->
+    <script>
+      async function sendVerificationCode() {
+
+        const emailInput = document.getElementById('email');
+        const email = emailInput.value.trim();
+
+        if (!email.endsWith('@sangmyung.kr')) {
+          alert('학교 이메일(@sangmyung.kr)만 사용 가능합니다.');
+          emailInput.focus();
+
+        }
+        else
+        {
+          const response = await fetch("/send_code", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({email: email})
+          });
+          if (response.ok)
+          {
+            const data = await response.json();
+            if(data.Status === "Code_Generated"){console.log("코드가 전송됐습니다.");}
+            else{console.log("코드가 생성되지 못했습니다. 조금 뒤에 시도해 주십시오.");}
+          }
+          else{console.error("서버 오류입니다." , response.status)
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

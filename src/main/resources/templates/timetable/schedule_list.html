@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>시간표</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f3f4f6; /* 연한 회색 배경 */
+        margin: 0;
+      }
+      .table-container {
+        width: 80%;
+        background-color: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 40px; /* 헤더와 간격 */
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        text-align: center;
+        padding: 12px;
+      }
+      th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+      }
+      /* 1열(교시) 폭 최소화 */
+      td:first-child,
+      th:first-child {
+        background-color: #e3e3fd; /* 연한 파란색 */
+        font-weight: bold;
+        white-space: nowrap;
+        padding: 8px;
+        width: 90px; /* 1열 크기 최소화 */
+      }
+      /* 요일(2~6열) 넓게 설정 */
+      td:not(:first-child),
+      th:not(:first-child) {
+        width: 18%;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <!-- ✅ 헤더 추가 -->
+    <header
+      class="bg-white p-5 shadow-md flex justify-between items-center w-full"
+    >
+      <h1
+        class="text-4xl font-bold text-blue-600"
+        style="font-family: 'Montserrat', sans-serif"
+      >
+        SMULET
+      </h1>
+      <nav>
+        <a href="#" class="text-gray-600 mx-5">이용안내</a>
+        <a href="#" class="text-gray-600 mx-5">로그인</a>
+        <a href="#" class="text-gray-600 mx-5">회원가입</a>
+      </nav>
+    </header>
+
+    <!-- ✅ 시간표 -->
+    <div class="table-container">
+      <h1 class="text-3xl font-bold text-center mb-6">시간표</h1>
+      <div class="overflow-x-auto">
+        <table>
+          <tr>
+            <th></th>
+            <!-- 1행 1열 공란 -->
+            <th>월</th>
+            <th>화</th>
+            <th>수</th>
+            <th>목</th>
+            <th>금</th>
+          </tr>
+          <!-- 본문 데이터 -->
+          <script>
+            let time = 9; // 시작 시간: 오전 9시
+            for (let i = 1; i <= 15; i++) {
+              document.write('<tr>');
+              let period = `${i}교시<br>(${
+                time <= 12 ? '오전 ' + time : '오후 ' + (time - 12)
+              }시)`;
+              document.write(`<td>${period}</td>`); // 1열: 교시 + 시간
+              for (let j = 1; j <= 5; j++) {
+                document.write('<td></td>'); // 월~금 공백
+              }
+              time++; // 한 시간 증가
+              document.write('</tr>');
+            }
+          </script>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

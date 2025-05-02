@@ -7,13 +7,13 @@
   <ul>
     <h2>Back-End</h2>
     <li>
-      ⭐Team Leader , Back-End Part Leader <a href = "https://github.com/LimJinOuk"">임진욱 , SangMyung Univ. </a>
+      ⭐Team Leader , Back-End Part Leader <a href = "https://github.com/LimJinOuk">임진욱 , SangMyung Univ. </a>
     </li>
     <li>
-      🌠Team Mate <a href = "https://github.com/LeeGyoengJin"">이경진 , SangMyung Univ. </a>
+      🌠Team Mate <a href = "https://github.com/LeeGJin">이경진 , SangMyung Univ. </a>
     </li>
     <li>
-      🌠Team Mate <a href = "https://github.com/leegoeun-art"">이고은 , SangMyung Univ. </a>
+      🌠Team Mate <a href = "https://github.com/leegoeun-art">이고은 , SangMyung Univ. </a>
     </li>
   </ul>
   <ul>
@@ -22,7 +22,7 @@
       🌠Team Mate , Front-End Part Leader <a href = "https://github.com/somgam6373" >이준혁 , SangMyung Univ. </a>
     </li>
     <li>
-      🌠Team Mate <a href = "https://github.com/hyun1sai"">최현성 , SangMyung Univ. </a>
+      🌠Team Mate <a href = "https://github.com/hyun-sai">최현성 , SangMyung Univ. </a>
     </li>
   </ul>
 </ul>

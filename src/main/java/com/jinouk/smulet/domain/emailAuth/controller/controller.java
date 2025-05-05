@@ -12,13 +12,14 @@ import com.jinouk.smulet.domain.emailAuth.service.service;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 public class controller {
     @Autowired
     service service;
 
     @PostMapping("/send_code")
+    @ResponseBody
     public ResponseEntity<Map<String , String>> sendCode(@RequestBody dto dto) throws Exception
     {
         String code = service.sendSimpleMessage(dto.email);
@@ -36,6 +37,7 @@ public class controller {
             return ResponseEntity.ok(result);
         }
     }
+
 }
 
 

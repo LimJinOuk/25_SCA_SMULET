@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Controller
 @RequiredArgsConstructor
@@ -23,7 +24,7 @@ public class homecontroller {
     @GetMapping("/login_page")
     public String loginform(){return "user/login_Page";}
 
-    @PostMapping("/Register")
+    @PostMapping("/do_Register")
     public String save(@ModelAttribute userdto userdto)
     {
         mservice.save(userdto);

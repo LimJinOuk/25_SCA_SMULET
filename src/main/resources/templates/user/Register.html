@@ -27,7 +27,7 @@
     <main class="flex flex-1 items-center justify-center">
       <div class="bg-white p-8 rounded-lg shadow-md w-96">
         <h2 class="text-2xl font-bold mb-4 text-center">회원가입</h2>
-        <form action="#" method="POST">
+        <form action="/do_Register" method="POST">
           <!-- 이름 입력 -->
           <div class="mb-4">
             <label for="name" class="block text-sm font-medium text-gray-700"
@@ -37,22 +37,6 @@
               type="text"
               id="name"
               name="name"
-              required
-              class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
-            />
-          </div>
-
-          <!-- 아이디 입력 -->
-          <div class="mb-4">
-            <label
-              for="username"
-              class="block text-sm font-medium text-gray-700"
-              >아이디</label
-            >
-            <input
-              type="text"
-              id="username"
-              name="username"
               required
               class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
             />
@@ -103,14 +87,14 @@
           <!-- 비밀번호 입력 -->
           <div class="mb-4">
             <label
-              for="password"
+              for="pw"
               class="block text-sm font-medium text-gray-700"
               >비밀번호</label
             >
             <input
               type="password"
-              id="password"
-              name="password"
+              id="pw"
+              name="pw"
               required
               class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
             />

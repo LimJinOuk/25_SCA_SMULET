@@ -18,14 +18,14 @@ import java.util.List;
                 columns = {
                         @ColumnResult(name = "UserName", type = String.class),
                         @ColumnResult(name = "TimeTableId", type = int.class),
-                        @ColumnResult(name = "major_or_culture", type = boolean.class),
-                        @ColumnResult(name = "name", type = String.class),  // course.name
-                        @ColumnResult(name = "credit", type = int.class),
+                        @ColumnResult(name = "전공/교양구분", type = boolean.class),
+                        @ColumnResult(name = "수업명", type = String.class),  // course.name
+                        @ColumnResult(name = "학점", type = int.class),
                         @ColumnResult(name = "학수번호", type = String.class),
-                        @ColumnResult(name = "day", type = int.class),  // scheduleOfCourse.day
-                        @ColumnResult(name = "timeStart", type = int.class),
-                        @ColumnResult(name = "timeEnd", type = int.class),
-                        @ColumnResult(name = "ProfessorName", type = String.class)
+                        @ColumnResult(name = "수업요일", type = int.class),  // scheduleOfCourse.day
+                        @ColumnResult(name = "시작시각", type = int.class),
+                        @ColumnResult(name = "종료시각", type = int.class),
+                        @ColumnResult(name = "교수명", type = String.class)
                 }
         )
 )

@@ -10,6 +10,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@Table(name = "course")
 public class course
 {
     @Id
@@ -26,13 +27,13 @@ public class course
     private String identify_number_of_course;
 
     @Column
-    private String professorName;
+    private String professor_name;
     
     @ManyToMany
     @JoinTable(
-            name = "courseToProfessor",
-            joinColumns = @JoinColumn(name = "courseId"),
-            inverseJoinColumns = @JoinColumn(name = "professorId")
+            name = "coursetoprofessor",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "professor_id")
     )
     private List<professor> professors = new ArrayList<>();
 

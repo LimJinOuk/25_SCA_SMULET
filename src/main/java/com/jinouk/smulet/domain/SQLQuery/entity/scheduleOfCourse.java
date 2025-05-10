@@ -9,6 +9,7 @@ import java.util.List;
 
 @Entity
 @Getter@Setter
+@Table(name = "schedule_of_course")
 public class scheduleOfCourse
 {
     @Id
@@ -19,10 +20,10 @@ public class scheduleOfCourse
     private int day;
 
     @Column
-    private int timeStart;
+    private int time_start;
 
     @Column
-    private int timeEnd;
+    private int time_end;
 
     @OneToMany(mappedBy = "scheduleOfCourse")
     private List<course> courses = new ArrayList<>();

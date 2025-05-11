@@ -33,14 +33,14 @@ public interface gettimeTableRepository extends JpaRepository<timetable, Long> {
 
     @Query(value = "SELECT DISTINCT user.name AS UserName, timetable.id AS TimeTableId, course.major_or_culture, "
             + "course.name, course.credit, course.identify_number_of_course AS 학수번호, "
-            + "scheduleOfCourse.day, scheduleOfCourse.timeStart, scheduleOfCourse.timeEnd, "
+            + "schedule_of_course.day, schedule_of_course.time_start, schedule_of_course.time_end, "
             + "professor.name AS ProfessorName "
             + "FROM user "
-            + "JOIN timetable ON user.id = timetable.userId "
-            + "JOIN timetableCourse ON timetable.id = timetableCourse.timetableId "
-            + "JOIN course ON timetableCourse.courseId = course.id "
-            + "JOIN scheduleOfCourse ON course.schedule = scheduleOfCourse.id "
-            + "JOIN professor ON course.professorName = professor.name "
+            + "JOIN timetable ON user.id = timetable.user_id "
+            + "JOIN timetableCourse ON timetable.id = timetableCourse.timetable_id "
+            + "JOIN course ON timetableCourse.course_id = course.id "
+            + "JOIN schedule_of_course ON course.schedule = schedule_of_course.id "
+            + "JOIN professor ON course.professor_name = professor.name "
             + "WHERE user.id = :userId", nativeQuery = true)
     List<getTimeTableDTO> findCoursesByUserId(@Param("userId") int userId);
 }

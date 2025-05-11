@@ -17,7 +17,7 @@ public class homecontroller {
     private final memberservice mservice;
 
     @GetMapping("/")
-    public String website(){return "index";}
+    public String website(){return "user/index";}
 
     @GetMapping("/Register")
     public String register(){return "user/Register";}

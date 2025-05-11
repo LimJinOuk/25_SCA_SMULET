@@ -18,6 +18,10 @@ public class homecontroller {
     private final memberservice mservice;
 
     @GetMapping("/")
+    public String home()
+    {return "a";}
+
+    @GetMapping("/")
     public String website(){return "user/My_page";}
 
     @GetMapping("/Register")

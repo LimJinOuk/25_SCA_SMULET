@@ -18,32 +18,13 @@ public class homecontroller {
     private final memberservice mservice;
 
     @GetMapping("/")
-    public String website(){return "user/My_page_test";}
+    public String website(){return "user/My_page";}
 
     @GetMapping("/Register")
     public String register(){return "user/Register";}
 
     @GetMapping("/login_page")
     public String loginform(){return "user/login_Page";}
-
-    @GetMapping("/year")
-    public String tech_tree(@RequestParam String year) {
-        switch (year) {
-            case "21":
-                return "techtree/tech_tree_21";
-            case "22":
-                return "techtree/tech_tree_22";
-            case "23":
-                return "techtree/tech_tree_23";
-            case "24":
-                return "techtree/tech_tree_24";
-            case "25":
-                return "techtree/tech_tree_25";
-            default:
-                return "user/My_page_test";
-        }
-    }
-
 
     @PostMapping("/do_Register")
     public String save(@ModelAttribute userdto userdto)

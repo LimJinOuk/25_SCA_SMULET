@@ -17,14 +17,14 @@ public class homecontroller {
     private final memberservice mservice;
 
     @GetMapping("/")
-    public String website(){return "user/My_page_test";}
+    public String website(){return "user/My_page";}
 
     @GetMapping("/Register")
     public String register(){return "user/Register";}
 
     @GetMapping("/login_page")
     public String loginform(){return "user/login_Page";}
-
+  
     @GetMapping("/techtree")
     public String techtree(){return "user/techtree_main";}
 
@@ -45,6 +45,7 @@ public class homecontroller {
                 return "techtree_main";
         }
     }
+
 
 
     @PostMapping("/do_Register")

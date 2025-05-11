@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 @Controller
 @RequiredArgsConstructor
@@ -25,6 +24,29 @@ public class homecontroller {
 
     @GetMapping("/login_page")
     public String loginform(){return "user/login_Page";}
+  
+    @GetMapping("/techtree")
+    public String techtree(){return "user/techtree_main";}
+
+    @GetMapping("/year")
+    public String tech_tree(@RequestParam String year) {
+        switch (year) {
+            case "21":
+                return "techtree/tech_tree_21";
+            case "22":
+                return "techtree/tech_tree_22";
+            case "23":
+                return "techtree/tech_tree_23";
+            case "24":
+                return "techtree/tech_tree_24";
+            case "25":
+                return "techtree/tech_tree_25";
+            default:
+                return "techtree_main";
+        }
+    }
+
+
 
     @PostMapping("/do_Register")
     public String save(@ModelAttribute userdto userdto)

@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 @Controller
 @RequiredArgsConstructor
@@ -18,7 +17,7 @@ public class homecontroller {
     private final memberservice mservice;
 
     @GetMapping("/")
-    public String website(){return "user/My_page";}
+    public String website(){return "user/My_page_test";}
 
     @GetMapping("/Register")
     public String register(){return "user/Register";}
@@ -43,7 +42,7 @@ public class homecontroller {
             case "25":
                 return "techtree/tech_tree_25";
             default:
-                return "user/techtree_main";
+                return "techtree_main";
         }
     }
 

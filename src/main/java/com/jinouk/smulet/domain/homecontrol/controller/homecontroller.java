@@ -23,7 +23,7 @@ public class homecontroller {
     public String register(){return "user/Register";}
 
     @GetMapping("/login_page")
-    public String loginform(){return "user/login_Page";}
+    public String loginform(){return "user/login_page";}
   
     @GetMapping("/techtree")
     public String techtree(){return "user/techtree_main";}
@@ -42,7 +42,7 @@ public class homecontroller {
             case "25":
                 return "techtree/tech_tree_25";
             default:
-                return "techtree_main";
+                return "user/techtree_main";
         }
     }
 

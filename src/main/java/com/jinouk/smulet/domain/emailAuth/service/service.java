@@ -8,15 +8,16 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import com.jinouk.smulet.domain.emailAuth.serviceInter.serviceinter;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class service implements serviceinter {
 
-    @Autowired
-    JavaMailSender mailSender;
+
+    private final JavaMailSender mailSender;
 
     private String ePw;
 

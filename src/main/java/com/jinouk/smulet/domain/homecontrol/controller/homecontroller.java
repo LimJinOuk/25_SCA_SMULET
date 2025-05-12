@@ -49,14 +49,15 @@ public class homecontroller {
 
 
     @PostMapping("/do_Register")
-    public String save(@ModelAttribute userdto userdto)
+    public ResponseEntity<Map<String , String>> save(@RequestBody userdto userdto)
     {
+        Map<String , String> map = new HashMap<>();
         mservice.save(userdto);
-        return "user/login_page";
+        map.put("status", "success");
+        return ResponseEntity.ok(map);
     }
 
     @PostMapping("/login")
-    @ResponseBody
     public ResponseEntity<Map<String , String>> login(@RequestBody userdto userdto, HttpSession session)
     {
         Map<String , String> map = new HashMap<>();

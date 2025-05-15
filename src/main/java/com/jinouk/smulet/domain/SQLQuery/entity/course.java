@@ -28,7 +28,13 @@ public class course
 
     @Column
     private String professor_name;
-    
+
+    @Column
+    private boolean major_or_culture;
+
+    @Column
+    private String classroom;
+
     @ManyToMany
     @JoinTable(
             name = "coursetoprofessor",
@@ -37,8 +43,7 @@ public class course
     )
     private List<professor> professors = new ArrayList<>();
 
-    @Column
-    private boolean major_or_culture;
+
 
     @ManyToOne
     @JoinColumn(name = "schedule")

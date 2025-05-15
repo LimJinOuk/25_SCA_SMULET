@@ -26,7 +26,7 @@ public class homecontroller {
     public String loginform(){return "user/login_page";}
   
     @GetMapping("/techtree")
-    public String techtree(){return "user/techtree_main";}
+    public String techtree(){return "main";}
 
     @GetMapping("/year")
     public String tech_tree(@RequestParam String year) {
@@ -42,7 +42,7 @@ public class homecontroller {
             case "25":
                 return "techtree/tech_tree_25";
             default:
-                return "user/techtree_main";
+                return "main";
         }
     }
 

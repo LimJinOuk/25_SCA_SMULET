@@ -10,10 +10,14 @@
     />
 
     <style>
-        html, body{
+        html,
+        body {
             height: 100%;
+            margin: 0;
+            display: flex;
             flex-direction: column;
         }
+
         body {
             font-family: 'Montserrat', sans-serif;
             margin: 0;
@@ -21,7 +25,7 @@
             text-align: center;
             background: url('smu.jpg') no-repeat center center fixed;
             background-size: cover;
-            min-height: 200vh;
+            min-height: 100vh;
         }
 
         .wrapper {
@@ -117,14 +121,18 @@
         }
 
         main {
-            margin-top: 40px;
+            flex: 1;
+            height: 100px; /* 원하는 고정값 */
+            width: 400px; /* 고정 너비도 같이 주면 깔끔 */
+            padding: 20px;
             background-color: rgba(255, 255, 255, 0.85);
-            padding: 50px 20px;
             border-radius: 30px;
             margin: 40px auto;
-            max-width: 500px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .title {
@@ -162,66 +170,82 @@
             transform: translateY(-3px);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
         }
-        .footer {
-            background-color: black;
-            color: white;
-            font-size: 10px;
-            padding: 1rem;
+        footer {
+            background-color: rgb(40, 40, 40, 0.99);
+            font-size: 15px;
+            padding: 1.5rem;
             text-align: center;
+            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+        }
+        footer a {
+            text-decoration: none;
+            color: rgba(156, 156, 156, 0.7);
+        }
+        footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-<header>
-    <h1><a href="#">SMULET</a></h1>
-    <nav>
-        <a href="#"><b>이용안내</b></a>
-        <a href="#"><b>로그인</b></a>
-        <a href="#"><b>회원가입</b></a>
-    </nav>
-</header>
+<div class="wrapper">
+    <header>
+        <h1><a href="#">SMULET</a></h1>
+        <nav>
+            <a href="#"><b>이용안내</b></a>
+            <a href="#"><b>로그인</b></a>
+            <a href="#"><b>회원가입</b></a>
+        </nav>
+    </header>
 
-<div class="links">
-    <div class="logo-container">
-        <a href="https://www.smu.ac.kr" class="logo-box" target="_blank">
-            <img src="상명대 로고.jpg" alt="상명대 로고" />
-        </a>
-        <div class="logo-caption">상명대</div>
+    <div class="links">
+        <div class="logo-container">
+            <a href="https://www.smu.ac.kr" class="logo-box" target="_blank">
+                <img src="상명대 로고.jpg" alt="상명대 로고" />
+            </a>
+            <div class="logo-caption">상명대</div>
+        </div>
+
+        <div class="logo-container">
+            <a href="https://lib.smu.ac.kr" class="logo-box" target="_blank">
+                <img src="학술정보관.png" alt="학술정보관" />
+            </a>
+            <div class="logo-caption">학술정보관</div>
+        </div>
+
+        <div class="logo-container">
+            <a href="https://ecampus.smu.ac.kr" class="logo-box" target="_blank">
+                <img src="코스모스.png" alt="e-campus" />
+            </a>
+            <div class="logo-caption">e-campus</div>
+        </div>
+
+        <div class="logo-container">
+            <a
+                    href="https://sso.smu.ac.kr/sso/index.jsp"
+                    class="logo-box"
+                    target="_blank"
+            >
+                <img src="샘물.png" alt="샘물" />
+            </a>
+            <div class="logo-caption">샘물</div>
+        </div>
     </div>
 
-    <div class="logo-container">
-        <a href="https://lib.smu.ac.kr" class="logo-box" target="_blank">
-            <img src="학술정보관.png" alt="학술정보관" />
-        </a>
-        <div class="logo-caption">학술정보관</div>
-    </div>
-
-    <div class="logo-container">
-        <a href="https://ecampus.smu.ac.kr" class="logo-box" target="_blank">
-            <img src="코스모스.png" alt="e-campus" />
-        </a>
-        <div class="logo-caption">e-campus</div>
-    </div>
-
-    <div class="logo-container">
-        <a
-                href="https://sso.smu.ac.kr/sso/index.jsp"
-                class="logo-box"
-                target="_blank"
-        >
-            <img src="샘물.png" alt="샘물" />
-        </a>
-        <div class="logo-caption">샘물</div>
-    </div>
+    <main>
+        <div class="title">상명대 컴퓨터과학과</div>
+        <div class="subtitle">SMULET</div>
+        <div class="login-btn"><a href="login.com">로그인</a></div>
+    </main>
+    <footer>
+        <b>
+            <a href="#">Github</a>
+            <a href="#">개인정보처리방침</a>
+            <a href="#">이용약관</a>
+            <br />
+            <br />
+            <a href="#">Copyright</a>
+        </b>
+    </footer>
 </div>
-
-<main>
-    <div class="title">상명대 컴퓨터과학과</div>
-    <div class="subtitle">SMULET</div>
-    <div class="login-btn"><a href="login.com">로그인</a></div>
-</main>
-<footer class="footer">
-    <div><p>hello</p></div>
-</footer>
 </body>
 </html>

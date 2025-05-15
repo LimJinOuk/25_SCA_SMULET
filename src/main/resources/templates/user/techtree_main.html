@@ -4,31 +4,51 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SMULET</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+    <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+            rel="stylesheet"
+    />
+
     <style>
+        html, body{
+            height: 100%;
+            flex-direction: column;
+        }
         body {
             font-family: 'Montserrat', sans-serif;
             margin: 0;
             padding: 0;
             text-align: center;
-            background: url("/images/smu.jpg") no-repeat center center fixed;
+            background: url('smu.jpg') no-repeat center center fixed;
             background-size: cover;
+            min-height: 200vh;
         }
 
+        .wrapper {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
         header {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+            background-color: rgb(255, 255, 255, 0.85);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 40px;
-            border-bottom: 1px solid #ccc;
-            background-color: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid #e2e8f0;
         }
 
-        header h1 {
-            color: #3b82f6;
-            font-size: 36px;
-            font-weight: 700;
+        h1 {
+            font-size: 2.3rem;
+            font-weight: bold;
+            color: #2563eb;
             margin: 0;
+        }
+        h1 a {
+            text-decoration: none;
+            color: inherit;
         }
 
         nav a {
@@ -36,11 +56,12 @@
             text-decoration: none;
             color: #333;
             font-weight: 500;
-            transition: color 0.2s ease;
+            transition: color 0.2s ease, font-size 0.2s ease;
         }
 
         nav a:hover {
             color: #3b82f6;
+            font-size: 1.1rem;
         }
 
         .links {
@@ -103,6 +124,7 @@
             margin: 40px auto;
             max-width: 500px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            flex: 1;
         }
 
         .title {
@@ -132,71 +154,62 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-
         .login-btn a {
-            color: white;
-            text-decoration: none;
+            color: white; /* 흰색 글씨 */
+            text-decoration: none; /* 밑줄 제거 */
         }
-
         .login-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
         }
-
-        .dropdown-container {
-            margin-bottom: 30px;
-        }
-
-        .dropdown-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .dropdown-select {
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-family: 'Montserrat', sans-serif;
+        .footer {
+            background-color: black;
+            color: white;
+            font-size: 10px;
+            padding: 1rem;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 <header>
-    <h1>SMULET</h1>
+    <h1><a href="#">SMULET</a></h1>
     <nav>
-        <a href="#">이용안내</a>
-        <a href="/Register">회원가입</a>
+        <a href="#"><b>이용안내</b></a>
+        <a href="#"><b>로그인</b></a>
+        <a href="#"><b>회원가입</b></a>
     </nav>
 </header>
 
 <div class="links">
     <div class="logo-container">
         <a href="https://www.smu.ac.kr" class="logo-box" target="_blank">
-            <img src="/images/상명대 로고.jpg" alt="상명대 로고" />
+            <img src="상명대 로고.jpg" alt="상명대 로고" />
         </a>
         <div class="logo-caption">상명대</div>
     </div>
 
     <div class="logo-container">
         <a href="https://lib.smu.ac.kr" class="logo-box" target="_blank">
-            <img src="/images/학술정보관.png" alt="학술정보관" />
+            <img src="학술정보관.png" alt="학술정보관" />
         </a>
         <div class="logo-caption">학술정보관</div>
     </div>
 
     <div class="logo-container">
         <a href="https://ecampus.smu.ac.kr" class="logo-box" target="_blank">
-            <img src="/images/코스모스.png" alt="e-campus" />
+            <img src="코스모스.png" alt="e-campus" />
         </a>
         <div class="logo-caption">e-campus</div>
     </div>
 
     <div class="logo-container">
-        <a href="https://sso.smu.ac.kr/sso/index.jsp" class="logo-box" target="_blank">
-            <img src="/images/샘물.png" alt="샘물" />
+        <a
+                href="https://sso.smu.ac.kr/sso/index.jsp"
+                class="logo-box"
+                target="_blank"
+        >
+            <img src="샘물.png" alt="샘물" />
         </a>
         <div class="logo-caption">샘물</div>
     </div>
@@ -205,29 +218,10 @@
 <main>
     <div class="title">상명대 컴퓨터과학과</div>
     <div class="subtitle">SMULET</div>
-
-    <!-- ✅ 드롭다운 추가 -->
-    <div class="dropdown-container">
-        <label for="student-year" class="dropdown-label">학번 선택</label>
-        <select id="student-year" name="studentYear" class="dropdown-select" onchange="goToYearPage(this.value)">
-            <option value="">-- 학번 선택 --</option>
-            <option value="21">2021학번</option>
-            <option value="22">2022학번</option>
-            <option value="23">2023학번</option>
-            <option value="24">2024학번</option>
-            <option value="25">2025학번</option>
-        </select>
-    </div>
-
-    <div class="login-btn"><a href="/login_page">로그인</a></div>
+    <div class="login-btn"><a href="login.com">로그인</a></div>
 </main>
-
-<script>
-    function goToYearPage(value) {
-        if (value) {
-            window.location.href = '/year?year=' + value;
-        }
-    }
-</script>
+<footer class="footer">
+    <div><p>hello</p></div>
+</footer>
 </body>
 </html>

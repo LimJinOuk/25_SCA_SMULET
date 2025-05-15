@@ -1,7 +1,6 @@
 package com.jinouk.smulet.domain.homecontrol.service;
 
 
-import com.jinouk.smulet.domain.emailAuth.controller.controller;
 import com.jinouk.smulet.domain.homecontrol.dto.userdto;
 import com.jinouk.smulet.domain.homecontrol.entity.user;
 import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;

@@ -18,13 +18,12 @@ public class memberservice {
 
     public void save(userdto userdto)
     {
-        System.out.println("2"+ userdto);
         user memberentity = user.tomemberentity(userdto);
-        System.out.println("4"+memberentity);
         loginrepository.save(memberentity);
     }
 
-    public userdto login(userdto userdto){
+    public userdto login(userdto userdto) throws IllegalArgumentException
+    {
         System.out.println("3"+ userdto);
         Optional<user> byemail = loginrepository.findByEmail(userdto.getEmail());
 
@@ -38,10 +37,9 @@ public class memberservice {
                 userdto dto = userdto.tomemberdto(memberentity);
                 return dto;
             }
-            else
-            {return null;}
+            else {throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");}
         }
-        else{return null;}
+        else{throw new IllegalArgumentException("이메일이 조회되지 않습니다.");}
     }
 
 

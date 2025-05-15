@@ -1,6 +1,5 @@
 package com.jinouk.smulet.global.jwt;
 
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -8,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.text.DateFormat;
 import java.util.Date;
 
 @Component
@@ -37,22 +37,5 @@ public class JWTUtil
                 .setExpiration(expiryDate)
                 .signWith(getSignKey() , SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-    //Validate Token
-    public void validateToken(String token)
-    {
-        Jwts.parser()
-                .setSigningKey(getSignKey())
-                .parseClaimsJws(token);
-
-    }
-
-    //GetUserName
-    public String getUserName(String token)
-    {
-        return Jwts.parser().setSigningKey(secret)
-                .parseClaimsJws(token)
-                .getBody().getSubject();
     }
 }

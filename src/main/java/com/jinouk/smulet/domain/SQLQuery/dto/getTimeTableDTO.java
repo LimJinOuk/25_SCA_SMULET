@@ -12,6 +12,7 @@ public class getTimeTableDTO {
     private String userName;
     private int timeTableId;
     private boolean majorOrCulture;
+    private String classroom;
     private String courseName;
     private int credit;
     private String identifyNumberOfCourse;

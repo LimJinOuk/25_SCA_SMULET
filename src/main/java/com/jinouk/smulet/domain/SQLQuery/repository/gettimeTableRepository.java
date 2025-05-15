@@ -25,6 +25,7 @@ import java.util.List;
                         @ColumnResult(name = "수업요일", type = int.class),  // scheduleOfCourse.day
                         @ColumnResult(name = "시작시각", type = int.class),
                         @ColumnResult(name = "종료시각", type = int.class),
+                        @ColumnResult(name = "강의실" , type = String.class),
                         @ColumnResult(name = "교수명", type = String.class)
                 }
         )
@@ -32,7 +33,7 @@ import java.util.List;
 public interface gettimeTableRepository extends JpaRepository<timetable, Long> {
 
     @Query(value = "SELECT DISTINCT user.name AS UserName, timetable.id AS TimeTableId, course.major_or_culture, "
-            + "course.name, course.credit, course.identify_number_of_course AS 학수번호, "
+            + "course.name, course.credit, course.identify_number_of_course AS 학수번호, course.classroom AS 강의실,"
             + "schedule_of_course.day, schedule_of_course.time_start, schedule_of_course.time_end, "
             + "professor.name AS ProfessorName "
             + "FROM user "

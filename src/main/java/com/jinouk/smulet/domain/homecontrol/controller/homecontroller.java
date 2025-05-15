@@ -1,6 +1,7 @@
 package com.jinouk.smulet.domain.homecontrol.controller;
 
 import com.jinouk.smulet.domain.homecontrol.dto.userdto;
+import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import com.jinouk.smulet.domain.homecontrol.service.memberservice;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +16,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class homecontroller {
     private final memberservice mservice;
+    private final loginrepository loginrepository;
 
     @GetMapping("/")
-    public String website(){return "user/index";}
+    public String website(){return "user/main";}
 
     @GetMapping("/Register")
     public String register(){return "user/Register";}
@@ -26,7 +28,7 @@ public class homecontroller {
     public String loginform(){return "user/login_page";}
   
     @GetMapping("/techtree")
-    public String techtree(){return "main";}
+    public String techtree(){return "user/main";}
 
     @GetMapping("/year")
     public String tech_tree(@RequestParam String year) {
@@ -42,7 +44,7 @@ public class homecontroller {
             case "25":
                 return "techtree/tech_tree_25";
             default:
-                return "main";
+                return "user/main";
         }
     }
 
@@ -52,9 +54,15 @@ public class homecontroller {
     public ResponseEntity<Map<String , String>> save(@RequestBody userdto userdto)
     {
         Map<String , String> map = new HashMap<>();
-        mservice.save(userdto);
-        map.put("status", "success");
-        return ResponseEntity.ok(map);
+        if(loginrepository.findByEmail(userdto.getEmail()).isEmpty())
+        {
+            mservice.save(userdto);
+            map.put("status", "success");
+            return ResponseEntity.ok(map);
+        }
+        else{
+            return ResponseEntity.badRequest().body(map);
+        }
     }
 
     @PostMapping("/login")

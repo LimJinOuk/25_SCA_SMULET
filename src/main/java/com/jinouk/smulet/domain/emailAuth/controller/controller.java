@@ -34,18 +34,24 @@ public class controller {
         }
         else
         {
-            throw new IllegalArgumentException("코드가 생성되지 않았습니다.");
+            result.put("Status", "Code_Not_Generated");
+            return ResponseEntity.ok(result);
         }
     }
 
     @PostMapping("/check_code")
     @ResponseBody
-    public ResponseEntity<Map<String , String>> checkCode(@RequestBody dto_code dto_code)
-    {
+    public ResponseEntity<Map<String , String>> checkCode(@RequestBody dto_code dto_code) {
         Map<String, String> map = new HashMap<>();
-        service.check_code(dto_code);
-        map.put("Status", "Code_correct");
-        return ResponseEntity.ok(map);
+        dto_code result = service.check_code(dto_code);
+        if (result != null) {
+            map.put("Status", "Code_correct");
+            return ResponseEntity.ok(map);
+        }
+        else {
+            map.put("Status", "Code_incorrect");
+            return ResponseEntity.ok(map);
+        }
     }
 }
 

@@ -16,7 +16,6 @@ import java.util.Optional;
 public class memberservice {
     private final loginrepository loginrepository;
 
-
     public void save(userdto userdto)
     {
         System.out.println("2"+ userdto);

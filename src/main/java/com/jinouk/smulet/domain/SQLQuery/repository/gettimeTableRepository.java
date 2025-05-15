@@ -19,13 +19,13 @@ import java.util.List;
                         @ColumnResult(name = "UserName", type = String.class),
                         @ColumnResult(name = "TimeTableId", type = int.class),
                         @ColumnResult(name = "전공/교양구분", type = boolean.class),
+                        @ColumnResult(name = "강의실" , type = String.class),
                         @ColumnResult(name = "수업명", type = String.class),  // course.name
                         @ColumnResult(name = "학점", type = int.class),
                         @ColumnResult(name = "학수번호", type = String.class),
                         @ColumnResult(name = "수업요일", type = int.class),  // scheduleOfCourse.day
                         @ColumnResult(name = "시작시각", type = int.class),
                         @ColumnResult(name = "종료시각", type = int.class),
-                        @ColumnResult(name = "강의실" , type = String.class),
                         @ColumnResult(name = "교수명", type = String.class)
                 }
         )
@@ -33,7 +33,7 @@ import java.util.List;
 public interface gettimeTableRepository extends JpaRepository<timetable, Long> {
 
     @Query(value = "SELECT DISTINCT user.name AS UserName, timetable.id AS TimeTableId, course.major_or_culture, "
-            + "course.name, course.credit, course.identify_number_of_course AS 학수번호, course.classroom AS 강의실,"
+            + "course.classroom AS 강의실, course.name, course.credit, course.identify_number_of_course AS 학수번호,"
             + "schedule_of_course.day, schedule_of_course.time_start, schedule_of_course.time_end, "
             + "professor.name AS ProfessorName "
             + "FROM user "

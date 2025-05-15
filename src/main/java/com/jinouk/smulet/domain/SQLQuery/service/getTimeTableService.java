@@ -11,12 +11,8 @@ import java.util.List;
 public class getTimeTableService {
     public final gettimeTableRepository timetablerepository;
 
-    //사용자 ID값을 기준으로 시간표 조회하기
-    //조회되는 값은 /main/resource/sql/check.sql참조
-    //public List<getTimeTableDTO> getcoursesByUserID(int userId)
     public List<getTimeTableDTO> getcoursesByUserID(int userId)
     {
         return timetablerepository.findCoursesByUserId(userId);
-
     }
 }

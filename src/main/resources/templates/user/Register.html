@@ -1,205 +1,294 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>회원가입 - SMULET</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body class="bg-gray-100 flex flex-col min-h-screen">
-    <!-- 로딩 오버레이-->
-    <div
-            id="overlay"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden"
-    >
-      <span class="text-white text-lg">인증번호 전송 중...</span>
-    </div>
-    <!-- 헤더 -->
-    <header
-      class="bg-white p-4 shadow-md flex justify-between items-center border-b"
-    >
-      <h1
-        class="text-4xl font-bold text-blue-600"
-        style="font-family: 'Montserrat', sans-serif"
-      >
-        SMULET
-      </h1>
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>회원가입 - SMULET</title>
+  <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+          rel="stylesheet"
+  />
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f7fafc;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-    <!-- 회원가입 폼 -->
-    <main class="flex flex-1 items-center justify-center">
-      <div class="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 class="text-2xl font-bold mb-4 text-center">회원가입</h2>
-        <form id="RegisterForm" action="/do_Register" method="POST">
-          <!-- 이름 입력 -->
-          <div class="mb-4">
-            <label for="name" class="block text-sm font-medium text-gray-700"
-              >이름</label
-            >
-            <input
-              type="text"
-              id="name"
-              name="name"
-              required
-              class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
-            />
-          </div>
+    /* 헤더 스타일 */
+    header {
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+      background-color: rgb(255, 255, 255, 0.85);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+    }
 
-          <!-- 이메일 입력 -->
-          <div class="mb-4">
-            <label for="email" class="block text-sm font-medium text-gray-700"
-              >이메일(학번+sangmyung.kr)</label
-            >
-            <div class="flex gap-2">
-              <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      required
-                      class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
-                      placeholder="학교 이메일 입력"
-              />
-              <button
-                      id = "sendBtn"
-                      type="button"
-                      class="bg-gray-300 px-3 py-2 rounded-lg hover:bg-gray-400 text-sm whitespace-nowrap"
-              >
-                인증번호 전송
-              </button>
-            </div>
-            </div>
+    h1 {
+      font-size: 2.3rem;
+      font-weight: bold;
+      color: #2563eb;
+      margin: 0;
+    }
+    h1 a {
+      text-decoration: none;
+      color: inherit;
+    }
 
+    nav a {
+      color: #4a5568;
+      margin: 0 20px;
+      text-decoration: none;
+      font-size: 1rem;
+    }
 
+    nav a:hover {
+      color: #2563eb;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    /*큰 틀*/
+    .form-container {
+      background-color: white;
+      padding: 32px;
+      border-radius: 20px;
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+      width: 400px;
+    }
+    /*회원가입 글씨*/
+    h2 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 24px;
+      text-align: center;
+    }
 
-          <!-- 인증번호 입력 -->
-          <div class="mb-4">
-            <label
-              for="verification"
-              class="block text-sm font-medium text-gray-700"
-              >인증번호</label
-            >
-            <input
+    label {
+      display: block;
+      font-size: 17px;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    input[type='text'],
+    input[type='password'],
+    input[type='email'] {
+      flex: 1;
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    .email-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .check-group{
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .email-group input,
+    .check-group input {
+      flex: 1;
+      padding: 12px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      height: 44px; /* 버튼 높이와 맞춤 */
+    }
+    /*회원가입 버튼*/
+    button {
+      padding: 10px 16px;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    button:hover {
+      background-color: #1d4ed8;
+    }
+
+    .sub-button {
+      background-color: #d1d5db;
+      color: black;
+      font-size: 13px;
+      padding: 0 12px;
+      height: 44px; /* 입력창과 동일하게 */
+      border-radius: 8px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sub-button:hover {
+      background-color: #9ca3af;
+    }
+
+    .login-text {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .login-text a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    .login-text a:hover {
+      text-decoration: underline;
+    }
+    .wrapper {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    footer {
+      background-color: rgb(40, 40, 40, 0.99);
+      font-size: 15px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+    }
+    footer a {
+      text-decoration: none;
+      color: rgba(156, 156, 156, 0.7);
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+<div class ="wrapper">
+<!-- 헤더 -->
+<header>
+  <h1><a href="#">SMULET</a></h1>
+</header>
+
+<!-- 회원가입 폼 -->
+<main>
+  <div class="form-container">
+    <h2>회원가입</h2>
+    <form action="#" method="POST">
+      <!-- 이름 -->
+      <label for="name">이름</label>
+      <input type="text" id="name" name="name" required />
+
+      <!-- 아이디 -->
+      <label for="username">아이디</label>
+      <input type="text" id="username" name="username" required />
+
+      <!-- 이메일 -->
+      <label for="email">이메일(학번@sangmyung.kr)</label>
+      <div class="email-group">
+        <input
+                type="text"
+                id="email"
+                name="email"
+                placeholder="학번 입력"
+                required
+        />
+        <button
+                type="button"
+                class="sub-button"
+                onclick="sendVerificationCode()"
+        >
+          인증번호 전송
+        </button>
+      </div>
+
+      <!-- 인증번호 -->
+      <label for="verification">인증번호</label>
+      <div class = "check-group">
+      <input
               type="text"
               id="verification"
               name="verification"
-              class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
               placeholder="인증번호 입력"
-            />
-          </div>
-
-          <!-- 비밀번호 입력 -->
-          <div class="mb-4">
-            <label
-              for="pw"
-              class="block text-sm font-medium text-gray-700"
-              >비밀번호</label
-            >
-            <input
-              type="password"
-              id="pw"
-              name="pw"
-              required
-              class="mt-1 p-2 w-full border rounded-lg focus:ring focus:ring-blue-300"
-            />
-          </div>
-
-          <!-- 회원가입 버튼 -->
-          <button
-            type="submit"
-            class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
-          >
-            회원가입
-          </button>
-        </form>
-
-        <!-- 로그인 페이지로 이동 -->
-        <p class="text-sm text-center text-gray-600 mt-4">
-          이미 계정이 있으신가요?
-          <a href="/login_page" class="text-blue-500 hover:underline">로그인</a>
-        </p>
+      />
+      <button
+              type="button"
+              class="sub-button"
+              onclick="sendVerificationCode()"
+      >
+        인증번호 확인
+      </button>
       </div>
-    </main>
 
-    <!-- 이메일 도메인 검사 스크립트 -->
-    <script>
-      const emailInput = document.getElementById('email');
-      const sendBtn    = document.getElementById('sendBtn');
-      const overlay    = document.getElementById('overlay');
+      <!-- 비밀번호 -->
+      <label for="password">비밀번호</label>
+      <input type="password" id="password" name="password" required />
 
+      <!-- 가입 버튼 -->
+      <button type="submit" style="width: 100%">회원가입</button>
+    </form>
 
-      sendBtn.addEventListener('click', sendVerificationCode);
+    <div class="login-text">
+      이미 계정이 있으신가요?
+      <a href="login.html">로그인</a>
+    </div>
+  </div>
+</main>
+<footer>
+  <b>
+    <a href="#">Github</a>
+    <a href="#">개인정보처리방침</a>
+    <a href="#">이용약관</a>
+    <br />
+    <br />
+    <a href="#">Copyright</a>
+  </b>
+</footer>
+</div>
 
-      async function sendVerificationCode() {
-        const email = emailInput.value.trim();
-        if (!email.endsWith('@sangmyung.kr'))
-        {
-          alert('학교 이메일(@sangmyung.kr)만 사용 가능합니다.');
-          emailInput.focus();
-        }
-        else
-        {
-          // UI 잠금
-          overlay.classList.remove('hidden');
-          sendBtn.disabled = true;
-          emailInput.disabled = true;
+<!-- 스크립트 -->
+<script>
+  function sendVerificationCode() {
+    const emailInput = document.getElementById('email');
+    const id = emailInput.value.trim();
+    const email = id + '@sangmyung.kr';
 
-          try {
-            const response = await fetch("/send_code", {
-              method: "POST",
-              headers: {"Content-Type": "application/json"},
-              body: JSON.stringify({email})
-            });
+    if (!/^\d{8}$/.test(id)) {
+      alert('학번은 8자리 숫자여야 합니다.');
+      emailInput.focus();
+      return;
+    }
 
-            if (response.ok) {
-              const data = await response.json();
-              if (data.Status === "Code_Generated") {
-                alert("코드가 전송됐습니다.");
-              } else {
-                alert("코드 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
-              }
-            } else {
-              alert("서버 오류입니다: " + response.status);
-            }
-
-          } catch (e) {
-            console.error(e);
-            alert("네트워크 오류가 발생했습니다.");
-          } finally {
-            // UI 해제
-            overlay.classList.add('hidden');
-            sendBtn.disabled = false;
-            emailInput.disabled = false;
-          }
-        }
-      }
-
-      document.getElementById("RegisterForm").addEventListener("submit" , async function(t){
-        t.preventDefault();
-
-        const name = document.getElementById("name").value;
-        const email = document.getElementById("email").value;
-        const pw = document.getElementById("pw").value;
-
-        const response = await fetch("/do_Register" , {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({name , email , pw}),
-        });
-
-        if (response.ok){
-          alert("회원가입 성공");
-          window.location.href = "/login_page";
-        }
-        else{
-          alert("회원가입 실패" );
-        }
-      })
-    </script>
-  </body>
+    // 실제 인증번호 전송 로직은 여기 구현
+    alert(email + '로 인증번호가 전송되었습니다!');
+  }
+</script>
+</body>
 </html>

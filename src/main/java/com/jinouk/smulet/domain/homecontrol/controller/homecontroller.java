@@ -3,7 +3,6 @@ package com.jinouk.smulet.domain.homecontrol.controller;
 import com.jinouk.smulet.domain.homecontrol.dto.userdto;
 import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import com.jinouk.smulet.domain.homecontrol.service.memberservice;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -60,28 +59,28 @@ public class homecontroller {
             map.put("status", "success");
             return ResponseEntity.ok(map);
         }
-        else{
-            return ResponseEntity.badRequest().body(map);
+        else
+        {
+            throw new IllegalArgumentException("email already in use");
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String , String>> login(@RequestBody userdto userdto, HttpSession session)
+    public ResponseEntity<Map<String , String>> login(@RequestBody userdto userdto)
     {
         Map<String , String> map = new HashMap<>();
 
-        System.out.println("1"+ userdto);
         userdto loginresult = mservice.login(userdto);
-        if(loginresult!=null) {
+
+        if(loginresult!=null)
+        {
             System.out.println(loginresult);
-            session.setAttribute("loginEmail" , loginresult.getName());
             map.put("Status" , "success");
             return ResponseEntity.ok(map);
         }
-        else{
-            System.out.println(loginresult);
-            map.put("Status" , "fail");
-            return ResponseEntity.ok(map);
+        else
+        {
+            throw new IllegalArgumentException("알 수 없는 이유로 로그인 실패");
         }
     }
 

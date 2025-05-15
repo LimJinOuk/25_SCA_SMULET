@@ -7,14 +7,13 @@ import java.util.Random;
 import com.jinouk.smulet.domain.emailAuth.dto.dto_code;
 import com.jinouk.smulet.domain.emailAuth.entity.entity;
 import com.jinouk.smulet.domain.emailAuth.repository.repository;
-import com.jinouk.smulet.domain.homecontrol.entity.user;
-import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import com.jinouk.smulet.domain.emailAuth.serviceInter.serviceinter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
@@ -107,22 +106,24 @@ public class service implements serviceinter {
         return ePw; // 메일로 사용자에게 보낸 인증코드를 서버로 반환! 인증코드 일치여부를 확인하기 위함
     }
 
-    public dto_code check_code(dto_code dto_code) {
+    public void check_code(dto_code dto_code) throws IllegalArgumentException
+    {
         Optional<entity> bycode = repository.findByEmail(dto_code.getEmail());
-        if (bycode.isPresent()) {
+        if (bycode.isPresent())
+        {
             entity entity = bycode.get();
-            if (dto_code.getCode().equals(entity.getCode())) {
+            if (dto_code.getCode().equals(entity.getCode()))
+            {
                 repository.deleteByEmail(dto_code.getEmail());
-                return dto_code;
             }
-            else {
-                repository.deleteByEmail(dto_code.getEmail());
-                return null;
+            else
+            {
+                throw new IllegalArgumentException("인증번호가 올바르지 않습니다.:");
             }
         }
-        else {
-            repository.deleteByEmail(dto_code.getEmail());
-            return null;
+        else //email을 찾을 수 없음
+        {
+            throw new IllegalArgumentException("해당 코드가 발급된 E-Mail을 찾을 수 없음");
         }
     }
 }

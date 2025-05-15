@@ -16,15 +16,11 @@ public class sqlcontroller {
     private final getTimeTableService sqlservice;
 
     @GetMapping("/course{userId}")
-    public List<getTimeTableDTO> getcoursesByUserID(@RequestParam(required = false) Integer userId )
-    {
-        if(userId == null)
-        {
-            throw new IllegalArgumentException("user id is null");
+    public List<getTimeTableDTO> getcoursesByUserID(@RequestParam(required = false) Integer userId ) {
+        if(userId == null){
+            userId = 1;
         }
-        else
-        {
-            return sqlservice.getcoursesByUserID(userId);
-        }
+
+       return sqlservice.getcoursesByUserID(userId);
     }
 }

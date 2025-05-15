@@ -1,8 +1,14 @@
 package com.jinouk.smulet.domain.emailAuth.service;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Optional;
 import java.util.Random;
 
+import com.jinouk.smulet.domain.emailAuth.dto.dto_code;
+import com.jinouk.smulet.domain.emailAuth.entity.entity;
+import com.jinouk.smulet.domain.emailAuth.repository.repository;
+import com.jinouk.smulet.domain.homecontrol.entity.user;
+import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
@@ -18,7 +24,11 @@ public class service implements serviceinter {
     @Autowired
     JavaMailSender mailSender;
 
+    @Autowired
+    private repository repository;
+
     private String ePw;
+
 
     //Message 내용 생성
     @Override 
@@ -89,6 +99,29 @@ public class service implements serviceinter {
             e.printStackTrace();
             throw new IllegalArgumentException();
         }
+        entity entity = new entity();
+        entity.setEmail(to);
+        entity.setCode(ePw);
+        repository.save(entity);
         return ePw; // 메일로 사용자에게 보낸 인증코드를 서버로 반환! 인증코드 일치여부를 확인하기 위함
+    }
+
+    public dto_code check_code(dto_code dto_code) {
+        Optional<entity> bycode = repository.findByEmail(dto_code.getEmail());
+        if (bycode.isPresent()) {
+            entity entity = bycode.get();
+            if (dto_code.getCode().equals(entity.getCode())) {
+                repository.deleteByEmail(dto_code.getEmail());
+                return dto_code;
+            }
+            else {
+                repository.deleteByEmail(dto_code.getEmail());
+                return null;
+            }
+        }
+        else {
+            repository.deleteByEmail(dto_code.getEmail());
+            return null;
+        }
     }
 }

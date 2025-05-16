@@ -28,7 +28,6 @@ public class JWTAtuhFilter extends OncePerRequestFilter
         if(AuthHeader != null && AuthHeader.startsWith("Bearer "))
         {
             String token = AuthHeader.substring(7);
-
             try {
                 jwtUtil.validateToken(token);
 
@@ -38,7 +37,8 @@ public class JWTAtuhFilter extends OncePerRequestFilter
                         new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            } catch (JwtException e) {
+            } catch (JwtException e)
+            {
 
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json;charset=UTF-8");

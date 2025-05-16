@@ -3,7 +3,10 @@ package com.jinouk.smulet.domain.homecontrol.controller;
 import com.jinouk.smulet.domain.homecontrol.dto.userdto;
 import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import com.jinouk.smulet.domain.homecontrol.service.memberservice;
+import com.jinouk.smulet.global.jwt.JWTUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,7 @@ import java.util.Map;
 public class homecontroller {
     private final memberservice mservice;
     private final loginrepository loginrepository;
+    private final JWTUtil jwtutil;
 
     @GetMapping("/")
     public String website(){return "user/main";}
@@ -69,19 +73,20 @@ public class homecontroller {
     public ResponseEntity<Map<String , String>> login(@RequestBody userdto userdto)
     {
         Map<String , String> map = new HashMap<>();
+        HttpHeaders headers = new HttpHeaders();
 
         userdto loginresult = mservice.login(userdto);
+        map.put("login_result", "success");
 
-        if(loginresult!=null)
-        {
-            System.out.println(loginresult);
-            map.put("Status" , "success");
-            return ResponseEntity.ok(map);
-        }
-        else
-        {
-            throw new IllegalArgumentException("알 수 없는 이유로 로그인 실패");
-        }
+        String token = jwtutil.generateToken(loginresult.getName() , "Role");
+        headers.set("Authorization", "Bearer" + token);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .headers(headers)
+                .header("Access-Control-Expose-Headers", "Authorization")
+                .body(map);
+
     }
 
 

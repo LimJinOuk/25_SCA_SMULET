@@ -1,6 +1,5 @@
 package com.jinouk.smulet.global.jwt;
 
-import com.jinouk.smulet.global.exception.CustomExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,27 +14,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig
 {
     private final JWTUtil jwtUtil;
-    private final CustomExceptionHandler authExceptionHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/" ,
-                                "/login",
-                                "/Register",
-                                "/send_code",
-                                "/check_code",
-                                "/CSS/**",
-                                "/js/**",
-                                "/images/**"
-                                ).permitAll()
+                        .requestMatchers("/" ,"/login", "/register").permitAll()
                         .anyRequest().authenticated()
-                )
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(authExceptionHandler) // 401
-                        .accessDeniedHandler(authExceptionHandler)      // 403
                 )
                 .addFilterBefore(new JWTAtuhFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .build();

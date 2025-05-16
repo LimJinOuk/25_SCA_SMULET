@@ -21,7 +21,14 @@ public class SecurityConfig
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/" ,"/login", "/register").permitAll()
+                        .requestMatchers(
+                                "/" ,
+                                "/login",
+                                "/register",
+                                "/CSS/**",
+                                "/js/**",
+                                "/images/**"
+                                ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

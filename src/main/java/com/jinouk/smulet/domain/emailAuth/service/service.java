@@ -12,6 +12,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import com.jinouk.smulet.domain.emailAuth.serviceInter.serviceinter;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -106,12 +107,13 @@ public class service implements serviceinter {
         return ePw; // 메일로 사용자에게 보낸 인증코드를 서버로 반환! 인증코드 일치여부를 확인하기 위함
     }
 
+    @Transactional
     public void check_code(dto_code dto_code) throws IllegalArgumentException
     {
-        Optional<entity> bycode = repository.findByEmail(dto_code.getEmail());
-        if (bycode.isPresent())
+        Optional<entity> byEmail = repository.findByEmail(dto_code.getEmail());
+        if (byEmail.isPresent())
         {
-            entity entity = bycode.get();
+            entity entity = byEmail.get();
             if (dto_code.getCode().equals(entity.getCode()))
             {
                 repository.deleteByEmail(dto_code.getEmail());

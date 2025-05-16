@@ -28,7 +28,6 @@ public class controller {
         Map<String , String> result = new HashMap<>();
         if(code != null)
         {
-            result.put(dto.getEmail(), code);
             result.put("Status", "Code_Generated");
             return ResponseEntity.ok(result);
         }
@@ -39,7 +38,6 @@ public class controller {
     }
 
     @PostMapping("/check_code")
-    @ResponseBody
     public ResponseEntity<Map<String , String>> checkCode(@RequestBody dto_code dto_code)
     {
         Map<String, String> map = new HashMap<>();

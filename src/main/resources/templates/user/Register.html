@@ -286,8 +286,54 @@
       return;
     }
 
-    // 실제 인증번호 전송 로직은 여기 구현
-    alert(email + '로 인증번호가 전송되었습니다!');
+    fetch('/send-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                alert('인증번호가 이메일로 전송되었습니다.');
+              } else {
+                alert('오류: ' + (data.message || '인증번호 전송 실패'));
+              }
+            })
+            .catch(err => {
+              console.error('전송 오류:', err);
+              alert('서버 오류가 발생했습니다.');
+            });
+  }
+
+  function verifyCode() {
+    const id = document.getElementById('email').value.trim();
+    const email = id + '@sangmyung.kr';
+    const code = document.getElementById('verification').value.trim();
+
+    if (code === '') {
+      alert('인증번호를 입력해주세요.');
+      return;
+    }
+
+    fetch('/check_code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, code: code })
+    })
+            .then(res => res.json())
+            .then(data => {
+              if (data.verified) {
+                alert('이메일 인증이 완료되었습니다.');
+                // 필요 시, 인증 여부 상태를 저장하거나 hidden input에 기록
+                // document.getElementById("emailVerified").value = "true";
+              } else {
+                alert('인증번호가 올바르지 않습니다.');
+              }
+            })
+            .catch(err => {
+              console.error('인증 오류:', err);
+              alert('서버 오류가 발생했습니다.');
+            });
   }
 </script>
 </body>

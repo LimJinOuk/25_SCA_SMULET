@@ -40,15 +40,12 @@ public class JWTUtil
     }
 
     //Validate Token
-    public boolean validateToken(String token)
+    public void validateToken(String token)
     {
-        try
-        {
-            Jwts.parser().setSigningKey(getSignKey()).parseClaimsJws(token);
-            return true;
-        }
-        catch (JwtException e)
-        {return false;}
+        Jwts.parser()
+                .setSigningKey(getSignKey())
+                .parseClaimsJws(token);
+
     }
 
     //GetUserName

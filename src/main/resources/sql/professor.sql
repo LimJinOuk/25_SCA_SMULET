@@ -1,0 +1,20 @@
+-- INSERTS FOR TABLE `professor`
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (1, '김윤호', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (2, '신경섭', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (3, '강상욱', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (4, '한혁수', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (5, '조민철', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (6, '송병호', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (7, '민경하', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (8, '손성훈', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (9, '민승욱', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (10, '김종욱', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (11, '나재호', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (12, '정대식', 'SW중심대학사업단', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (13, '박종환', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (14, '이석필', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (15, '김진', '빅데이터융합전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (16, '백윤철', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (17, '김영준', '컴퓨터과학전공', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (18, '문성현', 'SW중심대학사업단', NULL);
+INSERT INTO `professor` (`id`, `name`, `major`, `email`) VALUES (19, '장준호', '게임전공', NULL);

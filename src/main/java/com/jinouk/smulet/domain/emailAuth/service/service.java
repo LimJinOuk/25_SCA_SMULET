@@ -100,11 +100,29 @@ public class service implements serviceinter {
             e.printStackTrace();
             throw new IllegalArgumentException();
         }
-        entity entity = new entity();
-        entity.setEmail(to);
-        entity.setCode(ePw);
-        repository.save(entity);
+        save_code(to, ePw); // DB조회 후 저장
         return ePw; // 메일로 사용자에게 보낸 인증코드를 서버로 반환! 인증코드 일치여부를 확인하기 위함
+    }
+
+    @Transactional
+    public void save_code(String email, String code)
+    {
+        Optional<entity> ByEmail = repository.findByEmail(email);
+        if (ByEmail.isPresent()) //이미 해당 메일에 대한 코드가 저장되어 있다면 삭제하고 다시 저장
+        {
+            repository.delete(ByEmail.get());
+            entity entity = new entity();
+            entity.setEmail(email);
+            entity.setCode(code);
+            repository.save(entity);
+        }
+        else //해당 메일이 없다면 저장
+        {
+            entity entity = new entity();
+            entity.setEmail(email);
+            entity.setCode(code);
+            repository.save(entity);
+        }
     }
 
     @Transactional

@@ -4,7 +4,6 @@ import com.jinouk.smulet.global.exception.CustomExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -17,6 +16,7 @@ public class SecurityConfig
 {
     private final JWTUtil jwtUtil;
     private final CustomExceptionHandler authExceptionHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -24,7 +24,7 @@ public class SecurityConfig
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/" ,
-                                "/login",
+                                "/login_page",
                                 "/Register",
                                 "/check_code",
                                 "/send_code",

@@ -24,7 +24,7 @@ public class SecurityConfig
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/" ,
-                                "/login",
+                                "/login_page",
                                 "/Register",
                                 "/check_code",
                                 "/send_code",

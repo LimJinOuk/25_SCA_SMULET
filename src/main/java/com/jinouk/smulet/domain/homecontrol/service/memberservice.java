@@ -25,7 +25,7 @@ public class memberservice {
 
     public userdto login(userdto userdto) throws IllegalArgumentException
     {
-        System.out.println("3"+ userdto);
+        System.out.println(userdto);
         Optional<user> byemail = loginrepository.findByEmail(userdto.getEmail());
 
         if(byemail.isPresent())

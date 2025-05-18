@@ -165,10 +165,35 @@
       color: #2563eb;
       text-decoration: none;
     }
-
-    .login-text a:hover {
-      text-decoration: underline;
+    .loading-overlay {
+      display: none; /* 처음엔 숨김 */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
     }
+
+    .loading-spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #2563eb;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      background-color: white;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+
     .wrapper {
       min-height: 100%;
       display: flex;
@@ -191,10 +216,13 @@
   </style>
 </head>
 <body>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+</div>
 <div class ="wrapper">
 <!-- 헤더 -->
 <header>
-  <h1><a href="#">SMULET</a></h1>
+  <h1><a href="/">SMULET</a></h1>
 </header>
 
 <!-- 회원가입 폼 -->
@@ -207,8 +235,6 @@
       <input type="text" id="name" name="name" required />
 
       <!-- 아이디 -->
-      <label for="username">아이디</label>
-      <input type="text" id="username" name="username" required />
 
       <!-- 이메일 -->
       <label for="email">이메일(학번@sangmyung.kr)</label>
@@ -241,7 +267,7 @@
       <button
               type="button"
               class="sub-button"
-              onclick="sendVerificationCode()"
+              onclick="verifyCode()"
       >
         인증번호 확인
       </button>
@@ -257,7 +283,7 @@
 
     <div class="login-text">
       이미 계정이 있으신가요?
-      <a href="login.html">로그인</a>
+      <a href="/login_page">로그인</a>
     </div>
   </div>
 </main>
@@ -277,17 +303,85 @@
 <script>
   function sendVerificationCode() {
     const emailInput = document.getElementById('email');
-    const id = emailInput.value.trim();
-    const email = id + '@sangmyung.kr';
+    const email = emailInput.value.trim();
+    const loadingOverlay = document.getElementById('loadingOverlay');
 
-    if (!/^\d{8}$/.test(id)) {
-      alert('학번은 8자리 숫자여야 합니다.');
+    // 이메일 형식 간단 검사 (옵션)
+    if (!/^\d{9}@sangmyung\.kr$/.test(email)) {
+      alert('형식은 9자리 학번@sangmyung.kr이어야 합니다.');
       emailInput.focus();
       return;
     }
 
-    // 실제 인증번호 전송 로직은 여기 구현
-    alert(email + '로 인증번호가 전송되었습니다!');
+    loadingOverlay.style.display = 'flex';
+
+    // 학번 추출
+    const id = email.split('@')[0];
+
+    if (!/^\d{9}$/.test(id)) {
+      alert('학번은 9자리 숫자여야 합니다.');
+      emailInput.focus();
+      loadingOverlay.style.display = 'none';
+      return;
+    }
+
+    // 이메일 전송 요청
+    fetch('/send_code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    })
+            .then(res => {
+              if (!res.ok) {
+                throw new Error('HTTP 오류 상태: ' + res.status);
+              }
+              return res.json();
+            })
+            .then(data => {
+              console.log('서버 응답:', data);
+              alert('인증번호가 이메일로 전송되었습니다.');
+            })
+            .catch(err => {
+              console.error('전송 오류:', err);
+              alert('서버 오류가 발생했습니다.');
+            })
+            .finally(() => {
+              loadingOverlay.style.display = 'none';
+            });
+}
+
+  function verifyCode() {
+    const emailInput = document.getElementById('email')
+    const email = emailInput.value.trim();
+    const code = document.getElementById('verification').value.trim();
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    //
+    if (code === '') {
+      alert('인증번호를 입력해주세요.');
+      return;
+    }
+
+    loadingOverlay.style.display = 'flex';
+
+    fetch('/check_code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, code: code })
+    })
+            .then(res => {
+              if (res.ok) {
+                alert('이메일 인증이 완료되었습니다.');
+              } else {
+                alert('인증번호가 올바르지 않습니다.');
+              }
+            })
+            .catch(err => {
+              console.error('인증 오류:', err);
+              alert('서버 오류가 발생했습니다.');
+            })
+            .finally(() => {
+              loadingOverlay.style.display = 'none';
+            });
   }
 </script>
 </body>

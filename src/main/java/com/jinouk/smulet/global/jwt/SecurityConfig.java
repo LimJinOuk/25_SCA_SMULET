@@ -16,6 +16,7 @@ public class SecurityConfig
 {
     private final JWTUtil jwtUtil;
     private final CustomExceptionHandler authExceptionHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -23,8 +24,11 @@ public class SecurityConfig
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/" ,
+                                "/login_page",
+                                "/Register",
+                                "/check_code",
+                                "/send_code",
                                 "/login",
-                                "/register",
                                 "/CSS/**",
                                 "/js/**",
                                 "/images/**"

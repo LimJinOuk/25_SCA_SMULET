@@ -77,8 +77,11 @@ public class homecontroller {
 
         userdto loginresult = mservice.login(userdto);
         map.put("login_result", "success");
+        System.out.println(loginresult);
 
-        String token = jwtutil.generateToken(loginresult.getName() , "Role");
+        System.out.println(loginresult.getName());
+        String token = jwtutil.generateToken(loginresult.getName());
+        System.out.println(token);
         headers.set("Authorization", "Bearer" + token);
 
         return ResponseEntity

@@ -51,8 +51,6 @@ public class homecontroller {
         }
     }
 
-
-
     @PostMapping("/do_Register")
     public ResponseEntity<Map<String , String>> save(@RequestBody userdto userdto)
     {
@@ -77,8 +75,11 @@ public class homecontroller {
 
         userdto loginresult = mservice.login(userdto);
         map.put("login_result", "success");
+        System.out.println(loginresult);
 
-        String token = jwtutil.generateToken(loginresult.getName() , "Role");
+        System.out.println(loginresult.getName());
+        String token = jwtutil.generateToken(loginresult.getName());
+        System.out.println(token);
         headers.set("Authorization", "Bearer" + token);
 
         return ResponseEntity
@@ -89,5 +90,22 @@ public class homecontroller {
 
     }
 
+    @PostMapping("/refreshT")
+    public ResponseEntity<?> refresh(String RefreshToken)
+    {
+        Map<String , String> map = new HashMap<>();
+        HttpHeaders headers = new HttpHeaders();
+        /*
+        * Refresh Token검증 후 새로운 Access Token 발급 로직
+        */
+        String newAccessToken = "newAccessToken";
+
+        headers.set("Authorization", "Bearer " + newAccessToken);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .headers(headers)
+                .header("Access-Control-Expose-Headers","새로운 Access T가 포함된 헤더")
+                .body("바디값");
+    }
 
 }

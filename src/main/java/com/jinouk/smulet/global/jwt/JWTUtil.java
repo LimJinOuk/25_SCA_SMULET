@@ -1,6 +1,5 @@
 package com.jinouk.smulet.global.jwt;
 
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -17,22 +16,27 @@ public class JWTUtil
     private String secret;
 
     @Value("${jwt.expiration}")
-    private String expiration;
+    private long expiration;
 
     private Key getSignKey()
     {
+        System.out.println("Key" + Keys.hmacShaKeyFor(secret.getBytes()));
         return Keys.hmacShaKeyFor(secret.getBytes());
+
     }
 
+
     //Generate The Token
-    public String generateToken(String username , String role)
+    public String generateToken(String username)
     {
+        System.out.println(username);
         Date now = new Date();
+        System.out.println(now);
         Date expiryDate = new Date(now.getTime() + expiration);
+        System.out.println(expiryDate);
 
         return Jwts.builder()
                 .setSubject(username)
-                .claim("role" , role)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSignKey() , SignatureAlgorithm.HS256)

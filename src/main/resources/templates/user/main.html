@@ -192,8 +192,9 @@
         <h1><a href="/">SMULET</a></h1>
         <nav>
             <a href="#"><b>이용안내</b></a>
-            <a href="/login_page"><b>로그인</b></a>
-            <a href="/Register"><b>회원가입</b></a>
+            <a href="/login_page" id="loginLink"><b>로그인</b></a>
+            <a href="/Register" id = "registerLink"><b>회원가입</b></a>
+            <a href="/" id="logoutLink" style="display: none;"><b>로그아웃</b></a>
         </nav>
     </header>
 
@@ -247,5 +248,31 @@
         </b>
     </footer>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const token = localStorage.getItem('jwtToken');
+        const loginLink = document.getElementById('loginLink');
+        const logoutLink = document.getElementById('logoutLink');
+        const registerLink = document.querySelector('nav a[href="/Register"]');
+
+        if (token) {
+            loginLink.style.display = 'none';
+            logoutLink.style.display = 'inline';
+            registerLink.style.display = 'none';
+        } else {
+            loginLink.style.display = 'inline';
+            logoutLink.style.display = 'none';
+            registerLink.style.display = 'inline';
+        }
+
+        logoutLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            localStorage.removeItem('jwtToken');
+            alert('로그아웃 되었습니다.');
+            window.location.href = '/';
+        });
+    });
+</script>
+
 </body>
 </html>

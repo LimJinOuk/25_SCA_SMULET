@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>시간표 추가</title>
+</head>
+<body>
+<h2>시간표 추가</h2>
+<label>년도:
+    <select id="year">
+        <option value="">선택</option>
+        <option>2021</option>
+        <option>2022</option>
+        <option>2023</option>
+        <option>2024</option>
+        <option>2025</option>
+    </select>
+</label>
+<br><br>
+<label>학기:
+    <select id="term">
+        <option value="">선택</option>
+        <option>1학기</option>
+        <option>2학기</option>
+        <option>계절학기</option>
+    </select>
+</label>
+<br><br>
+<button onclick="addSchedule()">시간표 추가</button>
+
+<script>
+    window.onload = function () {
+        // GET: 기존 시간표 불러오기
+        fetch('/get_schedules')
+            .then(res => res.json())
+            .then(schedules => {
+                console.log("현재 저장된 시간표:", schedules);
+                // 필요 시 DOM에 출력
+            })
+            .catch(err => console.error("시간표 불러오기 실패", err));
+    };
+
+    function addSchedule() {
+        const year = document.getElementById('year').value;
+        const term = document.getElementById('term').value;
+        if (!year || !term) return alert('연도와 학기를 선택하세요.');
+
+        const title = `${year} ${term} 시간표`;
+
+        // POST: 서버에 저장 요청
+        fetch('/add_schedule', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ year, term })
+        })
+            .then(res => {
+                if (res.ok) {
+                    alert('시간표가 추가되었습니다.');
+                    window.opener.addScheduleToMain(year, term); // 부모 창에 함수 호출
+                    window.close();
+                } else {
+                    alert('추가 실패');
+                }
+            })
+            .catch(err => alert('오류 발생: ' + err));
+    }
+</script>
+</body>
+</html>

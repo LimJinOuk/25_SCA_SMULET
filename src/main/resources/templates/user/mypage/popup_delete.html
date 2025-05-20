@@ -1,0 +1,33 @@
+<!-- popup_delete.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>회원 탈퇴</title>
+</head>
+<body>
+<h2>정말 탈퇴하시겠습니까?</h2>
+<button onclick="deleteAccount()">탈퇴하기</button>
+<button onclick="window.close()">취소</button>
+
+<script>
+  function deleteAccount() {
+    fetch('/delete_account', {
+      method: 'POST'
+    })
+            .then(res => {
+              if (res.ok) {
+                alert("회원 탈퇴가 완료되었습니다.");
+                window.close();
+              } else {
+                alert("회원 탈퇴 실패.");
+              }
+            })
+            .catch(err => {
+              console.error("오류:", err);
+              alert("서버 오류가 발생했습니다.");
+            });
+  }
+</script>
+</body>
+</html>

@@ -4,9 +4,13 @@ import com.jinouk.smulet.domain.homecontrol.dto.userdto;
 import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import com.jinouk.smulet.domain.homecontrol.service.memberservice;
 import com.jinouk.smulet.global.jwt.JWTUtil;
+import io.jsonwebtoken.JwtException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -79,8 +83,19 @@ public class homecontroller {
 
         System.out.println(loginresult.getName());
         String token = jwtutil.generateToken(loginresult.getName());
-        System.out.println(token);
+        String Refresh = jwtutil.generateRefresh(loginresult.getName());
+
         headers.set("Authorization", "Bearer" + token);
+        System.out.println(token);
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", Refresh)
+                .httpOnly(true)
+                .secure(false) // HTTPS만 사용할 경우 true
+                .path("/") // 모든 경로에서 접근 가능
+                .maxAge( 24 * 60 * 60) // 7일 유지
+                .sameSite("Strict") // or "Lax", "None"
+                .build();
+
+        headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -91,21 +106,40 @@ public class homecontroller {
     }
 
     @PostMapping("/refreshT")
-    public ResponseEntity<?> refresh(String RefreshToken)
+    public ResponseEntity<?> refresh(HttpServletRequest request)
     {
-        Map<String , String> map = new HashMap<>();
+        System.out.println("Yeah");
+        Map<String, String> map = new HashMap<>();
         HttpHeaders headers = new HttpHeaders();
-        /*
-        * Refresh Token검증 후 새로운 Access Token 발급 로직
-        */
-        String newAccessToken = "newAccessToken";
+        String refreshToken = null;
+        Cookie[] cookies = request.getCookies();
 
-        headers.set("Authorization", "Bearer " + newAccessToken);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .headers(headers)
-                .header("Access-Control-Expose-Headers","새로운 Access T가 포함된 헤더")
-                .body("바디값");
+        if (cookies != null)
+        {
+            for (Cookie cookie : cookies)
+            {
+                if ("refreshToken".equals(cookie.getName()))
+                {
+                    refreshToken = cookie.getValue();
+                }
+            }
+            if (refreshToken != null)
+            {
+                if (jwtutil.validateRefresh(refreshToken)) {
+                    String newAccessToken = jwtutil.generateToken(jwtutil.getUserName(refreshToken));
+                    headers.set("Authorization", "Bearer " + newAccessToken);
+                    map.put("status", "success");
+                    return ResponseEntity
+                            .status(HttpStatus.OK)
+                            .headers(headers)
+                            .header("Access-Control-Expose-Headers", "Authorization")
+                            .body(map);
+                } else {
+                    throw new JwtException("Invalid Refresh Token");
+                }
+            }
+            else {throw new JwtException("Refresh token not found");}
+
+        } else {return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token not found");}
     }
-
 }

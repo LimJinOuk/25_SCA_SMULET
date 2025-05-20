@@ -1,8 +1,8 @@
 package com.jinouk.smulet.global.jwt;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,22 +18,39 @@ public class JWTUtil
     @Value("${jwt.expiration}")
     private long expiration;
 
-    private Key getSignKey()
-    {
-        System.out.println("Key" + Keys.hmacShaKeyFor(secret.getBytes()));
-        return Keys.hmacShaKeyFor(secret.getBytes());
+    @Value("${jwt.refresh}")
+    private long refresh;
 
+    private Key key;
+
+    @PostConstruct
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
+    private Key getSignKey() {
+        return key; // ✅ 매번 새로 만들지 않음
+    }
 
     //Generate The Token
     public String generateToken(String username)
     {
-        System.out.println(username);
         Date now = new Date();
-        System.out.println(now);
         Date expiryDate = new Date(now.getTime() + expiration);
-        System.out.println(expiryDate);
+
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(getSignKey() , SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    //Generate Refresh Token
+    public String generateRefresh(String username)
+    {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + refresh);
 
         return Jwts.builder()
                 .setSubject(username)
@@ -52,10 +69,26 @@ public class JWTUtil
 
     }
 
+    public boolean validateRefresh(String Refresh)
+    {
+        try{
+            Jws<Claims> claimsJws = Jwts.parser()
+                    .setSigningKey(getSignKey())
+                    .parseClaimsJws(Refresh);
+            Date expiryDate = claimsJws.getBody().getExpiration();
+            return expiryDate.after(new Date());
+        }
+        catch (JwtException | IllegalArgumentException e)
+        {
+            return false;
+        }
+
+    }
+
     //GetUserName
     public String getUserName(String token)
     {
-        return Jwts.parser().setSigningKey(secret)
+        return Jwts.parser().setSigningKey(getSignKey())
                 .parseClaimsJws(token)
                 .getBody().getSubject();
     }

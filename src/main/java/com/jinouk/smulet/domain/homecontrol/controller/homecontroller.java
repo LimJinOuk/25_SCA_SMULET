@@ -33,6 +33,9 @@ public class homecontroller {
     @GetMapping("/Register")
     public String register(){return "user/Register";}
 
+    @GetMapping("my_page")
+    public String mypage(){return "user/mypage/mypage";}
+
     @GetMapping("/login_page")
     public String loginform(){return "user/login_page";}
   

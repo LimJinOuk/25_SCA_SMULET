@@ -33,6 +33,9 @@ public class homecontroller {
     @GetMapping("/Register")
     public String register(){return "user/Register";}
 
+    @GetMapping("my_page")
+    public String mypage(){return "user/mypage/mypage";}
+
     @GetMapping("/login_page")
     public String loginform(){return "user/login_page";}
   
@@ -176,5 +179,9 @@ public class homecontroller {
             else {throw new JwtException("Refresh token not found");}
 
         } else {return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token not found");}
+    }
+    @GetMapping("user/info")
+    public ResponseEntity<?> getUserInfo(String token) {
+        return mservice.userInfo(token);
     }
 }

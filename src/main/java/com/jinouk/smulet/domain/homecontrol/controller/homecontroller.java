@@ -7,6 +7,7 @@ import com.jinouk.smulet.global.jwt.JWTUtil;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -102,6 +103,20 @@ public class homecontroller {
                 .header("Access-Control-Expose-Headers", "Authorization")
                 .body(map);
 
+    }
+
+    @PostMapping("/member/delete")
+    public String deletemember(HttpSession session) {
+        userdto loginUser = new userdto();
+        loginUser.setEmail((String) session.getAttribute("loginEmail")); //setAttribute한 loginEmail, getattribute
+        ;
+        if (loginUser != null)
+        {
+            mservice.delete(loginUser.getEmail());
+            session.invalidate();
+        }
+
+        return "redirect:/login_page";
     }
 
     @PostMapping("/refreshT")

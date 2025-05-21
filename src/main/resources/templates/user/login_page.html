@@ -244,7 +244,7 @@
                 console.log('서버에서 받은 전체 응답:',data);
                 if (token) {
                   // JWT 토큰 저장
-                  localStorage.setItem('jwtToken', data.token);
+                  localStorage.setItem('jwtToken', token);
                   alert('로그인 성공!');
                   // 로그인 후 리다이렉트 (필요하면 경로 수정)
                   window.location.href = '/';

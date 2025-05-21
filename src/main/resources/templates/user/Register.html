@@ -240,10 +240,10 @@
       <label for="email">이메일(학번@sangmyung.kr)</label>
       <div class="email-group">
         <input
-                type="text"
+                type="email"
                 id="email"
                 name="email"
-                placeholder="학번 입력"
+                placeholder="학번 입력@sangmyung.kr"
                 required
         />
         <button
@@ -278,7 +278,7 @@
       <input type="password" id="password" name="password" required />
 
       <!-- 가입 버튼 -->
-      <button type="submit" style="width: 100%">회원가입</button>
+      <button type="button" style="width: 100%" onclick="RegisterUser()">회원가입</button>
     </form>
 
     <div class="login-text">
@@ -383,6 +383,39 @@
               loadingOverlay.style.display = 'none';
             });
   }
+  function RegisterUser(){
+    const name = document.getElementById('name').value
+    const email = document.getElementById('email').value
+    const pw = document.getElementById('password').value
+
+    if (!name || !email || !pw) {
+      alert('모든 항목을 입력해주세요.');
+      return;
+    }
+
+    fetch('do_Register',{
+      method: 'POST',
+      headers:{
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({name,email,pw})
+    })
+            .then(res => {
+              if(!res.ok){
+                throw new Error("회원가입 실패: " + res.status)
+              }
+              return res.json()
+            })
+            .then(()=>{
+              alert("회원가입이 완료되었습니다!");
+              window.location.href = '/login_page';
+            })
+            .catch(err => {
+              console.error("회원가입 오류: ",err);
+              alert('회원가입 중 오류 발생: '+ err.message);
+            })
+  }
+
 </script>
 </body>
 </html>

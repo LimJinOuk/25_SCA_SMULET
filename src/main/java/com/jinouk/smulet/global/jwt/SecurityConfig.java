@@ -28,6 +28,7 @@ public class SecurityConfig
                                 "/Register",
                                 "/check_code",
                                 "/send_code",
+                                "/do_Register",
                                 "/refreshT",
                                 "/login",
                                 "/CSS/**",

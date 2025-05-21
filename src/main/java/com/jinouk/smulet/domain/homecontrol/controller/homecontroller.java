@@ -112,7 +112,7 @@ public class homecontroller {
         {
             map.put("deleteStatus", "success");
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(map)
+                    .body(map);
         }
 
     }

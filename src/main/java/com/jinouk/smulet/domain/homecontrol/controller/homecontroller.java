@@ -117,7 +117,7 @@ public class homecontroller {
         else
         {
             map.put("deleteStatus", "fail");
-            ResponseEntity
+            return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(map);
         }

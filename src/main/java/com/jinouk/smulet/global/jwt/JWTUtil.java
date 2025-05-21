@@ -61,12 +61,20 @@ public class JWTUtil
     }
 
     //Validate Token
-    public void validateToken(String token)
+    public boolean validateToken(String token)
     {
-        Jwts.parserBuilder()
-                .setSigningKey(getSignKey())
-                .build()
-                .parseClaimsJws(token);
+        try {
+            Jws<Claims> claimsJws = Jwts.parserBuilder()
+                    .setSigningKey(getSignKey())
+                    .build()
+                    .parseClaimsJws(token);
+            Date expiryDate = claimsJws.getBody().getExpiration();
+            return expiryDate.after(new Date());
+        }
+        catch (JwtException | IllegalArgumentException e)
+        {
+            return false;
+        }
 
     }
 

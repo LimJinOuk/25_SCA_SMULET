@@ -114,6 +114,13 @@ public class homecontroller {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(map);
         }
+        else
+        {
+            map.put("deleteStatus", "fail");
+            ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(map);
+        }
 
     }
 

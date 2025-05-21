@@ -4,6 +4,7 @@ package com.jinouk.smulet.domain.homecontrol.service;
 import com.jinouk.smulet.domain.homecontrol.dto.userdto;
 import com.jinouk.smulet.domain.homecontrol.entity.user;
 import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -41,5 +42,8 @@ public class memberservice {
         else{throw new IllegalArgumentException("이메일이 조회되지 않습니다.");}
     }
 
-
+    @Transactional
+    public void delete(String email){
+        loginrepository.deleteByEmail(email);
+    }
 }

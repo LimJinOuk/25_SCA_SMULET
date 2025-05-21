@@ -106,17 +106,15 @@ public class homecontroller {
     }
 
     @PostMapping("/member/delete")
-    public String deletemember(HttpSession session) {
-        userdto loginUser = new userdto();
-        loginUser.setEmail((String) session.getAttribute("loginEmail")); //setAttribute한 loginEmail, getattribute
-        ;
-        if (loginUser != null)
+    public ResponseEntity<?> deletemember(String token) {
+        Map<String, String> map = new HashMap<>();
+        if(jwtutil.validateToken(token))
         {
-            mservice.delete(loginUser.getEmail());
-            session.invalidate();
+            map.put("deleteStatus", "success");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(map)
         }
 
-        return "redirect:/login_page";
     }
 
     @PostMapping("/refreshT")

@@ -1,13 +1,13 @@
 package com.jinouk.smulet.domain.homecontrol.controller;
 
 import com.jinouk.smulet.domain.homecontrol.dto.userdto;
+import com.jinouk.smulet.domain.homecontrol.entity.user;
 import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import com.jinouk.smulet.domain.homecontrol.service.memberservice;
 import com.jinouk.smulet.global.jwt.JWTUtil;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -106,13 +107,30 @@ public class homecontroller {
     }
 
     @PostMapping("/member/delete")
-    public ResponseEntity<?> deletemember(String token) {
+    public ResponseEntity<?> deletemember(String token)
+    {
         Map<String, String> map = new HashMap<>();
+
         if(jwtutil.validateToken(token))
         {
-            map.put("deleteStatus", "success");
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(map);
+            Optional<user> name = loginrepository.findByName(jwtutil.getUserName(token));
+
+            if(name.isPresent())
+            {
+                user entity = name.get();
+                mservice.delete(entity.getEmail());
+                map.put("deleteStatus", "success");
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(map);
+            }
+            else
+            {
+                map.put("deleteStatus", "fail to communicate with server");
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(map);
+            }
         }
         else
         {
@@ -121,7 +139,6 @@ public class homecontroller {
                     .status(HttpStatus.BAD_REQUEST)
                     .body(map);
         }
-
     }
 
     @PostMapping("/refreshT")

@@ -44,4 +44,6 @@ public interface gettimeTableRepository extends JpaRepository<timetable, Long> {
             + "JOIN professor ON course.professor_name = professor.name "
             + "WHERE user.id = :userId", nativeQuery = true)
     List<getTimeTableDTO> findCoursesByUserId(@Param("userId") int userId);
+
+    int count_timetableById(int userId);
 }

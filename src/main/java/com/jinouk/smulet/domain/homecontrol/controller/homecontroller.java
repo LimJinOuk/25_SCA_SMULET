@@ -177,4 +177,8 @@ public class homecontroller {
 
         } else {return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token not found");}
     }
+    @GetMapping("user/info")
+    public ResponseEntity<?> getUserInfo(String token) {
+        return mservice.userInfo(token);
+    }
 }

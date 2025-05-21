@@ -13,4 +13,6 @@ public interface loginrepository extends JpaRepository<user, Long>
     Optional<user> findByEmail(String email);
 
     void deleteByEmail(String email);
+
+    Optional<user> findByName(String userName);
 }

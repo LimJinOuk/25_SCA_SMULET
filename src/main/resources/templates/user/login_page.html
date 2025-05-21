@@ -224,8 +224,6 @@
 
       const email = document.getElementById('email').value;
       const pw = document.getElementById('pw').value;
-
-      // 로그인 요청 (서버 /api/login 엔드포인트 필요)
       fetch('/login', {
         method: 'POST',
         headers: {

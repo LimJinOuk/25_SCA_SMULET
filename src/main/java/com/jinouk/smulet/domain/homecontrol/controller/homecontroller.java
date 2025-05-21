@@ -184,4 +184,29 @@ public class homecontroller {
     public ResponseEntity<?> getUserInfo(String token) {
         return mservice.userInfo(token);
     }
+
+
+    @GetMapping("/update")
+    public String to_updata() {return "check_pw_page";}
+
+    @GetMapping("/check_pw_button")
+    public String check_PW(@RequestParam String pw, HttpServletRequest request)
+    {
+        if (mservice.checkPW(pw, request)) {return "update_page";}
+        else {return "mypage or check_pw_page";}
+        //인증 실패 시 돌아가거나 다시 비번 인증 화면으로 돌아가기 프론트에서 편한걸로 선택해
+    }
+
+    @PostMapping("/update_button")
+    public ResponseEntity<Map<String, String>> user_update(@RequestBody userdto update_dto, HttpServletRequest request) {
+        Map<String, String> map = new HashMap<>();
+        if (mservice.update_user(update_dto, request)) {
+            map.put("update_result", "success");
+            return ResponseEntity.ok(map);
+        } else {
+            map.put("update_result", "fail");
+            return ResponseEntity.ok(map);
+        }
+    }
+
 }

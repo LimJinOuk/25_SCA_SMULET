@@ -29,7 +29,7 @@ public class JWTUtil
     }
 
     private Key getSignKey() {
-        return key; // ✅ 매번 새로 만들지 않음
+        return key;
     }
 
     //Generate The Token
@@ -63,8 +63,9 @@ public class JWTUtil
     //Validate Token
     public void validateToken(String token)
     {
-        Jwts.parser()
+        Jwts.parserBuilder()
                 .setSigningKey(getSignKey())
+                .build()
                 .parseClaimsJws(token);
 
     }
@@ -72,8 +73,9 @@ public class JWTUtil
     public boolean validateRefresh(String Refresh)
     {
         try{
-            Jws<Claims> claimsJws = Jwts.parser()
+            Jws<Claims> claimsJws = Jwts.parserBuilder()
                     .setSigningKey(getSignKey())
+                    .build()
                     .parseClaimsJws(Refresh);
             Date expiryDate = claimsJws.getBody().getExpiration();
             return expiryDate.after(new Date());
@@ -88,7 +90,7 @@ public class JWTUtil
     //GetUserName
     public String getUserName(String token)
     {
-        return Jwts.parser().setSigningKey(getSignKey())
+        return Jwts.parserBuilder().setSigningKey(getSignKey()).build()
                 .parseClaimsJws(token)
                 .getBody().getSubject();
     }

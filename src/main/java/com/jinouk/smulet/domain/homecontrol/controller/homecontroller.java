@@ -85,17 +85,16 @@ public class homecontroller {
         String token = jwtutil.generateToken(loginresult.getName());
         String Refresh = jwtutil.generateRefresh(loginresult.getName());
 
-        headers.set("Authorization", "Bearer" + token);
-        System.out.println(token);
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", Refresh)
                 .httpOnly(true)
-                .secure(false) // HTTPS만 사용할 경우 true
-                .path("/") // 모든 경로에서 접근 가능
-                .maxAge( 24 * 60 * 60) // 7일 유지
-                .sameSite("Strict") // or "Lax", "None"
+                .secure(false) // HTTPS만 사용할 경우 true TODO : 이거 배포시 꼭 true로 바꾸기
+                .path("/")
+                .maxAge( 24 * 60 * 60)
+                .sameSite("Strict")
                 .build();
 
         headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        headers.set("Authorization", "Bearer" + token);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -108,7 +107,6 @@ public class homecontroller {
     @PostMapping("/refreshT")
     public ResponseEntity<?> refresh(HttpServletRequest request)
     {
-        System.out.println("Yeah");
         Map<String, String> map = new HashMap<>();
         HttpHeaders headers = new HttpHeaders();
         String refreshToken = null;

@@ -29,10 +29,11 @@ public class SecurityConfig
                                 "/check_code",
                                 "/send_code",
                                 "/do_Register",
+                                "/year",
+                                "/my_page",
                                 "/refreshT",
                                 "/login",
-                                "/CSS/**",
-                                "/js/**",
+                                "/jsCss/**",
                                 "/images/**"
                                 ).permitAll()
                         .anyRequest().authenticated()

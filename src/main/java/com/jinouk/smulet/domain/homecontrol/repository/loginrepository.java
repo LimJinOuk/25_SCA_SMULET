@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface loginrepository extends JpaRepository<user, Long>
 {
     Optional<user> findByEmail(String email);
+
+    void deleteByEmail(String email);
 }

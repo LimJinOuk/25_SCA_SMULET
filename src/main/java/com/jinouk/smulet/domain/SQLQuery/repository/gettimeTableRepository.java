@@ -5,11 +5,13 @@ import com.jinouk.smulet.domain.SQLQuery.entity.timetable;
 import jakarta.persistence.ColumnResult;
 import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.SqlResultSetMapping;
+import org.apache.catalina.util.Introspection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @SqlResultSetMapping(
         name = "CourseDTO",
@@ -44,4 +46,7 @@ public interface gettimeTableRepository extends JpaRepository<timetable, Long> {
             + "JOIN professor ON course.professor_name = professor.name "
             + "WHERE user.id = :userId", nativeQuery = true)
     List<getTimeTableDTO> findCoursesByUserId(@Param("userId") int userId);
+
+    @Query("SELECT y.id FROM timetable y WHERE y.userId=:userId")
+    List<Integer> findTableIdsByUserId(Integer userId);
 }

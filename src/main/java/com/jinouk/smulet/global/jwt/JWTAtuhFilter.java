@@ -29,14 +29,13 @@ public class JWTAtuhFilter extends OncePerRequestFilter
         {
             String token = AuthHeader.substring(7);
             try {
-                jwtUtil.validateToken(token);
+                if(jwtUtil.validateToken(token)){
+                    String username = jwtUtil.getUserName(token);
 
-                String username = jwtUtil.getUserName(token);
-
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             } catch (JwtException e)
             {
 

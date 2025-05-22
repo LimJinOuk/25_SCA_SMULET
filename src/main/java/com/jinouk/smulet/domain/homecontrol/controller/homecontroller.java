@@ -99,7 +99,7 @@ public class homecontroller {
                 .build();
 
         headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-        headers.set("Authorization", "Bearer" + token);
+        headers.set("Authorization", "Bearer " + token);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -110,14 +110,20 @@ public class homecontroller {
     }
 
     @PostMapping("/member/delete")
-    public ResponseEntity<?> deletemember(String token)
+    public ResponseEntity<?> deletemember(@RequestHeader("Authorization") String authHeader)
     {
+        System.out.println(authHeader);
+        String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+
+        System.out.println(token);
+
         Map<String, String> map = new HashMap<>();
 
         if(jwtutil.validateToken(token))
         {
+            System.out.println(jwtutil.validateToken(token));
             Optional<user> name = loginrepository.findByName(jwtutil.getUserName(token));
-
+            System.out.println(name.get().getName());
             if(name.isPresent())
             {
                 user entity = name.get();

@@ -69,6 +69,8 @@ public class JWTUtil
                     .build()
                     .parseClaimsJws(token);
             Date expiryDate = claimsJws.getBody().getExpiration();
+            System.out.println(expiryDate);
+            System.out.println(new Date());
             return expiryDate.after(new Date());
         }
         catch (JwtException | IllegalArgumentException e)

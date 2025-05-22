@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // 사용자  정보 불러오기
-window.onload = function () {
+/*window.onload = function () {
     fetch("https://example.com/userinfo")
         .then(res => res.json())
         .then(userInfo => {
@@ -37,7 +37,7 @@ window.onload = function () {
                 "❌ 서버에서 정보를 불러오지 못했습니다.";
             console.error("에러 발생:", error);
         });
-};
+};*/
 //사용자 정보 바꾸기
 function openEditPopup() {
     // 새 창 열기 (popup.html 이라는 새 창을 엽니다)
@@ -47,9 +47,31 @@ function openEditPopup() {
 function openPasswordPopup() {
     window.open('popup_password.html', 'PasswordPopup', 'width=400,height=300');
 }
+const token = localStorage.getItem('jwtToken');
 //사용자 없애기
 function openDeletePopup() {
-    window.open('popup_delete.html', 'DeletePopup', 'width=400,height=250');
+    fetch('/member/delete', {
+        method: 'POST',  // ✅ POST 방식
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+        },
+        body: JSON.stringify({ confirm: true })  // 선택적으로 confirm 값 전달
+    })
+        .then(res => {
+            console.log("응답 상태코드:", res.status);
+            if (!res.ok) throw new Error('서버 응답 오류');
+            return res.json();
+        })
+        .then(()=> {
+            alert('회원 탈퇴가 완료되었습니다.');
+            localStorage.removeItem('jwtToken');
+            window.location.href = '/';
+        })
+        .catch(err => {
+            alert('회원 탈퇴 중 오류가 발생했습니다.');
+            console.error('탈퇴 에러:', err);
+        });
 }
 //테크트리 추가하기
 function openSchedulePopup() {

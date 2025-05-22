@@ -31,6 +31,7 @@ public class SecurityConfig
                                 "/do_Register",
                                 "/year",
                                 "/my_page",
+                                "/member/delete",
                                 "/refreshT",
                                 "/login",
                                 "/jsCss/**",

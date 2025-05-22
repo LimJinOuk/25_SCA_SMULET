@@ -51,12 +51,11 @@ const token = localStorage.getItem('jwtToken');
 //사용자 없애기
 function openDeletePopup() {
     fetch('/member/delete', {
-        method: 'POST',  // ✅ POST 방식
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': token
+            Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ confirm: true })  // 선택적으로 confirm 값 전달
     })
         .then(res => {
             console.log("응답 상태코드:", res.status);

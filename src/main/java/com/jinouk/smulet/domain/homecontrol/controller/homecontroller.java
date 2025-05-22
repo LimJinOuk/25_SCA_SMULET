@@ -99,7 +99,7 @@ public class homecontroller {
                 .build();
 
         headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-        headers.set("Authorization", "Bearer " + token);
+        headers.set("Authorization", token);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -121,9 +121,7 @@ public class homecontroller {
 
         if(jwtutil.validateToken(token))
         {
-            System.out.println(jwtutil.validateToken(token));
             Optional<user> name = loginrepository.findByName(jwtutil.getUserName(token));
-            System.out.println(name.get().getName());
             if(name.isPresent())
             {
                 user entity = name.get();

@@ -1,0 +1,54 @@
+<!-- popup.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>정보 수정</title>
+</head>
+<body>
+<h2>정보 수정</h2>
+
+<label>이름: <input type="text" id="name"></label><br><br>
+<label>학번: <input type="text" id="studentId"></label><br><br>
+<label>학과: <input type="text" id="major"></label><br><br>
+
+<button onclick="submitInfo()">변경 완료</button>
+
+<script>
+    function submitInfo() {
+        const name = document.getElementById('name').value;
+        const studentId = document.getElementById('studentId').value;
+        const major = document.getElementById('major').value;
+
+        if (!name || !studentId || !major) {
+            alert("모든 정보를 입력하세요.");
+            return;
+        }
+
+        fetch("/update_userinfo", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: name,
+                studentId: studentId,
+                major: major
+            })
+        })
+            .then(res => {
+                if (res.ok) {
+                    alert("정보가 성공적으로 변경되었습니다.");
+                    window.close(); // 팝업 창 닫기
+                } else {
+                    alert("변경 실패: 서버 오류");
+                }
+            })
+            .catch(err => {
+                console.error("에러:", err);
+                alert("통신 오류가 발생했습니다.");
+            });
+    }
+</script>
+</body>
+</html>

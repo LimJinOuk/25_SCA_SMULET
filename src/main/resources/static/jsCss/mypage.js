@@ -128,7 +128,7 @@ function modifinguserinfo() {
             .then(data => {
                 if (data.Password === true) {
                     alert('비밀번호 확인 완료!');
-                    popup.style.display = 'none';
+                    modalOverlay.style.display = 'none';
                     window.location.href = '/';
                 } else {
                     console.log('입력한 비밀번호:', pw);

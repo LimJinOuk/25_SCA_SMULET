@@ -25,7 +25,7 @@ public class JWTAtuhFilter extends OncePerRequestFilter
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException
     {
         String AuthHeader = request.getHeader("Authorization");
-        System.out.println(AuthHeader);
+        System.out.println("123"+AuthHeader);
         if(AuthHeader != null && AuthHeader.startsWith("Bearer "))
         {
             String token = AuthHeader.substring(7);

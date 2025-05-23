@@ -13,7 +13,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -34,7 +36,15 @@ public class homecontroller {
     public String register(){return "user/Register";}
 
     @GetMapping("my_page")
-    public String mypage(){return "user/mypage/mypage";}
+    public String mypage(@AuthenticationPrincipal Object principal, Model model)
+    {
+        if (principal == null) {
+            return "redirect:/login"; // 로그인 안 되어 있으면 리다이렉트
+        }
+
+        model.addAttribute("username", principal.toString());
+        return "user/mypage/mypage"; // → templates/my_page.html 렌더링
+    }
 
     @GetMapping("/login_page")
     public String loginform(){return "user/login_page";}
@@ -88,6 +98,7 @@ public class homecontroller {
 
         System.out.println(loginresult.getName());
         String token = jwtutil.generateToken(loginresult.getName());
+        System.out.println(token);
         String Refresh = jwtutil.generateRefresh(loginresult.getName());
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", Refresh)
@@ -99,7 +110,7 @@ public class homecontroller {
                 .build();
 
         headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-        headers.set("Authorization", token);
+        headers.set("Authorization",token);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -110,10 +121,12 @@ public class homecontroller {
     }
 
     @PostMapping("/member/delete")
+    @ResponseBody
     public ResponseEntity<?> deletemember(@RequestHeader("Authorization") String authHeader)
     {
+        System.out.println("컨트롤러 도달");
         System.out.println(authHeader);
-        String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+        String token = authHeader.startsWith("Bearer") ? authHeader.substring(7) : authHeader;
 
         System.out.println(token);
 

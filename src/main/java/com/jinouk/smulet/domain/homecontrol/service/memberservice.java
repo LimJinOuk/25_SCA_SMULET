@@ -33,7 +33,7 @@ public class memberservice {
 
     public userdto login(userdto userdto) throws IllegalArgumentException
     {
-        System.out.println(userdto);
+        System.out.println("12"+userdto);
         Optional<user> byemail = loginrepository.findByEmail(userdto.getEmail());
 
         if(byemail.isPresent())

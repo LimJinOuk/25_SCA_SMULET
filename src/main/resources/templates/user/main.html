@@ -255,7 +255,6 @@
         const logoutLink = document.getElementById('logoutLink');
         const myPagelink = document.getElementById('myPagelink');
         const registerLink = document.querySelector('nav a[href="/Register"]');
-
         const token = localStorage.getItem('jwtToken');
 
         if (token) {
@@ -280,24 +279,38 @@
         });
 
     });
-    function mypage(){
+    function mypage() {
         const token = localStorage.getItem('jwtToken');
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
         fetch('/my_page', {
             method: 'GET',
             headers: {
-                "Authorization": `Bearer ${token}`
+                'Authorization': `Bearer ${token}`
             }
         })
             .then(res => {
-                if (!res.ok) throw new Error('요청 실패');
+                if (!res.ok) throw new Error('요청 실패: ' + res.status);
+                return res.text();
             })
-            .then(() => {
-                //이거 사용하면 안 돼요~
-                window.location.href = "/my_page";
+            .then(html => {
+                console.log("📥 전체 HTML 응답 수신됨");
+
+                // 페이지 전체 갈아끼움
+                document.open();
+                document.write(html);  // 💥 이거는 기존 상태 완전 초기화
+                document.close();
             })
             .catch(err => {
-                console.error('에러:', err);
-            });}
+                console.error("❌ 마이페이지 전체 로딩 실패:", err);
+                alert("마이페이지 로딩 중 오류 발생");
+            });
+    }
+
+
 </script>
 
 </body>

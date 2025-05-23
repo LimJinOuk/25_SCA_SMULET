@@ -1,8 +1,9 @@
-const token = localStorage.getItem('jwtToken');
 document.addEventListener('DOMContentLoaded', function () {
     const loginLink = document.getElementById('loginLink');
     const logoutLink = document.getElementById('logoutLink');
     const registerLink = document.querySelector('nav a[href="/Register"]');
+    const token = localStorage.getItem('jwtToken');
+    console.log("📦 가져온 토큰:", token);
 
     logoutLink.addEventListener('click', function (e) {
         e.preventDefault();
@@ -37,16 +38,19 @@ function deleteAccount() {
         },
         body: JSON.stringify({ confirm: true })  // 선택적으로 confirm 값  전달
     })
-        .then(res => res.json())
         .then(res => {
             console.log("응답 상태코드:", res.status);
-            if (!res.ok) throw new Error('서버 응답 오류');
+            if (!res.ok) {
+                throw new Error('서버 응답 오류');
+            }
             return res.json();
         })
-        .then(()=> {
-            alert('회원 탈퇴가 완료되었습니다.');
-            localStorage.removeItem('jwtToken');
-            window.location.href = '/';
+        .then(data=> {
+            if(data.success){
+                alert('회원 탈퇴가 완료되었습니다.');
+                localStorage.removeItem('jwtToken');
+                window.location.href = '/';
+            }
         })
         .catch(err => {
             alert('회원 탈퇴 중 오류가 발생했습니다.');

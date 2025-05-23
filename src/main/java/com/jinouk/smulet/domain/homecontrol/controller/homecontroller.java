@@ -1,5 +1,6 @@
 package com.jinouk.smulet.domain.homecontrol.controller;
 
+import com.jinouk.smulet.domain.homecontrol.dto.DTOPw;
 import com.jinouk.smulet.domain.homecontrol.dto.userdto;
 import com.jinouk.smulet.domain.homecontrol.entity.user;
 import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
@@ -45,7 +46,6 @@ public class homecontroller {
         if (principal == null) {
             return "redirect:/login"; // 로그인 안 되어 있으면 리다이렉트
         }
-
         model.addAttribute("username", principal.toString());
         return "user/mypage/mypage"; // → templates/my_page.html 렌더링
     }
@@ -193,13 +193,18 @@ public class homecontroller {
     public String to_PWupdata() {return "check_pw_page";}
 
     @PostMapping("/check_pw_button")
-    public ResponseEntity<Map<String, Boolean>> check_PW(@RequestParam String pw, HttpServletRequest request)
+    public ResponseEntity<Map<String, Boolean>> check_PW(@RequestBody DTOPw Pw, HttpServletRequest request)
     {
+        String pw = Pw.getPw();
+
         Map<String, Boolean> map = new HashMap<>();
         String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        System.out.println("ABC" + authHeader);
+        if (authHeader != null && authHeader.startsWith("Bearer "))
+        {
             String token = authHeader.substring(7);
             String username = jwtutil.getUserName(token);
+            System.out.println(username);
             Boolean result = mservice.checkPW(pw, username);
             map.put("Password", result);
             return ResponseEntity.ok(map);

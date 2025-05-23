@@ -87,8 +87,14 @@ public class memberservice {
 
     public boolean checkPW(String pw, String username)
     {
+        System.out.println(pw);
         Optional<user> byname = loginrepository.findByName(username);
-        if (byname.isPresent()) {return byname.get().getPw().equals(pw);}
+        System.out.println(byname.isPresent());
+        if (byname.isPresent()) {
+            System.out.println(byname.get().getPw());
+            System.out.println(byname.get().getPw().equals(pw));
+            return byname.get().getPw().equals(pw);
+        }
         else {return false;} //DB에 사용자 토큰에 들어있는 이름 없음
     }
 }

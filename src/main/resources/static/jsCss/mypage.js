@@ -119,7 +119,7 @@ function modifinguserinfo() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ password: pw })
+            body: JSON.stringify({ pw: pw })
         })
             .then(res => {
                 console.log('응답 상태:', res.status, res.statusText);
@@ -129,7 +129,7 @@ function modifinguserinfo() {
                 return res.json();
             })
             .then(data => {
-                if (data.success) {
+                if (data.Password === true) {
                     alert('비밀번호 확인 완료!');
                     popup.style.display = 'none';
                     window.location.href = '/';

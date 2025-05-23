@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -49,8 +50,8 @@ public class homecontroller {
         return "user/mypage/mypage"; // → templates/my_page.html 렌더링
     }
 
-    @GetMapping("user/info")
-    public Object getUserInfo(@AuthenticationPrincipal Object principal, Model model)
+    @GetMapping("/userinfo")
+    public Object getUserInfo(@AuthenticationPrincipal UserDetails principal, Model model)
     {
         Map<String , String> map = new HashMap<>();
         if (principal == null) {

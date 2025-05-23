@@ -31,7 +31,7 @@ public class sqlcontroller {
         }
     }
 
-    @GetMapping("/my_page1")
+    @GetMapping("/my_page1") //return table ID as List
     public ResponseEntity<Map<Integer, List<Integer>>> send_tableID_count(@RequestParam(required = false) Integer userId )
     {
         if (userId == null)

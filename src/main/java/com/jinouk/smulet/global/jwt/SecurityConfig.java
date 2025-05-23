@@ -47,8 +47,7 @@ public class SecurityConfig {
                                 "/techtree",
                                 "/update_button",
                                 "/update",
-                                "/user/",
-                                "/user/info",
+                                "/userinfo",
                                 "/year",
                                 "/my_page1"
                         ).authenticated()

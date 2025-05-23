@@ -61,17 +61,6 @@ public class homecontroller {
         return mservice.userInfo(principal.toString());
     }
 
-/*    @GetMapping("/update")
-    public String to_updata() {return "check_pw_page";}*/
-
-    @PostMapping("/check_pw_button")
-    public String check_PW(@RequestParam String pw, HttpServletRequest request)
-    {
-        if (mservice.checkPW(pw, request)) {return "update_page";}
-        else {return "mypage or check_pw_page";}
-        //인증 실패 시 돌아가거나 다시 비번 인증 화면으로 돌아가기 프론트에서 편한걸로 선택해
-    }
-
     @PostMapping("/do_Register")
     public ResponseEntity<Map<String , String>> save(@RequestBody userdto userdto)
     {
@@ -200,16 +189,39 @@ public class homecontroller {
         } else {return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token not found");}
     }
 
+    @GetMapping("/PWupdate")
+    public String to_PWupdata() {return "check_pw_page";}
 
-    @PostMapping("/update_button")
-    public ResponseEntity<Map<String, String>> user_update(@RequestBody userdto update_dto, HttpServletRequest request) {
-        Map<String, String> map = new HashMap<>();
-        if (mservice.update_user(update_dto, request)) {
-            map.put("update_result", "success");
+    @PostMapping("/check_pw_button")
+    public ResponseEntity<Map<String, Boolean>> check_PW(@RequestParam String pw, HttpServletRequest request)
+    {
+        Map<String, Boolean> map = new HashMap<>();
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            String username = jwtutil.getUserName(token);
+            Boolean result = mservice.checkPW(pw, username);
+            map.put("Password", result);
             return ResponseEntity.ok(map);
-        } else {
-            map.put("update_result", "fail");
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
+        }
+    }
+
+    @PostMapping("/PWupdate_button")
+    public ResponseEntity<Map<String, Boolean>> user_update(@RequestParam String new_PW, HttpServletRequest request) {
+        Map<String, Boolean> map = new HashMap<>();
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            String username = jwtutil.getUserName(token);
+            Boolean result = mservice.update_PW(new_PW, username);
+            map.put("updateStatus", result);
             return ResponseEntity.ok(map);
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
         }
     }
 

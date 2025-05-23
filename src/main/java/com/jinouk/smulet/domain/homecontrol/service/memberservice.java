@@ -71,49 +71,24 @@ public class memberservice {
     }
 
 
-    public boolean update_user(userdto updatedto, HttpServletRequest request) {
-        String authHeader = request.getHeader("AUTHORIZATION");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            String username = jwtUtil.getUserName(token);
-
-            Optional<user> byname = loginrepository.findByName(username);
-            if (byname.isPresent()) {
-                user entity = byname.get();
-                // 일단 지금 이름, 비번만 수정
-                if (updatedto.getName() != null && !updatedto.getName().isBlank()) {
-                    entity.setName(updatedto.getName());
-                }
-                if (updatedto.getPw() != null && !updatedto.getPw().isBlank()) {
-                    entity.setPw(updatedto.getPw());
-                }
-                loginrepository.save(entity);
-                return true; // 정보 수정 성공!
-            } else {
-                return false;
-            } // 이럴 경우가 있을지는 모르겠지만 DB에 토큰에 해당하는 이름이 없는 경우
+    public boolean update_PW(String new_PW, String username) {
+        Optional<user> byname = loginrepository.findByName(username);
+        if (byname.isPresent()) {
+            user entity = byname.get();
+            entity.setPw(new_PW);
+            //지금은 비번이 아무거나 입력해도 수정되는데 나중에 비번 제약사항 정하면 그때 수정
+            loginrepository.save(entity);
+            return true; // 정보 수정 성공!
         } else {
             return false;
-        } // 유효하지 않은 토큰
+        }
     }
 
 
-    public boolean checkPW(String pw, HttpServletRequest request)
+    public boolean checkPW(String pw, String username)
     {
-        String authHeader = request.getHeader("AUTHORIZATION");
-        if (authHeader != null && authHeader.startsWith("Bearer "))
-        {
-            String token = authHeader.substring(7);
-            String username = jwtUtil.getUserName(token);
-
-            Optional<user> byname = loginrepository.findByName(username);
-            if (byname.isPresent())
-            {
-                if (byname.get().getPw().equals(pw)) {return true;} //비번 정답
-                else {return false;} // 입력한 비번 틀림
-            }
-            else {return false;} //DB에 사용자 토큰에 들어있는 이름 없음
-        }
-        else {return false;} // 유효한 토큰이 아님
+        Optional<user> byname = loginrepository.findByName(username);
+        if (byname.isPresent()) {return byname.get().getPw().equals(pw);}
+        else {return false;} //DB에 사용자 토큰에 들어있는 이름 없음
     }
 }

@@ -51,7 +51,7 @@ public class homecontroller {
     }
 
     @GetMapping("/userinfo")
-    public Object getUserInfo(@AuthenticationPrincipal UserDetails principal, Model model)
+    public Object getUserInfo(@AuthenticationPrincipal Object principal, Model model)
     {
         Map<String , String> map = new HashMap<>();
         if (principal == null) {

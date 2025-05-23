@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function loaduserinfo(){
     const token = localStorage.getItem('jwtToken');
 
-    fetch('/user/info',{
+    fetch('/userinfo',{
         method: 'GET',
         headers:{
             'Authorization':`Bearer ${token}`
@@ -38,7 +38,7 @@ function loaduserinfo(){
         })
         .then(data=>{
             document.getElementById('userName').textContent = data.name;
-            document.getElementById('studentId').textContent = data.id;
+            document.getElementById('studentId').textContent = data.email;
         })
         .catch((err=>{
             console.log(err);

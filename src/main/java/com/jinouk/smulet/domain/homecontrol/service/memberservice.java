@@ -54,11 +54,10 @@ public class memberservice {
         loginrepository.deleteByEmail(email);
     }
 
-    public ResponseEntity<?> userInfo(String token)throws IllegalArgumentException
+    public ResponseEntity<?> userInfo(String name)throws IllegalArgumentException
     {
         Map<String, String> map = new HashMap<>();
-        String Name = jwtUtil.getUserName(token);
-        Optional<user> entity = loginrepository.findByName(Name);
+        Optional<user> entity = loginrepository.findByName(name);
         if(entity.isPresent())
         {
             user A = entity.get();

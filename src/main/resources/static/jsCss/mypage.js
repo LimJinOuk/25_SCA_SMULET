@@ -23,6 +23,31 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 });
+function loaduserinfo(){
+    const token = localStorage.getItem('jwtToken');
+
+    fetch('/user/info',{
+        method: 'GET',
+        headers:{
+            'Authorization':`Bearer ${token}`
+        }
+    })
+        .then(res=>{
+            if(!res.ok) throw new Error('사용자 정보 불러오기 실패');
+            return res.json()
+        })
+        .then(data=>{
+            document.getElementById('userName').textContent = data.name;
+            document.getElementById('studentId').textContent = data.id;
+        })
+        .catch((err=>{
+            console.log(err);
+            alert('사용자 정보를 불러오는데 실패했습니다.')
+        }));
+}
+
+
+
 
 function deleteAccount() {
     const token = localStorage.getItem('jwtToken');
@@ -31,7 +56,7 @@ function deleteAccount() {
     }
 
     fetch('/member/delete', {
-        method: 'POST',  // ✅ POST 방식
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             "Authorization": `Bearer ${token}`
@@ -40,14 +65,13 @@ function deleteAccount() {
     })
         .then(res => {
             console.log("응답 상태코드:", res.status);
-
             if (!res.ok) {
                 throw new Error('서버 응답 오류');
             }
             return res.json();
         })
         .then(data=> {
-            if(data.success){
+            if(data.deleteStatus === 'success'){
                 alert('회원 탈퇴가 완료되었습니다.');
                 localStorage.removeItem('jwtToken');
                 window.location.href = '/';
@@ -58,6 +82,67 @@ function deleteAccount() {
             console.error('탈퇴 에러:', err);
         });
 
+}
+
+
+function modifinguserinfo() {
+    const popup = document.getElementById('popup');
+    const closeBtn = document.getElementById('close-btn');
+    const confirmBtn = document.getElementById('confirm');
+    const token = localStorage.getItem('jwtToken');  // 꼭 필요!
+
+
+
+    // 팝업 열기
+    popup.style.display = 'block';
+
+    document.addEventListener('click', function (e) {
+        const popup = document.getElementById('popup');
+        if (popup.style.display === 'block' && !popup.contains(e.target)) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }, true); // useCapture를 true로 설정해야 작동
+
+    // 팝업 닫기
+    closeBtn.onclick = () => {
+        popup.style.display = 'none';
+    };
+
+    // 확인 버튼 클릭 시 fetch 실행
+    confirmBtn.onclick = () => {
+        const pw = document.getElementById('pw').value;
+
+        fetch('/check_pw_button', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ password: pw })
+        })
+            .then(res => {
+                console.log('응답 상태:', res.status, res.statusText);
+                if (!res.ok) {
+                    throw new Error('서버 응답 오류');
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert('비밀번호 확인 완료!');
+                    popup.style.display = 'none';
+                    window.location.href = '/';
+                } else {
+                    console.log('입력한 비밀번호:', pw);
+                    alert('비밀번호가 일치하지 않습니다.');
+                }
+            })
+            .catch(err => {
+                console.error('에러:', err);
+                alert('요청 중 문제가 발생했습니다: ' + err.message);
+            });
+    };
 }
 
 

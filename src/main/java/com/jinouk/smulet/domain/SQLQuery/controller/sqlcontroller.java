@@ -4,6 +4,9 @@ import com.jinouk.smulet.domain.SQLQuery.dto.getTimeTableDTO;
 import com.jinouk.smulet.domain.SQLQuery.service.getTimeTableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,20 +31,6 @@ public class sqlcontroller {
         else
         {
             return sqlservice.getcoursesByUserID(userId);
-        }
-    }
-
-    @GetMapping("/my_page1") //return table ID as List
-    public ResponseEntity<Map<Integer, List<Integer>>> send_tableID_count(@RequestParam(required = false) Integer userId )
-    {
-        if (userId == null)
-        {
-            throw new IllegalArgumentException("user id is null");
-        }
-        else
-        {
-            Map<Integer, List<Integer>> map = sqlservice.find_tableIDs(userId);
-            return ResponseEntity.ok(map);
         }
     }
 }

@@ -208,9 +208,9 @@
   </footer>
 </div>
 `<script>
+  const token = localStorage.getItem('jwtToken');
   document.addEventListener('DOMContentLoaded', function () {
     // 로그인 상태 체크: 이미 JWT가 있으면 로그인 상태로 간주 후 리다이렉트
-    const token = localStorage.getItem('jwtToken');
 
     if (token) {
       // 예시: 로그인 후 대시보드로 이동
@@ -228,6 +228,7 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({ email, pw }),
       })

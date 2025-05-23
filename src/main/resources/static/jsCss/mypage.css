@@ -83,6 +83,7 @@ main {
     flex-direction: column;
     min-height: 430px;
     box-sizing: border-box;
+    transition: all 0.3s ease;
 }
 .box:hover {
     transform: translateY(-4px);
@@ -117,9 +118,10 @@ button {
     color: white;
     border: none;
     padding: 10px 16px;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 0.9rem;
     cursor: pointer;
+    transition: all 0.25s ease;
 }
 button:hover {
     background-color: #1e40af;

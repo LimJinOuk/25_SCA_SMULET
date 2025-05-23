@@ -301,6 +301,8 @@
 
 <!-- 스크립트 -->
 <script>
+  const token = localStorage.getItem('jwtToken');
+
   function sendVerificationCode() {
     const emailInput = document.getElementById('email');
     const email = emailInput.value.trim();
@@ -328,7 +330,10 @@
     // 이메일 전송 요청
     fetch('/send_code', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token
+      },
       body: JSON.stringify({ email: email })
     })
             .then(res => {
@@ -365,7 +370,10 @@
 
     fetch('/check_code', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token
+      },
       body: JSON.stringify({ email: email, code: code })
     })
             .then(res => {
@@ -395,8 +403,9 @@
 
     fetch('do_Register',{
       method: 'POST',
-      headers:{
-        'Content-Type': 'application/json'
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token
       },
       body: JSON.stringify({name,email,pw})
     })

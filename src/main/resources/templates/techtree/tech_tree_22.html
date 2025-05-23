@@ -8,8 +8,51 @@
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
       rel="stylesheet"
     />
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Montserrat', sans-serif;
+        background-color: #f7f9fc;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      /* 헤더 */
+      header {
+        background-color: white;
+        padding: 20px;
+        box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+        background-color: rgb(255, 255, 255, 0.85);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      h1 {
+        font-size: 2.3rem;
+        font-weight: bold;
+        color: #2563eb;
+        margin: 0;
+      }
+      h1 a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      nav a {
+        margin-left: 20px;
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+        transition: color 0.2s ease, font-size 0.2s ease;
+      }
+
+      nav a:hover {
+        color: #3b82f6;
+        font-size: 1.1rem;
+      }
       .grid-container {
         display: flex;
         flex-direction: column;
@@ -86,20 +129,14 @@
       }
     </style>
   </head>
-  <body class="bg-gray-100">
-    <header
-      class="bg-white p-4 shadow-md flex justify-between items-center border-b"
-    >
-      <h1
-        class="text-4xl font-bold text-blue-600"
-        style="font-family: 'Montserrat', sans-serif"
-      >
-        SMULET
-      </h1>
-      <a href="/templates/timetable/schedule_list.html" class="text-blue-600 font-bold text-lg hover:underline"
-        >시간표</a
-      >
-    </header>
+  <body>
+  <header>
+    <h1><a href="/">SMULET</a></h1>
+    <nav>
+      <a href="#"><b>이용안내</b></a>
+      <a href="/Register"><b>회원가입</b></a>
+    </nav>
+  </header>
     <div class="flex justify-center items-center gap-8 my-6">
       <h1 class="text-3xl font-bold text-center my-6">
         전공 이수 체계도(22학번)

@@ -18,6 +18,7 @@
       <a href="/login_page" id="loginLink"><b>로그인</b></a>
       <a href="/Register" id = "registerLink"><b>회원가입</b></a>
       <a href="/" id="logoutLink" style="display: none;"><b>로그아웃</b></a>
+      <a href="/" id="" style="display: none;"><b>마이페이지</b></a>
     </nav>
   </header>
 <main>
@@ -41,7 +42,7 @@
       </div>
       <div class="section">
         <h3>회원탈퇴</h3>
-        <button class="red" onclick="openDeletePopup()">탈퇴</button>
+        <button class="red" onclick="deleteAccount()">탈퇴</button>
       </div>
     </div>
 
@@ -67,7 +68,7 @@
       <p class="subtext">나만의 시간표를 만들어보세요!</p>
       <div class="button-group">
         <button onclick="openSchedulePopup()">추가</button>
-        <button class="red" onclick="deleteScheduleToggle()">삭제</button>
+        <button class="red" onclick ="deleteAccount()">삭제</button>
       </div>
       <div class="scroll-area" id="scheduleList">
         <!-- 동적으로 추가될 시간표 항목 -->

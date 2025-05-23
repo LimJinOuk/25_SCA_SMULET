@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function deleteAccount() {
-
+    const token = localStorage.getItem('jwtToken');
     if (!confirm("정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
         return;
     }
@@ -40,6 +40,7 @@ function deleteAccount() {
     })
         .then(res => {
             console.log("응답 상태코드:", res.status);
+
             if (!res.ok) {
                 throw new Error('서버 응답 오류');
             }

@@ -110,7 +110,7 @@ public class homecontroller {
                 .build();
 
         headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-        headers.set("Authorization",token);
+        headers.set("Authorization", token);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

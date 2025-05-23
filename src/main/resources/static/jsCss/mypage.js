@@ -86,6 +86,7 @@ function deleteAccount() {
 
 
 function modifinguserinfo() {
+    const modalOverlay = document.getElementById('modalOverlay');
     const popup = document.getElementById('popup');
     const closeBtn = document.getElementById('close-btn');
     const confirmBtn = document.getElementById('confirm');
@@ -94,19 +95,15 @@ function modifinguserinfo() {
 
 
     // 팝업 열기
-    popup.style.display = 'block';
+    modalOverlay.classList.remove('hidden');
+    document.body.classList.add("modal-open");
 
-    document.addEventListener('click', function (e) {
-        const popup = document.getElementById('popup');
-        if (popup.style.display === 'block' && !popup.contains(e.target)) {
-            e.stopPropagation();
-            e.preventDefault();
-        }
-    }, true); // useCapture를 true로 설정해야 작동
+
 
     // 팝업 닫기
     closeBtn.onclick = () => {
-        popup.style.display = 'none';
+        document.getElementById("modalOverlay").classList.add("hidden");
+        document.body.classList.remove("modal-open");
     };
 
     // 확인 버튼 클릭 시 fetch 실행

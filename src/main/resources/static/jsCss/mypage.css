@@ -58,9 +58,9 @@ main {
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
     padding: 20px 16px;
-    box-sizing: border-box;
-    height: auto;
     max-width: 1200px;
+    width: 100%;
+    flex-wrap: wrap;
 }
 
 
@@ -69,12 +69,12 @@ main {
     .container {
         display: flex;
         flex-direction: column;
-        padding: 20px;
     }
 }
 
 /* 박스 공통 */
 .box {
+    flex: 1;
     background: #fff;
     border-radius: 16px;
     padding: 24px;
@@ -104,7 +104,11 @@ h2, h3 {
     gap: 10px;
 }
 .section {
-    margin-bottom: 18px;
+    margin-bottom: 24px;
+}
+.section button{
+    display: block;
+    margin-top: 8px;
 }
 .info p {
     margin: 3px 0;
@@ -211,3 +215,41 @@ select:focus {
     border-color: #2563eb;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
 }
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); /* 어두운 배경 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal {
+    background: white;
+    padding: 30px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    min-width: 300px;
+}
+
+.hidden {
+    display: none;
+}
+.button-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+body.modal-open{
+    overflow: hidden;
+}
+

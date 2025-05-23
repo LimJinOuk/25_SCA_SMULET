@@ -30,28 +30,33 @@
         <div class="nav">
           <div class="info">
             <p>이름: <span id="userName"></span></p>
-            <p>학번: <span id="studentId"></span></p>
+            <p>이메일: <span id="studentId"></span></p>
             <p>학과: <span id="userMajor">컴퓨터과학과</span></p>
           </div>
-          <button  onclick="modifinguserinfo()">수정</button>
-          <div id="popup" class="popup" style="display: none;">
-            <div class="modal-content">
-              <p>비밀번호를 입력하세요</p>
-              <input type="password" id="pw">
+        </div>
+        <div class="section">
+          <h3>비밀번호 변경</h3>
+          <div class = "button-group-vertical">
+            <button onclick="modifinguserinfo()">변경</button>
+          </div>
+        </div>
+        <div id="modalOverlay" class="modal-overlay hidden">
+          <div class = "modal-wrapper">
+          <div class="modal">
+            <p>비밀번호를 입력하세요</p>
+            <input type="password" id="pw">
+            <div style="margin-top: 10px;">
               <button id="confirm" type="button">확인</button>
               <button id="close-btn" type="button">닫기</button>
             </div>
           </div>
+          </div>
         </div>
-      </div>
-      <div class="section">
-        <h3>비밀번호 변경</h3>
-        <button onclick="openPasswordPopup()">변경</button>
-      </div>
       <div class="section">
         <h3>회원탈퇴</h3>
         <button class="red" onclick="deleteAccount()">탈퇴</button>
       </div>
+    </div>
     </div>
 
     <!-- BOX2 -->
@@ -68,24 +73,10 @@
         <option value="25">25학번 테크트리</option>
       </select>
     </div>
-
-
-    <!-- BOX3 -->
-    <div class="box box3">
-      <h2>시간표</h2>
-      <p class="subtext">나만의 시간표를 만들어보세요!</p>
-      <div class="button-group">
-        <button onclick="openSchedulePopup()">추가</button>
-        <button type="button" class="red" onclick="deleteAccount()">탈퇴</button>
+      <div class = "box  box3">
+        <h2>시간표</h2>
+        <p class="subtext">시간표를 만나보세요!</p>
       </div>
-      <div class="scroll-area" id="scheduleList">
-        <!-- 동적으로 추가될 시간표 항목 -->
-        <div class="schedule-item">2024 여름학기</div>
-        <div class="schedule-item">2024 겨울학기</div>
-        <div class="schedule-item">2025 여름학기</div>
-        <div class="schedule-item">2025 겨울학기</div>
-      </div>
-    </div>
   </div>
 </main>
 <footer>

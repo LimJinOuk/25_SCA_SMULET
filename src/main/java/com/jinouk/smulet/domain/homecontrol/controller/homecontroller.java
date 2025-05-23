@@ -1,6 +1,7 @@
 package com.jinouk.smulet.domain.homecontrol.controller;
 
 import com.jinouk.smulet.domain.homecontrol.dto.DTOPw;
+import com.jinouk.smulet.domain.SQLQuery.service.getTimeTableService;
 import com.jinouk.smulet.domain.homecontrol.dto.userdto;
 import com.jinouk.smulet.domain.homecontrol.entity.user;
 import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
@@ -21,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -28,6 +30,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class homecontroller {
     private final memberservice mservice;
+    private final getTimeTableService tservice;
     private final loginrepository loginrepository;
     private final JWTUtil jwtutil;
 
@@ -59,6 +62,16 @@ public class homecontroller {
         }
         model.addAttribute("username", principal.toString());
         return mservice.userInfo(principal.toString());
+    }
+
+    @GetMapping("/tableId_List") //return table ID as List
+    public ResponseEntity<Map<Integer, List<Integer>>> send_tableID_count(@AuthenticationPrincipal UserDetails principal, Model model)
+    {
+        String username = principal.getUsername();
+        Optional<user> Byname = loginrepository.findByName(username);
+        Integer userid = Byname.get().getId();
+        Map<Integer, List<Integer>> map = tservice.find_tableIDs(userid);
+        return ResponseEntity.ok(map);
     }
 
     @PostMapping("/do_Register")

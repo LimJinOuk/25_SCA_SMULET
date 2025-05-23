@@ -35,6 +35,9 @@ public class homecontroller {
     @GetMapping("/Register")
     public String register(){return "user/Register";}
 
+    @GetMapping("/login_page")
+    public String loginform(){return "user/login_page";}
+
     @GetMapping("my_page")
     public String mypage(@AuthenticationPrincipal Object principal, Model model)
     {
@@ -46,28 +49,26 @@ public class homecontroller {
         return "user/mypage/mypage"; // → templates/my_page.html 렌더링
     }
 
-    @GetMapping("/login_page")
-    public String loginform(){return "user/login_page";}
-  
-    @GetMapping("/techtree")
-    public String techtree(){return "user/main";}
-
-    @GetMapping("/year")
-    public String tech_tree(@RequestParam String year) {
-        switch (year) {
-            case "21":
-                return "techtree/tech_tree_21";
-            case "22":
-                return "techtree/tech_tree_22";
-            case "23":
-                return "techtree/tech_tree_23";
-            case "24":
-                return "techtree/tech_tree_24";
-            case "25":
-                return "techtree/tech_tree_25";
-            default:
-                return "user/main";
+    @GetMapping("user/info")
+    public Object getUserInfo(@AuthenticationPrincipal Object principal, Model model)
+    {
+        Map<String , String> map = new HashMap<>();
+        if (principal == null) {
+            return "redirect:/login";
         }
+        model.addAttribute("username", principal.toString());
+        return mservice.userInfo(principal.toString());
+    }
+
+/*    @GetMapping("/update")
+    public String to_updata() {return "check_pw_page";}*/
+
+    @PostMapping("/check_pw_button")
+    public String check_PW(@RequestParam String pw, HttpServletRequest request)
+    {
+        if (mservice.checkPW(pw, request)) {return "update_page";}
+        else {return "mypage or check_pw_page";}
+        //인증 실패 시 돌아가거나 다시 비번 인증 화면으로 돌아가기 프론트에서 편한걸로 선택해
     }
 
     @PostMapping("/do_Register")
@@ -197,22 +198,7 @@ public class homecontroller {
 
         } else {return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token not found");}
     }
-    @GetMapping("user/info")
-    public ResponseEntity<?> getUserInfo(String token) {
-        return mservice.userInfo(token);
-    }
 
-
-    @GetMapping("/update")
-    public String to_updata() {return "check_pw_page";}
-
-    @GetMapping("/check_pw_button")
-    public String check_PW(@RequestParam String pw, HttpServletRequest request)
-    {
-        if (mservice.checkPW(pw, request)) {return "update_page";}
-        else {return "mypage or check_pw_page";}
-        //인증 실패 시 돌아가거나 다시 비번 인증 화면으로 돌아가기 프론트에서 편한걸로 선택해
-    }
 
     @PostMapping("/update_button")
     public ResponseEntity<Map<String, String>> user_update(@RequestBody userdto update_dto, HttpServletRequest request) {

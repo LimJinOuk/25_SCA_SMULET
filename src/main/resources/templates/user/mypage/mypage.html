@@ -10,7 +10,7 @@
   />
 
 </head>
-<body>
+<body onload="loaduserinfo()">
   <header>
     <h1><a href="/">SMULET</a></h1>
     <nav>
@@ -29,11 +29,19 @@
         <h2>내 정보</h2>
         <div class="nav">
           <div class="info">
-            <p>이름: <span id="userName">최현성</span></p>
-            <p>학번: <span id="studentId">202210985</span></p>
+            <p>이름: <span id="userName"></span></p>
+            <p>학번: <span id="studentId"></span></p>
             <p>학과: <span id="userMajor">컴퓨터과학과</span></p>
           </div>
-          <button onclick="openEditPopup()">변경</button>
+          <button  onclick="modifinguserinfo()">수정</button>
+          <div id="popup" class="popup" style="display: none;">
+            <div class="modal-content">
+              <p>비밀번호를 입력하세요</p>
+              <input type="password" id="pw">
+              <button id="confirm" type="button">확인</button>
+              <button id="close-btn" type="button">닫기</button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="section">

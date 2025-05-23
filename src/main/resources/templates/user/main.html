@@ -147,7 +147,7 @@
             font-weight: 700;
         }
 
-        .login-btn {
+        .login-btn, .mypage-btn{
             display: inline-block;
             border: none;
             padding: 15px 40px;
@@ -161,11 +161,11 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .login-btn a {
+        .login-btn a, .mypage-btn a {
             color: white; /* 흰색 글씨 */
             text-decoration: none; /* 밑줄 제거 */
         }
-        .login-btn:hover {
+        .login-btn:hover, .mypage-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
         }
@@ -193,7 +193,6 @@
             <a href="#"><b>이용안내</b></a>
             <a href="/login_page" id="loginLink"><b>로그인</b></a>
             <a href="/Register" id = "registerLink"><b>회원가입</b></a>
-            <a href="/my_page" id = "myPagelink" style="display: none;"><b>마이페이지</b></a>
             <a href="/" id="logoutLink" style="display: none;"><b>로그아웃</b></a>
         </nav>
     </header>
@@ -235,7 +234,8 @@
     <main>
         <div class="title">상명대 컴퓨터과학과</div>
         <div class="subtitle">SMULET</div>
-        <div class="login-btn"><a href="/login_page">로그인</a></div>
+        <div class="login-btn"  id="loginbox"><a href="/login_page">로그인</a></div>
+        <button class="mypage-btn" id = "myPagelink" onclick="mypage()">마이페이지</button>
     </main>
     <footer>
         <b>
@@ -250,11 +250,27 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const token = localStorage.getItem('jwtToken');
         const loginLink = document.getElementById('loginLink');
+        const loginbox = document.getElementById('loginbox');
         const logoutLink = document.getElementById('logoutLink');
         const myPagelink = document.getElementById('myPagelink');
         const registerLink = document.querySelector('nav a[href="/Register"]');
+
+        const token = localStorage.getItem('jwtToken');
+
+        if (token) {
+            loginLink.style.display = 'none';
+            loginbox.style.display = 'none';
+            logoutLink.style.display = 'inline';
+            myPagelink.style.display = 'inline';
+            registerLink.style.display = 'none';
+        } else {
+            loginLink.style.display = 'inline';
+            loginbox.style.display = 'inline';
+            logoutLink.style.display = 'none';
+            registerLink.style.display = 'inline';
+            myPagelink.style.display = 'none';
+        }
 
         logoutLink.addEventListener('click', function (e) {
             e.preventDefault();
@@ -263,19 +279,25 @@
             window.location.href = '/';
         });
 
-        if (token) {
-            loginLink.style.display = 'none';
-            myPagelink.style.display = 'inline';
-            logoutLink.style.display = 'inline';
-            registerLink.style.display = 'none';
-        } else {
-            loginLink.style.display = 'inline';
-            logoutLink.style.display = 'none';
-            myPagelink.style.display = 'none';
-            registerLink.style.display = 'inline';
-        }
-
     });
+    function mypage(){
+        const token = localStorage.getItem('jwtToken');
+        fetch('/my_page', {
+            method: 'GET',
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('요청 실패');
+            })
+            .then(() => {
+                //이거 사용하면 안 돼요~
+                window.location.href = "/my_page";
+            })
+            .catch(err => {
+                console.error('에러:', err);
+            });}
 </script>
 
 </body>

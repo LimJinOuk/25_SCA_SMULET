@@ -129,7 +129,8 @@ function modifinguserinfo() {
                 if (data.Password === true) {
                     alert('비밀번호 확인 완료!');
                     modalOverlay.style.display = 'none';
-                    window.location.href = '/';
+                    document.getElementById("modalOverlay").classList.add("hidden"); // 인증 모달 숨기기
+                    document.getElementById("changePwModal").classList.remove("hidden"); // 변경 모달 표시
                 } else {
                     console.log('입력한 비밀번호:', pw);
                     alert('비밀번호가 일치하지 않습니다.');
@@ -141,6 +142,52 @@ function modifinguserinfo() {
             });
     };
 }
+document.getElementById("changePwBtn").onclick = function () {
+    const newPw = document.getElementById("newPassword").value;
+    const confirmPw = document.getElementById("confirmPassword").value;
+    const token = localStorage.getItem("jwtToken");
+
+    if (!newPw || !confirmPw || newPw !== confirmPw) {
+        alert("비밀번호를 정확히 입력해주세요.");
+        return;
+    }
+
+    fetch('/PWupdate_button', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: `new_PW=${encodeURIComponent(newPw)}`
+    })
+        .then(res => {
+            if (!res.ok) {
+                if (res.status === 401) alert("인증 실패. 다시 로그인 해주세요.");
+                throw new Error("서버 오류: " + res.status);
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.updateStatus === true) {
+                alert("비밀번호가 성공적으로 변경되었습니다.");
+                document.getElementById("changePwModal").classList.add("hidden");
+            } else {
+                alert("비밀번호 변경에 실패했습니다.");
+            }
+        })
+        .catch(err => {
+            alert("비밀번호 변경 중 오류 발생: " + err.message);
+        });
+};
+
+// 닫기 버튼들 처리
+document.getElementById("close-btn").onclick = function () {
+    document.getElementById("modalOverlay").classList.add("hidden");
+};
+
+document.getElementById("cancelChange").onclick = function () {
+    document.getElementById("changePwModal").classList.add("hidden");
+};
 
 
 function goToTechTree() {

@@ -228,13 +228,14 @@ public class homecontroller {
     }
 
     @PostMapping("/PWupdate_button")
-    public ResponseEntity<Map<String, Boolean>> user_update(@RequestParam String new_PW, HttpServletRequest request) {
+    public ResponseEntity<Map<String, Boolean>> user_update(@RequestBody DTOPw new_PW, HttpServletRequest request) {
+        System.out.println(new_PW.getPw());
         Map<String, Boolean> map = new HashMap<>();
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             String username = jwtutil.getUserName(token);
-            Boolean result = mservice.update_PW(new_PW, username);
+            Boolean result = mservice.update_PW(new_PW.getPw(), username);
             map.put("updateStatus", result);
             return ResponseEntity.ok(map);
         }

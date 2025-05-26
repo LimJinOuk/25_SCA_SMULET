@@ -45,7 +45,7 @@ public class SecurityConfig {
                                 "/check_pw_button",
                                 "/my_page",
                                 "/techtree",
-                                "/update_button",
+                                "/PWupdate_button",
                                 "/update",
                                 "/userinfo",
                                 "/year",

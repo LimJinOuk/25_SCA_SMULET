@@ -40,24 +40,40 @@
             <button onclick="modifinguserinfo()">변경</button>
           </div>
         </div>
-        <div id="modalOverlay" class="modal-overlay hidden">
-          <div class = "modal-wrapper">
-          <div class="modal">
-            <p>비밀번호를 입력하세요</p>
-            <input type="password" id="pw">
-            <div style="margin-top: 10px;">
-              <button id="confirm" type="button">확인</button>
-              <button id="close-btn" type="button">닫기</button>
-            </div>
-          </div>
-          </div>
-        </div>
+      </div>
       <div class="section">
         <h3>회원탈퇴</h3>
         <button class="red" onclick="deleteAccount()">탈퇴</button>
       </div>
     </div>
+
+    <div id="modalOverlay" class="modal-overlay hidden">
+      <div class = "modal-wrapper">
+        <div class="modal">
+          <p>비밀번호를 입력하세요</p>
+          <input type="password" id="pw">
+          <div style="margin-top: 10px;">
+            <button id="confirm" type="button">확인</button>
+            <button id="close-btn" type="button">닫기</button>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <div id="changePwModal" class="modal-overlay hidden">
+      <div class="modal-wrapper">
+        <div class="modal">
+          <p>새 비밀번호를 입력하세요</p>
+          <input type="password" id="newPassword" placeholder="새 비밀번호">
+          <input type="password" id="confirmPassword" placeholder="비밀번호 확인">
+          <div style="margin-top: 10px;">
+            <button id="changePwBtn" type="button">변경</button>
+            <button id="cancelChange" type="button">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <!-- BOX2 -->
     <div class="box box2">
@@ -72,13 +88,16 @@
         <option value="24">24학번 테크트리</option>
         <option value="25">25학번 테크트리</option>
       </select>
+
     </div>
-      <div class = "box  box3">
-        <h2>시간표</h2>
-        <p class="subtext">시간표를 만나보세요!</p>
-      </div>
+
+    <div class = "box  box3">
+      <h2>시간표</h2>
+      <p class="subtext">시간표를 만나보세요!</p>
+    </div>
   </div>
 </main>
+
 <footer>
   <b>
     <a href="#">Github</a>
@@ -87,6 +106,7 @@
     <a href="#">Copyright</a>
   </b>
 </footer>
+
 <script src="/jsCss/mypage.js" defer></script>
 </body>
 </html>

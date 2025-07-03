@@ -194,7 +194,7 @@
 
     //모달 닫기
     document.getElementById("close-btn").onclick = function () {
-        document.getElementById("changePwModal").classList.add("hidden");
+        document.getElementById("modalOverlay").classList.add("hidden");
     };
     document.getElementById("cancelChange").onclick = function () {
         document.getElementById("changePwModal").classList.add("hidden");

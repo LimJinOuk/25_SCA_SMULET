@@ -38,7 +38,8 @@ public class SecurityConfig {
                                 "/refreshT",
                                 "/login",
                                 "/jsCss/**",
-                                "/images/**"
+                                "/images/**",
+                                "/a"
                         ).permitAll()
                         .requestMatchers(
                                 "/member/delete",

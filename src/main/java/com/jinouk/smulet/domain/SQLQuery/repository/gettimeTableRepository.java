@@ -1,6 +1,7 @@
 package com.jinouk.smulet.domain.SQLQuery.repository;
 
 import com.jinouk.smulet.domain.SQLQuery.dto.getTimeTableDTO;
+import com.jinouk.smulet.domain.SQLQuery.entity.course;
 import com.jinouk.smulet.domain.SQLQuery.entity.timetable;
 import jakarta.persistence.ColumnResult;
 import jakarta.persistence.ConstructorResult;
@@ -49,4 +50,6 @@ public interface gettimeTableRepository extends JpaRepository<timetable, Long> {
 
     @Query("SELECT y.id FROM timetable y WHERE y.userId=:userId")
     List<Integer> findTableIdsByUserId(Integer userId);
+
+
 }

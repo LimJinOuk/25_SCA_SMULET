@@ -162,11 +162,11 @@
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ new_PW: newPw })
+            body: JSON.stringify({ pw: newPw })
         })
             .then(async res => {
                 if (!res.ok) {
-                    const errorText = await res.text(); // 에러 응답 텍스트 확인
+                    const errorText = await res.text();
                     alert(`서버 오류 ${res.status}: ${errorText}`);
                     throw new Error("서버 오류: " + res.status);
                 }
@@ -184,14 +184,22 @@
                 alert("비밀번호 변경 중 오류 발생: " + err.message);
             });
     };
+    //모달 열기
+    document.getElementById("openPwModalBtn").onclick = function () {
+        document.getElementById("changePwModal").classList.remove("hidden");
+        document.getElementById("newPassword").value = "";
+        document.getElementById("confirmPassword").value = "";
+    };
 
+
+    //모달 닫기
     document.getElementById("close-btn").onclick = function () {
         document.getElementById("modalOverlay").classList.add("hidden");
     };
-
     document.getElementById("cancelChange").onclick = function () {
         document.getElementById("changePwModal").classList.add("hidden");
     };
+
 
     //테크트리 이동
     function goToTechTree() {

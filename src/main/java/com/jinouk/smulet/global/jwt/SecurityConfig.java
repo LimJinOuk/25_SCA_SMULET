@@ -38,8 +38,9 @@ public class SecurityConfig {
                                 "/refreshT",
                                 "/login",
                                 "/jsCss/**",
+                                "/techtree/**",
                                 "/images/**",
-                                "/a"
+                                "/course"
                         ).permitAll()
                         .requestMatchers(
                                 "/member/delete",
@@ -49,7 +50,7 @@ public class SecurityConfig {
                                 "/PWupdate_button",
                                 "/update",
                                 "/userinfo",
-                                "/year",
+                                "/tech_tree",
                                 "/my_page1"
                         ).authenticated()
                         .anyRequest().authenticated()

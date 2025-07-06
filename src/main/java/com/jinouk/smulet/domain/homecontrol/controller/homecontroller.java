@@ -124,6 +124,12 @@ public class homecontroller {
 
     }
 
+    @GetMapping("/tech_tree")
+    @ResponseBody
+    public String tech_tree(@RequestParam(value = "year" , required = false , defaultValue = "21") int year) {
+        return "/techtree/tech_tree_" + year + ".html";
+    }
+
     @PostMapping("/member/delete")
     @ResponseBody
     public ResponseEntity<?> deletemember(@RequestHeader("Authorization") String authHeader)

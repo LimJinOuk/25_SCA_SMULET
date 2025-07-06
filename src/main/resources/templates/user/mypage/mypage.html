@@ -74,7 +74,6 @@
       </div>
     </div>
 
-
     <!-- BOX2 -->
     <div class="box box2">
       <h2>테크트리</h2>
@@ -91,9 +90,25 @@
 
     </div>
 
-    <div class = "box  box3">
+    <div class="box box3">
       <h2>시간표</h2>
       <p class="subtext">시간표를 만나보세요!</p>
+
+      <div style="margin-top: 12px;">
+        <button id="showSemesterBtn">시간표 추가</button>
+      </div>
+
+      <!-- 추가 가능한 학기 목록 (탑다운: 최근 → 과거 순) -->
+      <div id="addSemesterList" class="hidden" style="margin-top: 10px;">
+        <select id="semesterSelect">
+          <!-- JS에서 동적으로 채워짐 -->
+        </select>
+        <button onclick="addSemester()">추가</button>
+      </div>
+
+      <!-- 시간표 목록 -->
+      <ul id="semesterList" style="margin-top: 12px;"></ul>
+
     </div>
   </div>
 </main>

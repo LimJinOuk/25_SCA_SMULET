@@ -257,7 +257,7 @@ function renderSemesterList() {
         const li = document.createElement('li');
         li.innerHTML = `
             <span>${sem}</span>
-            <button onclick="removeSemester(${index})">삭제</button>
+            <button onclick="removeSemester(${index})" style = "color: white; background-color: red">삭제</button>
         `;
         list.appendChild(li);
     });

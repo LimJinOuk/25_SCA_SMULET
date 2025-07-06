@@ -38,8 +38,8 @@ public class SecurityConfig {
                                 "/refreshT",
                                 "/login",
                                 "/jsCss/**",
-                                "/techtree/**",
                                 "/images/**",
+                                "/techtree/**",
                                 "/course"
                         ).permitAll()
                         .requestMatchers(

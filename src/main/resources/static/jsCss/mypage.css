@@ -252,4 +252,15 @@ select:focus {
 body.modal-open{
     overflow: hidden;
 }
+.hidden {
+    display: none;
+}
+
+#semesterList li {
+    margin: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 

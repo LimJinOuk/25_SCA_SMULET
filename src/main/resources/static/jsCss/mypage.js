@@ -221,6 +221,13 @@ function goToTechTree() {
 
 
 // 학기 추가 관련
+function openScheduleModal(semesterName) {
+    const modal = document.getElementById("scheduleModal");
+    const title = document.getElementById("modalSemesterTitle");
+    title.textContent = semesterName;
+    modal.classList.remove("hidden");
+    document.body.classList.add("modal-open");
+}
 
 function showAddSemester() {
     const addList = document.getElementById('addSemesterList');
@@ -240,10 +247,8 @@ function showAddSemester() {
 }
 
 function addSemester() {
-    const select = document.getElementById('semesterSelect');
-    const selected = select.value;
+    const selected = document.getElementById('semesterSelect').value;
     if (!selected) return;
-
     selectedSemesters.push(selected);
     renderSemesterList();
     document.getElementById('addSemesterList').classList.add('hidden');
@@ -251,18 +256,18 @@ function addSemester() {
 
 function renderSemesterList() {
     const list = document.getElementById('semesterList');
-    list.innerHTML = '';  // ← 이 줄은 먼저 리스트 비우기용으로 제대로 빼주고
-
+    list.innerHTML = '';
     selectedSemesters.forEach((sem, index) => {
         const li = document.createElement('li');
         li.innerHTML = `
-            <span>${sem}</span>
-            <button onclick="removeSemester(${index})" style = "color: white; background-color: red">삭제</button>
-        `;
+                <span class="semester-name" style="cursor:pointer; color:#2563eb; text-decoration: underline;">${sem}</span>
+                <button onclick="removeSemester(${index})" style="color:white; background:red">삭제</button>
+            `;
         list.appendChild(li);
+
+        li.querySelector('.semester-name').addEventListener('click', () => openScheduleModal(sem));
     });
 }
-
 
 function removeSemester(index) {
     selectedSemesters.splice(index, 1);

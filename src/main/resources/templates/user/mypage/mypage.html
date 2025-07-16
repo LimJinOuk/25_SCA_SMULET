@@ -3,24 +3,295 @@
 <head>
   <meta charset="UTF-8">
   <title>My page</title>
-  <link rel="stylesheet" href="/jsCss/mypage.css">
-  <link
-          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
-          rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    /* 기본 설정 */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f7f9fc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
+    /* 헤더 */
+    header {
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+      background-color: rgb(255, 255, 255, 0.85);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    h1 {
+      font-size: 2.3rem;
+      font-weight: bold;
+      color: #2563eb;
+      margin: 0;
+    }
+    h1 a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    nav a {
+      margin-left: 20px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.2s ease, font-size 0.2s ease;
+    }
+
+    nav a:hover {
+      color: #3b82f6;
+      font-size: 1.1rem;
+    }
+
+    main {
+      flex: 1;
+      padding-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 20px 16px;
+      max-width: 1200px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+
+    /* 반응형 전환 */
+    @media (max-width: 900px) {
+      .container {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+
+    /* 박스 공통 */
+    .box {
+      flex: 1;
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+      display: flex;
+      flex-direction: column;
+      min-height: 430px;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+    .box:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    h2, h3 {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+      color: #111827;
+    }
+
+    /* 내부 정렬 */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .section {
+      margin-bottom: 24px;
+    }
+    .section button{
+      display: block;
+      margin-top: 8px;
+    }
+    .info p {
+      margin: 3px 0;
+      font-size: 0.9rem;
+      color: #374151;
+    }
+
+    /* 버튼 */
+    button {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    button:hover {
+      background-color: #1e40af;
+      transform: scale(1.03);
+    }
+    button.red {
+      background-color: #ef4444;
+    }
+    button.red:hover {
+      background-color: #dc2626;
+    }
+
+    /* 테크트리 버튼 간 간격 */
+    .tech-buttons a {
+      display: block;
+      margin-bottom: 10px;
+      text-decoration: none;
+    }
+
+    /* 시간표 버튼 그룹 */
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* 시간표 아이템 */
+    #scheduleList .schedule-item {
+      background-color: #f3f4f6;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 푸터 */
+    footer {
+      background-color: rgba(30, 30, 30, 0.98);
+      color: rgba(200, 200, 200, 0.7);
+      font-size: 0.9rem;
+      padding: 2rem 1rem;
+      text-align: center;
+      border-top: 1px solid #444;
+      margin-top: auto;
+    }
+    footer a {
+      text-decoration: none;
+      color: rgba(200, 200, 200, 0.7);
+      margin: 0 10px;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+    select {
+      appearance: none; /* 기본 화살표 제거 */
+      -webkit-appearance: none;
+      -moz-appearance: none;
+
+      background-color: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 1rem;
+      color: #111827;
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px 16px;
+      padding-right: 40px; /* 화살표 공간 확보 */
+    }
+
+    select:hover {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+    }
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.5); /* 어두운 배경 */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal {
+      background: white;
+      padding: 30px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      min-width: 300px;
+    }
+
+    .hidden {
+      display: none;
+    }
+    .button-group-vertical {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    body.modal-open{
+      overflow: hidden;
+    }
+    .hidden {
+      display: none;
+    }
+
+    #semesterList li {
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #scheduleTable td {
+      width: 80px;
+      /* 필요 시 최소/최대 너비 조절도 가능 */
+      min-width: 60px;
+      max-width: 100px;
+      word-break: break-word; /* 내용이 길 경우 줄바꿈 */
+    }
+
+
+  </style>
 </head>
 <body onload="loaduserinfo()">
-  <header>
-    <h1><a href="/">SMULET</a></h1>
-    <nav>
-      <a href="#"><b>이용안내</b></a>
-      <a href="/login_page" id="loginLink"><b>로그인</b></a>
-      <a href="/Register" id = "registerLink"><b>회원가입</b></a>
-      <a href="/" id="logoutLink" style="display: none;"><b>로그아웃</b></a>
-      <a href="/" id="" style="display: none;"><b>마이페이지</b></a>
-    </nav>
-  </header>
+<header>
+  <h1><a href="/">SMULET</a></h1>
+  <nav>
+    <a href="#"><b>이용안내</b></a>
+    <a href="/login_page" id="loginLink"><b>로그인</b></a>
+    <a href="/Register" id="registerLink"><b>회원가입</b></a>
+    <a href="/" id="logoutLink" style="display: none;"><b>로그아웃</b></a>
+    <a href="/" id="" style="display: none;"><b>마이페이지</b></a>
+  </nav>
+</header>
 <main>
   <div class="container">
     <!-- BOX1 -->
@@ -36,7 +307,7 @@
         </div>
         <div class="section">
           <h3>비밀번호 변경</h3>
-          <div class = "button-group-vertical">
+          <div class="button-group-vertical">
             <button onclick="modifinguserinfo()">변경</button>
           </div>
         </div>
@@ -48,7 +319,7 @@
     </div>
 
     <div id="modalOverlay" class="modal-overlay hidden">
-      <div class = "modal-wrapper">
+      <div class="modal-wrapper">
         <div class="modal">
           <p>비밀번호를 입력하세요</p>
           <input type="password" id="pw">
@@ -98,18 +369,40 @@
         <button id="showSemesterBtn">시간표 추가</button>
       </div>
 
-      <!-- 추가 가능한 학기 목록 (탑다운: 최근 → 과거 순) -->
       <div id="addSemesterList" class="hidden" style="margin-top: 10px;">
-        <select id="semesterSelect">
-          <!-- JS에서 동적으로 채워짐 -->
-        </select>
+        <select id="semesterSelect"></select>
         <button onclick="addSemester()">추가</button>
       </div>
 
-      <!-- 시간표 목록 -->
       <ul id="semesterList" style="margin-top: 12px;"></ul>
+      <!-- 시간표 모달 -->
 
     </div>
+    <div id="scheduleModal" class="modal-overlay hidden">
+      <div class="modal-wrapper">
+        <div class="modal" style="display: flex; width: 90vw; max-width: 900px; max-height: 700px; overflow: hidden; padding: 20px; gap: 20px;">
+
+          <!-- 왼쪽: 시간표 영역 -->
+          <div style="flex: 2; overflow-y: auto;">
+            <div style="text-align: right;">
+              <button id="closeScheduleModal" style="background: #ef4444; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer;">닫기</button>
+              <button id="openScheduleModal" style="background: #4466ef; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer;">열기</button>
+            </div>
+            <h2 style="text-align:center; margin-bottom: 15px;" id="modalSemesterTitle"></h2>
+            <div id="scheduleTableContainer">
+              <!-- 동적 시간표 -->
+            </div>
+          </div>
+
+          <!-- 오른쪽: 수업 정보 리스트 영역 -->
+          <div id="classInfoList" style="flex: 1; overflow-y: auto; border-left: 1px solid #ddd; padding-left: 10px;">
+            <!-- 수업 정보가 JS로 채워짐 -->
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </div>
 </main>
 
@@ -121,7 +414,444 @@
     <a href="#">Copyright</a>
   </b>
 </footer>
+<script>
+  const semesterOptions = [
+    "2025년 2학기", "2025년 1학기",
+    "2024년 2학기", "2024년 1학기",
+    "2023년 2학기", "2023년 1학기",
+    "2022년 2학기", "2022년 1학기",
+    "2021년 2학기", "2021년 1학기"
+  ];
 
-<script src="/jsCss/mypage.js" defer></script>
+  let selectedSemesters = [];
+
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const loginLink = document.getElementById('loginLink');
+    const logoutLink = document.getElementById('logoutLink');
+    const registerLink = document.querySelector('nav a[href="/Register"]');
+    const token = localStorage.getItem('jwtToken');
+
+    // 로그인/로그아웃 링크 토글
+    if (token) {
+      loginLink.style.display = 'none';
+      logoutLink.style.display = 'inline';
+      registerLink.style.display = 'none';
+    } else {
+      loginLink.style.display = 'inline';
+      logoutLink.style.display = 'none';
+      registerLink.style.display = 'inline';
+    }
+
+    // 로그아웃
+    logoutLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      localStorage.removeItem('jwtToken');
+      alert('로그아웃 되었습니다.');
+      window.location.href = '/';
+    });
+
+    // 시간표 추가 버튼 연결
+    const showSemesterBtn = document.getElementById('showSemesterBtn');
+    if (showSemesterBtn) {
+      showSemesterBtn.addEventListener('click', showAddSemester);
+    }
+  });
+
+  // 사용자 정보 로드
+  function loaduserinfo() {
+    const token = localStorage.getItem('jwtToken');
+    fetch('/userinfo', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+            .then(res => {
+              if (!res.ok) throw new Error('사용자 정보 불러오기 실패');
+              return res.json();
+            })
+            .then(data => {
+              document.getElementById('userName').textContent = data.name;
+              document.getElementById('studentId').textContent = data.email;
+            })
+            .catch(err => {
+              console.error(err);
+              alert('사용자 정보를 불러오는데 실패했습니다.');
+            });
+  }
+
+  // 회원 탈퇴
+  function deleteAccount() {
+    const token = localStorage.getItem('jwtToken');
+    if (!confirm("정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) return;
+
+    fetch('/member/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+            .then(res => {
+              if (!res.ok) throw new Error('서버 응답 오류');
+              return res.json();
+            })
+            .then(data => {
+              if (data.deleteStatus === 'success') {
+                alert('회원 탈퇴가 완료되었습니다.');
+                localStorage.removeItem('jwtToken');
+                window.location.href = '/';
+              }
+            })
+            .catch(err => {
+              alert('회원 탈퇴 중 오류가 발생했습니다.');
+              console.error(err);
+            });
+  }
+
+  // 사용자 정보 수정 - 비밀번호 확인
+  function modifinguserinfo() {
+    const modalOverlay = document.getElementById('modalOverlay');
+    const closeBtn = document.getElementById('close-btn');
+    const confirmBtn = document.getElementById('confirm');
+    const token = localStorage.getItem('jwtToken');
+
+    modalOverlay.classList.remove('hidden');
+    document.body.classList.add("modal-open");
+
+    closeBtn.onclick = () => {
+      modalOverlay.classList.add("hidden");
+      document.body.classList.remove("modal-open");
+    };
+
+    confirmBtn.onclick = () => {
+      const pw = document.getElementById('pw').value;
+
+      fetch('/check_pw_button', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ pw: pw })
+      })
+              .then(res => {
+                if (!res.ok) throw new Error('서버 응답 오류');
+                return res.json();
+              })
+              .then(data => {
+                if (data.Password === true) {
+                  alert('비밀번호 확인 완료!');
+                  modalOverlay.classList.add("hidden");
+                  document.getElementById("changePwModal").classList.remove("hidden");
+                } else {
+                  alert('비밀번호가 일치하지 않습니다.');
+                }
+              })
+              .catch(err => {
+                alert('요청 중 문제가 발생했습니다: ' + err.message);
+                console.error(err);
+              });
+    };
+  }
+
+  // 비밀번호 재설정
+  document.getElementById("changePwBtn").onclick = function () {
+    const newPw = document.getElementById("newPassword").value;
+    const confirmPw = document.getElementById("confirmPassword").value;
+    const token = localStorage.getItem("jwtToken");
+
+    if (!newPw || !confirmPw || newPw !== confirmPw) {
+      alert("비밀번호를 정확히 입력해주세요.");
+      return;
+    }
+
+    fetch('/PWupdate_button', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ pw: newPw })
+    })
+            .then(async res => {
+              if (!res.ok) {
+                const errorText = await res.text();
+                alert(`서버 오류 ${res.status}: ${errorText}`);
+                throw new Error("서버 오류: " + res.status);
+              }
+              return res.json();
+            })
+            .then(data => {
+              if (data.updateStatus === true) {
+                alert("비밀번호가 성공적으로 변경되었습니다.");
+                document.getElementById("changePwModal").classList.add("hidden");
+              } else {
+                alert("비밀번호 변경에 실패했습니다.");
+              }
+            })
+            .catch(err => {
+              alert("비밀번호 변경 중 오류 발생: " + err.message);
+            });
+  };
+
+  // 모달 열기/닫기
+  document.getElementById("openPwModalBtn").onclick = function () {
+    document.getElementById("changePwModal").classList.remove("hidden");
+    document.getElementById("newPassword").value = "";
+    document.getElementById("confirmPassword").value = "";
+  };
+  document.getElementById("close-btn").onclick = function () {
+    document.getElementById("modalOverlay").classList.add("hidden");
+  };
+  document.getElementById("cancelChange").onclick = function () {
+    document.getElementById("changePwModal").classList.add("hidden");
+  };
+
+  function goToTechTree() {
+    const select = document.getElementById('techTreeSelect');
+    const year = select.value;
+    const token = localStorage.getItem('jwtToken');
+
+    if (!token) {
+      alert("로그인 토큰이 없습니다.");
+      return;
+    }
+    if (!year) {
+      alert("학번을 선택하세요.");
+      return;
+    }
+
+    fetch(`/tech_tree?year=${year}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+            .then(res => res.text())
+            .then(path => {
+              window.location.href = path;
+            })
+  }
+
+  function showAddSemester() {
+    const addList = document.getElementById('addSemesterList');
+    const select = document.getElementById('semesterSelect');
+
+    select.innerHTML = '';
+    semesterOptions.forEach(sem => {
+      if (!selectedSemesters.includes(sem)) {
+        const option = document.createElement('option');
+        option.value = sem;
+        option.textContent = sem;
+        select.appendChild(option);
+      }
+    });
+
+    addList.classList.toggle('hidden');
+  }
+
+  function addSemester() {
+    const select = document.getElementById('semesterSelect');
+    const selected = select.value;
+    if (!selected) return;
+
+    selectedSemesters.push(selected);
+    renderSemesterList();
+    document.getElementById('addSemesterList').classList.add('hidden');
+  }
+
+  function renderSemesterList() {
+    const list = document.getElementById('semesterList');
+    list.innerHTML = '';
+
+    selectedSemesters.forEach((sem, index) => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <span class="semester-name" style="cursor:pointer; color:#2563eb; text-decoration: underline;">${sem}</span>
+        <button onclick="removeSemester(${index})" style="color: white; background-color: red">삭제</button>
+    `;
+      list.appendChild(li);
+
+      li.querySelector('.semester-name').addEventListener('click', () => {
+        openScheduleModal(sem);
+      });
+    });
+  }
+
+  function openScheduleModal(semester) {
+    const modal = document.getElementById('scheduleModal');
+    const title = document.getElementById('modalSemesterTitle');
+    const container = document.getElementById('scheduleTableContainer');
+    const listContainer = document.getElementById('classInfoList');
+
+    title.textContent = semester;
+    container.innerHTML = generateEmptyScheduleTable();
+    listContainer.innerHTML = "<p>수업 정보를 불러오는 중입니다...</p>";
+    modal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+
+    // 여기서 수업 목록을 서버에서 불러온다고 가정
+    const token = localStorage.getItem('jwtToken');
+    fetch("course?userId=34", {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+            .then(res => res.json())
+            .then(data => {
+              renderCourseList(data);
+            })
+            .catch(err => {
+              listContainer.innerHTML = `<p style="color:red;">수업 목록을 불러오지 못했습니다.</p>`;
+              console.error(err);
+            });
+  }
+
+  function renderCourseList(classList) {
+    const listContainer = document.getElementById('classInfoList');
+    if (!Array.isArray(classList) || classList.length === 0) {
+      listContainer.innerHTML = '<p>수업 정보가 없습니다.</p>';
+      return;
+    }
+
+    listContainer.innerHTML = '';
+
+    const grouped = groupByCourse(classList);
+
+    Object.entries(grouped).forEach(([key, entries]) => {
+      const box = document.createElement('div');
+      box.style.border = "1px solid #ccc";
+      box.style.padding = "10px";
+      box.style.marginBottom = "10px";
+      box.style.borderRadius = "6px";
+      box.style.backgroundColor = "#f9f9f9";
+      box.style.cursor = "pointer";
+
+      const courseName = entries[0].courseName;
+      const classroom = entries[0].classroom;
+
+      box.innerHTML = `
+      <strong>${courseName}</strong><br>
+      강의실: ${classroom}
+    `;
+
+      box.onclick = () => {
+        addCourseToScheduleTable(entries);
+      };
+
+      listContainer.appendChild(box);
+    });
+  }
+
+  // 수업명을 기준으로 그룹핑
+  function groupByCourse(data) {
+    const map = {};
+    data.forEach(entry => {
+      const key = entry.courseName;
+      if (!map[key]) map[key] = [];
+      map[key].push(entry);
+    });
+    return map;
+  }
+
+  // 시간표에 수업 반영
+  function addCourseToScheduleTable(courseEntries) {
+    const table = document.getElementById('scheduleTable');
+    const days = ['월', '화', '수', '목', '금'];
+
+    courseEntries.forEach(entry => {
+      const dayIndex = entry.scheduleDay;
+      for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
+        const row = table.rows[p + 1]; // +1 because header row is index 0
+        const cell = row.cells[dayIndex + 1]; // +1 because first column is 시간
+        if (cell) {
+          cell.textContent = `${entry.courseName}\n(${entry.classroom})`;
+          cell.style.backgroundColor = '#dbeafe';
+        }
+      }
+    });
+  }
+
+  function renderClassInfoList(scheduleData) {
+    const listContainer = document.getElementById('classInfoList');
+    if (!listContainer) return;
+
+    if (!Array.isArray(scheduleData) || scheduleData.length === 0) {
+      listContainer.innerHTML = '<p>수업 정보가 없습니다.</p>';
+      return;
+    }
+
+    listContainer.innerHTML = scheduleData.map(cls => `
+        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 6px; background-color: #f9f9f9;">
+            <strong>${cls.subject}</strong><br>
+            교수: ${cls.professor}<br>
+            요일: ${cls.day}, ${cls.period}교시
+        </div>
+    `).join('');
+  }
+  function generateEmptyScheduleTable() {
+    const days = ['월', '화', '수', '목', '금'];
+    let html = '<table id="scheduleTable" style="width:100%; border-collapse: collapse;">';
+
+    html += '<tr><th></th>';
+    days.forEach(day => {
+      html += `<th style="border: 1px solid #ddd; padding: 8px; background:#f8f9fa;">${day}</th>`;
+    });
+    html += '</tr>';
+
+    let startHour = 9;
+    for (let period = 1; period <= 15; period++) {
+      const timeStr = startHour <= 12 ? `오전 ${startHour}시` : `오후 ${startHour - 12}시`;
+      html += `<tr><td style="border: 1px solid #ddd; padding: 8px; background:#e3e3fd; font-weight:bold;">${period}교시<br>(${timeStr})</td>`;
+
+      days.forEach(() => {
+        html += `<td style="border: 1px solid #ddd; padding: 8px;" data-period="${period}"></td>`;
+      });
+
+      html += '</tr>';
+      startHour++;
+    }
+
+    html += '</table>';
+    return html;
+  }
+
+  function renderScheduleWithData(scheduleData) {
+    // 예: [{ id, subject, professor, day, period }, ...]
+    const days = ['월', '화', '수', '목', '금'];
+    const table = document.getElementById('scheduleTable');
+    if (!table) return;
+
+    Array.from(table.querySelectorAll('td[data-period]')).forEach(td => {
+      td.textContent = '';
+      td.dataset.scheduleId = '';
+      td.style.backgroundColor = '';
+    });
+
+    scheduleData.forEach(item => {
+      const dayIndex = days.indexOf(item.day);
+      if (dayIndex === -1) return;
+
+      const row = table.rows[item.period];
+      if (!row) return;
+
+      const cell = row.cells[dayIndex + 1];
+      if (cell) {
+        cell.textContent = `${item.subject}\n(${item.professor})`;
+        cell.dataset.scheduleId = item.id;
+        cell.style.backgroundColor = '#dbeafe';
+      }
+    });
+  }
+
+
+  function removeSemester(index) {
+    selectedSemesters.splice(index, 1);
+    renderSemesterList();
+  }
+</script>
 </body>
 </html>

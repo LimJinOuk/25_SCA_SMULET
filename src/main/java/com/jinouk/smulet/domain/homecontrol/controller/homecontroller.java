@@ -125,9 +125,9 @@ public class homecontroller {
     }
 
     @GetMapping("/tech_tree")
-    @ResponseBody
-    public String tech_tree(@RequestParam(value = "year" , required = false , defaultValue = "21") int year) {
-        return "/techtree/tech_tree_" + year + ".html";
+    public String tech_tree(@RequestParam(required = false) Integer year)
+    {
+        return "techtree/tech_tree_" + year;
     }
 
     @PostMapping("/member/delete")

@@ -209,14 +209,23 @@ function goToTechTree() {
     fetch(`/tech_tree?year=${year}`, {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         }
     })
-        .then(res => res.text())
-        .then(path => {
-            window.location.href = path;
+        .then(res => {
+            if (res.ok) return res.text();
+            else throw new Error("Unauthorized");
         })
+        .then(html => {
+            document.open();
+            document.write(html);
+            document.close();
+        })
+        .catch(err => {
+            console.error(err);
+            window.location.href = '/';
+        });
+
 }
 
 

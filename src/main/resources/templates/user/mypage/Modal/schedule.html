@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>시간표 보기</title>
+    <link rel="stylesheet" href="/jsCss/mypage.css" />
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        #scheduleContainer {
+            display: flex;
+            gap: 20px;
+        }
+        #scheduleTableContainer {
+            flex: 2;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+        #classInfoList {
+            flex: 1;
+            border-left: 1px solid #ccc;
+            padding-left: 10px;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+    </style>
+</head>
+<body>
+<div id="scheduleContainer">
+    <div id="scheduleTableContainer">
+        <h2 id="modalSemesterTitle"></h2>
+        <!-- 시간표 내용 동적 삽입 -->
+    </div>
+    <div id="classInfoList">
+        <!-- 수업 정보 동적 삽입 -->
+    </div>
+</div>
+
+<script>
+    window.onload = () => {
+        const semester = localStorage.getItem("selectedSemester");
+        document.getElementById("modalSemesterTitle").textContent = semester;
+
+        fetch(`/schedule_data?semester=${encodeURIComponent(semester)}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("scheduleTableContainer").innerHTML += data.tableHtml;
+                document.getElementById("classInfoList").innerHTML += data.infoHtml;
+            });
+    };
+</script>
+</body>
+</html>

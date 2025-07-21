@@ -23,6 +23,12 @@ public class timetable
     @JoinColumn(name = "user_id")
     private user userId;
 
+    @Column
+    private int term;
+
+    @Column
+    private boolean tag;
+
     @ManyToMany
     @JoinTable(
             name = "timetableCourse",

@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -24,11 +25,16 @@ import java.util.Optional;
 public class memberservice {
     private final loginrepository loginrepository;
     private final JWTUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     public void save(userdto userdto)
     {
-        user memberentity = user.tomemberentity(userdto);
-        loginrepository.save(memberentity);
+        user user = new user();
+        user.setEmail(userdto.getEmail());
+        user.setName(userdto.getName());
+        String rawPassword = userdto.getPw();
+        user.setPw(passwordEncoder.encode(rawPassword));
+        loginrepository.save(user);
     }
 
     public userdto login(userdto userdto) throws IllegalArgumentException
@@ -39,7 +45,7 @@ public class memberservice {
         if(byemail.isPresent())
         {
             user memberentity = byemail.get();
-            if(memberentity.getPw().equals(userdto.getPw()))
+            if(passwordEncoder.matches(userdto.getPw(), memberentity.getPw()))
             {
                 userdto dto = userdto.tomemberdto(memberentity);
                 return dto;

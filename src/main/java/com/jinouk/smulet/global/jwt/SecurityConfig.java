@@ -51,7 +51,9 @@ public class SecurityConfig {
                                 "/update",
                                 "/userinfo",
                                 "/tech_tree",
-                                "/my_page1"
+                                "/my_page1",
+                                "/a",
+                                "/addTimetable"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )

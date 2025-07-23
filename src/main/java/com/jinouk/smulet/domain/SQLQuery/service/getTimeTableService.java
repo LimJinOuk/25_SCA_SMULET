@@ -3,17 +3,18 @@ package com.jinouk.smulet.domain.SQLQuery.service;
 import com.jinouk.smulet.domain.SQLQuery.dto.getTimeTableDTO;
 import com.jinouk.smulet.domain.SQLQuery.entity.course;
 import com.jinouk.smulet.domain.SQLQuery.entity.scheduleOfCourse;
+import com.jinouk.smulet.domain.SQLQuery.entity.timetable;
 import com.jinouk.smulet.domain.SQLQuery.repository.courseRepository;
 import com.jinouk.smulet.domain.SQLQuery.repository.gettimeTableRepository;
 import com.jinouk.smulet.domain.SQLQuery.repository.socRepository;
+import com.jinouk.smulet.domain.homecontrol.entity.user;
+import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class getTimeTableService {
     public final gettimeTableRepository timetablerepository;
     public final courseRepository courserepository;
     public final socRepository socRepository;
+    public final loginrepository loginrepository;
 
     public List<getTimeTableDTO> getcoursesByUserID(int userId)
     {
@@ -59,5 +61,19 @@ public class getTimeTableService {
         }
 
         return result;
+    }
+
+    public void addNewTimetable(String username, int semester) {
+        Optional<user> entity = loginrepository.findByName(username);
+        if (entity.isPresent()) {
+            timetable timetable = new timetable();
+            timetable.setUserId(entity.get());
+            timetable.setTerm(semester);
+            timetable.setTag(false);
+
+            timetablerepository.save(timetable);
+        } else {
+            throw new UsernameNotFoundException("User not found");
+        }
     }
 }

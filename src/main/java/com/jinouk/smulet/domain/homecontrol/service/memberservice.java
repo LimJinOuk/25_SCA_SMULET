@@ -39,7 +39,6 @@ public class memberservice {
 
     public userdto login(userdto userdto) throws IllegalArgumentException
     {
-        System.out.println("12"+userdto);
         Optional<user> byemail = loginrepository.findByEmail(userdto.getEmail());
 
         if(byemail.isPresent())
@@ -92,12 +91,8 @@ public class memberservice {
 
     public boolean checkPW(String pw, String username)
     {
-        System.out.println(pw);
         Optional<user> byname = loginrepository.findByName(username);
-        System.out.println(byname.isPresent());
         if (byname.isPresent()) {
-            System.out.println(byname.get().getPw());
-            System.out.println(byname.get().getPw().equals(pw));
             return passwordEncoder.matches(pw, byname.get().getPw());
         }
         else {return false;} //DB에 사용자 토큰에 들어있는 이름 없음

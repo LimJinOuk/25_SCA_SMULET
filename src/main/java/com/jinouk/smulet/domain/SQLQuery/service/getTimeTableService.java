@@ -50,12 +50,10 @@ public class getTimeTableService {
             dto.setCredit(course.getCredit());
             dto.setIdentifyNumberOfCourse(course.getIdentify_number_of_course());
             scheduleOfCourse schedule = socRepository.findScheduleOfCourseById(course.getScheduleOfCourse().getId());
-            System.out.println(schedule);
             dto.setScheduleDay(schedule.getDay());
             dto.setTimeStart(schedule.getTime_start());
             dto.setTimeEnd(schedule.getTime_end());
             dto.setProfessorName(course.getProfessor_name());
-            System.out.println(dto);
 
             result.add(dto);
         }

@@ -98,11 +98,8 @@ public class homecontroller {
 
         userdto loginresult = mservice.login(userdto);
         map.put("login_result", "success");
-        System.out.println(loginresult);
 
-        System.out.println(loginresult.getName());
         String token = jwtutil.generateToken(loginresult.getName());
-        System.out.println(token);
         String Refresh = jwtutil.generateRefresh(loginresult.getName());
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", Refresh)
@@ -134,11 +131,7 @@ public class homecontroller {
     @ResponseBody
     public ResponseEntity<?> deletemember(@RequestHeader("Authorization") String authHeader)
     {
-        System.out.println("컨트롤러 도달");
-        System.out.println(authHeader);
         String token = authHeader.startsWith("Bearer") ? authHeader.substring(7) : authHeader;
-
-        System.out.println(token);
 
         Map<String, String> map = new HashMap<>();
 
@@ -218,12 +211,10 @@ public class homecontroller {
 
         Map<String, Boolean> map = new HashMap<>();
         String authHeader = request.getHeader("Authorization");
-        System.out.println("ABC" + authHeader);
         if (authHeader != null && authHeader.startsWith("Bearer "))
         {
             String token = authHeader.substring(7);
             String username = jwtutil.getUserName(token);
-            System.out.println(username);
             Boolean result = mservice.checkPW(pw, username);
             map.put("Password", result);
             return ResponseEntity.ok(map);
@@ -235,7 +226,6 @@ public class homecontroller {
 
     @PostMapping("/PWupdate_button")
     public ResponseEntity<Map<String, Boolean>> user_update(@RequestBody DTOPw new_PW, HttpServletRequest request) {
-        System.out.println(new_PW.getPw());
         Map<String, Boolean> map = new HashMap<>();
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {

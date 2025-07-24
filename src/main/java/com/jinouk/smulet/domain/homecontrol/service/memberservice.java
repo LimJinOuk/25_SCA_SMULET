@@ -81,8 +81,7 @@ public class memberservice {
         Optional<user> byname = loginrepository.findByName(username);
         if (byname.isPresent()) {
             user entity = byname.get();
-            entity.setPw(new_PW);
-            //지금은 비번이 아무거나 입력해도 수정되는데 나중에 비번 제약사항 정하면 그때 수정
+            entity.setPw(passwordEncoder.encode(new_PW));
             loginrepository.save(entity);
             return true; // 정보 수정 성공!
         } else {
@@ -99,7 +98,7 @@ public class memberservice {
         if (byname.isPresent()) {
             System.out.println(byname.get().getPw());
             System.out.println(byname.get().getPw().equals(pw));
-            return byname.get().getPw().equals(pw);
+            return passwordEncoder.matches(pw, byname.get().getPw());
         }
         else {return false;} //DB에 사용자 토큰에 들어있는 이름 없음
     }

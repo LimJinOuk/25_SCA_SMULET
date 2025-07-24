@@ -273,9 +273,17 @@
     #scheduleTable td {
       width: 80px;
       /* 필요 시 최소/최대 너비 조절도 가능 */
-      min-width: 60px;
       max-width: 100px;
-      word-break: break-word; /* 내용이 길 경우 줄바꿈 */
+      height: 50px; /* 원하는 값(px, em 등)으로 조정 */
+      min-width: 80px; /* 칸의 가로폭도 조절 가능 */
+      vertical-align: middle; /* 텍스트 수직 중앙정렬 */
+    }
+    .course-tooltip {
+      animation: fadeIn 0.12s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px);}
+      to { opacity: 1; transform: translateY(0);}
     }
 
 
@@ -380,13 +388,13 @@
     </div>
     <div id="scheduleModal" class="modal-overlay hidden">
       <div class="modal-wrapper">
-        <div class="modal" style="display: flex; width: 90vw; max-width: 900px; max-height: 700px; overflow: hidden; padding: 20px; gap: 20px;">
+        <div class="modal" style="display: flex; width: 90vw; max-width: 1000px; max-height: 700px; overflow: hidden; padding: 30px; gap: 20px;">
 
           <!-- 왼쪽: 시간표 영역 -->
           <div style="flex: 2; overflow-y: auto;">
             <div style="text-align: right;">
               <button id="closeScheduleModal" style="background: #ef4444; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer;">닫기</button>
-              <button id="openScheduleModal" style="background: #4466ef; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer;">열기</button>
+              <button id="saveSchedule" style="background: #4466ef; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer;">저장</button>
             </div>
             <h2 style="text-align:center; margin-bottom: 15px;" id="modalSemesterTitle"></h2>
             <div id="scheduleTableContainer">
@@ -422,9 +430,44 @@
     "2022년 2학기", "2022년 1학기",
     "2021년 2학기", "2021년 1학기"
   ];
+  // 스크립트 맨 위나 addCourseToScheduleTable 함수 바깥에 선언
+  const randomColors = [
+    "#F9E79F", // 연노랑
+    "#AEDFF7", // 연하늘
+    "#A7F3D0", // 민트그린
+    "#FFD6E0", // 연분홍
+    "#B4A7F7", // 라벤더
+    "#FFD9B3", // 살구
+    "#B9F6CA", // 연연두
+    "#FFE082", // 밝은 노랑
+    "#FFAB91", // 연코랄
+    "#D1C4E9"  // 연보라
+  ];
+
+  // 이미 사용된 색을 추적
+  let usedColors = [];
+  let UserId = null;
+
+  function getRandomColorNoDuplicate() {
+    // 아직 안 쓴 색만 필터
+    const availableColors = randomColors.filter(color => !usedColors.includes(color));
+    // 남은 게 없으면 usedColors 리셋
+    if (availableColors.length === 0) {
+      usedColors = [];
+      // 다시 전체 중에서 랜덤 선택
+      return getRandomColorNoDuplicate();
+    }
+    // 랜덤하게 하나 선택
+    const randomIndex = Math.floor(Math.random() * availableColors.length);
+    const selectedColor = availableColors[randomIndex];
+    usedColors.push(selectedColor); // 사용된 색에 추가
+    return selectedColor;
+  }
+
+
 
   let selectedSemesters = [];
-
+  let currentCourseList = []; // 모달에 띄운 현재 학기 전체 수업정보 저장
 
   document.addEventListener('DOMContentLoaded', function () {
     const loginLink = document.getElementById('loginLink');
@@ -474,6 +517,7 @@
             .then(data => {
               document.getElementById('userName').textContent = data.name;
               document.getElementById('studentId').textContent = data.email;
+              UserId = data.id;
             })
             .catch(err => {
               console.error(err);
@@ -626,14 +670,23 @@
     fetch(`/tech_tree?year=${year}`, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       }
     })
-            .then(res => res.text())
-            .then(path => {
-              window.location.href = path;
+            .then(res => {
+              if (res.ok) return res.text();
+              else throw new Error("Unauthorized");
             })
+            .then(html => {
+              document.open();
+              document.write(html);
+              document.close();
+            })
+            .catch(err => {
+              console.error(err);
+              window.location.href = '/';
+            });
+
   }
 
   function showAddSemester() {
@@ -686,6 +739,11 @@
     const title = document.getElementById('modalSemesterTitle');
     const container = document.getElementById('scheduleTableContainer');
     const listContainer = document.getElementById('classInfoList');
+    document.getElementById("closeScheduleModal").onclick = function (){
+      document.getElementById("scheduleModal").classList.add("hidden");
+      document.body.classList.remove("modal-open");
+      hideCourseTooltip();
+    }
 
     title.textContent = semester;
     container.innerHTML = generateEmptyScheduleTable();
@@ -695,14 +753,16 @@
 
     // 여기서 수업 목록을 서버에서 불러온다고 가정
     const token = localStorage.getItem('jwtToken');
-    fetch("course?userId=34", {
+    fetch("/a", {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     })
             .then(res => res.json())
             .then(data => {
+              currentCourseList = data;   // ★★★★★ 반드시 필요!
               renderCourseList(data);
+              attachCellEvents();         // 또는 renderCourseList에서 호출
             })
             .catch(err => {
               listContainer.innerHTML = `<p style="color:red;">수업 목록을 불러오지 못했습니다.</p>`;
@@ -712,6 +772,7 @@
 
   function renderCourseList(classList) {
     const listContainer = document.getElementById('classInfoList');
+    currentCourseList = classList;
     if (!Array.isArray(classList) || classList.length === 0) {
       listContainer.innerHTML = '<p>수업 정보가 없습니다.</p>';
       return;
@@ -740,6 +801,7 @@
 
       box.onclick = () => {
         addCourseToScheduleTable(entries);
+        attachCellEvents();
       };
 
       listContainer.appendChild(box);
@@ -760,20 +822,133 @@
   // 시간표에 수업 반영
   function addCourseToScheduleTable(courseEntries) {
     const table = document.getElementById('scheduleTable');
-    const days = ['월', '화', '수', '목', '금'];
+    if (!table) return;
+    const courseName = courseEntries[0].courseName;
+    const classroom = courseEntries[0].classroom;
+    const courseId = courseEntries[0].identifyNumberOfCourse;
+    let isAlreadyAdded = false;
+    const dayIndex = courseEntries[0].scheduleDay;
+    const firstPeriod = courseEntries[0].timeStart;
+    const row = table.rows[firstPeriod + 1];
+    const cell = row.cells[dayIndex + 1];
+    if (cell && (cell.textContent.trim() === `${courseName}\n(${classroom})` ||
+            cell.innerHTML.trim() === `${courseName}<br>(${classroom})`)) {
+      isAlreadyAdded = true;
+    }
+    // 랜덤색(중복방지) 할당
+    const randomColor = getRandomColorNoDuplicate();
 
     courseEntries.forEach(entry => {
       const dayIndex = entry.scheduleDay;
       for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
-        const row = table.rows[p + 1]; // +1 because header row is index 0
-        const cell = row.cells[dayIndex + 1]; // +1 because first column is 시간
+        const row = table.rows[p + 1];
+        const cell = row.cells[dayIndex + 1];
         if (cell) {
-          cell.textContent = `${entry.courseName}\n(${entry.classroom})`;
-          cell.style.backgroundColor = '#dbeafe';
+          if (isAlreadyAdded) {
+            cell.textContent = '';
+            cell.style.backgroundColor = '';
+            cell.removeAttribute('data-course-id');
+          } else {
+            cell.innerHTML = `${entry.courseName}<br>(${entry.classroom})`;
+            cell.style.backgroundColor = randomColor;
+            cell.setAttribute('data-course-id', entry.identifyNumberOfCourse);
+          }
+          attachCellEvents();
         }
       }
     });
+    const saveBtn = document.getElementById("saveSchedule");
+    saveBtn.replaceWith(saveBtn.cloneNode(true));  // 가장 간단하게 기존 이벤트 초기화
+    document.getElementById("saveSchedule").addEventListener("click", async function () {
+      const semesterText = document.getElementById('modalSemesterTitle').textContent;
+      const semesterCode = semesterText.replace("년 ", "").replace("학기", "").replace(" ", "");
+
+      const formData = new FormData();
+      formData.append("semester", semesterCode);
+
+      try {
+        const res = await fetch('/addTimetable', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+          },
+          body: formData
+        });
+
+        const data = await res.text();
+
+        // 여기가 핵심
+        if (data.success === "ok") {
+          alert("시간표가 저장되었습니다!");
+        } else {
+          alert("저장에 실패했습니다.");
+        }
+
+      } catch (err) {
+        alert("요청 중 문제가 발생했습니다.");
+      }
+    });
+
   }
+
+  // ===== 🟢🟢🟢 툴팁 부분 추가 ===========================
+
+  function attachCellEvents() {
+    const table = document.getElementById('scheduleTable');
+    if (!table) return;
+    const allCells = table.querySelectorAll('td[data-period]');
+    allCells.forEach(cell => {
+      cell.onmouseover = function (e) {
+        const courseId = cell.getAttribute('data-course-id');
+        if (courseId) {
+          const courseInfo = currentCourseList.find(c => c.identifyNumberOfCourse === courseId);
+          if (courseInfo) showCourseTooltip(cell, courseInfo);
+        }
+      };
+      cell.onmouseout = function (e) {
+        hideCourseTooltip();
+      };
+    });
+  }
+
+  function showCourseTooltip(cell, courseInfo) {
+    hideCourseTooltip();
+    const tooltip = document.createElement('div');
+    tooltip.className = 'course-tooltip';
+    tooltip.style.position = 'absolute';
+    tooltip.style.zIndex = 2000;
+    tooltip.style.minWidth = '180px';
+    tooltip.style.maxWidth = '260px';
+    tooltip.style.background = '#ffffffcc';
+    tooltip.style.border = '1px solid #2563eb';
+    tooltip.style.borderRadius = '10px';
+    tooltip.style.boxShadow = '0 4px 18px rgba(30,80,210,0.13)';
+    tooltip.style.padding = '14px 18px 14px 14px';
+    tooltip.style.fontSize = '0.98rem';
+    tooltip.style.pointerEvents = 'none';
+    tooltip.innerHTML = `
+      <b>${courseInfo.courseName}</b>
+      <br>교수: ${courseInfo.professorName || "-"}
+      <br>강의실: ${courseInfo.classroom}
+      <br>구분: ${courseInfo.majorOrCulture ? "전공" : "교양"}
+      <br>학점: ${courseInfo.credit}
+      <br>요일: ${['월', '화', '수', '목', '금'][courseInfo.scheduleDay] || courseInfo.scheduleDay}
+      <br>교시: ${courseInfo.timeStart} ~ ${courseInfo.timeEnd}
+      <br>과목코드: ${courseInfo.identifyNumberOfCourse}
+    `;
+    document.body.appendChild(tooltip);
+
+    // 툴팁 위치
+    const rect = cell.getBoundingClientRect();
+    tooltip.style.left = (rect.right + 8) + "px";
+    tooltip.style.top = (rect.top + window.scrollY) + "px";
+  }
+
+  function hideCourseTooltip() {
+    const prev = document.querySelector('.course-tooltip');
+    if (prev) prev.remove();
+  }
+
 
   function renderClassInfoList(scheduleData) {
     const listContainer = document.getElementById('classInfoList');
@@ -846,7 +1021,6 @@
       }
     });
   }
-
 
   function removeSemester(index) {
     selectedSemesters.splice(index, 1);

@@ -35,8 +35,8 @@ public class service implements serviceinter {
     @Override 
     public MimeMessage createMessage(String to) throws MessagingException, UnsupportedEncodingException
     {
-        System.out.println("메일 받을 사용자"+to);
-        System.out.println("인증번호"+ePw);
+        System.out.println("메일 받을 사용자 : "+to);
+        System.out.println("인증번호 : "+ePw);
 
         MimeMessage message = mailSender.createMimeMessage();
 
@@ -61,8 +61,6 @@ public class service implements serviceinter {
         message.setText(msgg, "utf-8", "html"); // 메일 내용, charset타입, subtype
         // 보내는 사람의 이메일 주소, 보내는 사람 이름
         message.setFrom(new InternetAddress("jinouk038@gmail.com", "SMULET"));
-        System.out.println("********creatMessage 함수에서 생성된 msgg 메시지********" + msgg);
-        System.out.println("********creatMessage 함수에서 생성된 리턴 메시지********" + message);
 
         return message;
     }
@@ -80,7 +78,6 @@ public class service implements serviceinter {
                 .limit(targetStringLength)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
-        System.out.println("생성된 랜덤 인증코드"+ key);
         return key;
 
     }
@@ -90,9 +87,7 @@ public class service implements serviceinter {
     public String sendSimpleMessage(String to) throws Exception
     {
         ePw = createKey(); // 랜덤 인증코드 생성
-        System.out.println("********생성된 랜덤 인증코드******** => " + ePw);
         MimeMessage message = createMessage(to); // 메세지 생성
-        System.out.println("********생성된 메시지******** => " + message);
         try { // 예외처리
             mailSender.send(message);
         }

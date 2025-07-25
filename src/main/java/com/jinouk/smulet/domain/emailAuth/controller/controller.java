@@ -24,7 +24,6 @@ public class controller {
     public ResponseEntity<Map<String , String>> sendCode(@RequestBody dto dto) throws Exception
     {
         String code = service.sendSimpleMessage(dto.email);
-        System.out.println("사용자에게 발송한 코드: " + code);
         Map<String , String> result = new HashMap<>();
         if(code != null)
         {

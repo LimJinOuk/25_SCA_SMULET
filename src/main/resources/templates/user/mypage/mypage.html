@@ -388,7 +388,7 @@
     </div>
     <div id="scheduleModal" class="modal-overlay hidden">
       <div class="modal-wrapper">
-        <div class="modal" style="display: flex; width: 90vw; max-width: 1000px; max-height: 700px; overflow: hidden; padding: 30px; gap: 20px;">
+        <div class="modal" style="display: flex; width: 90vw; max-width: 1000px; max-height: 800px; overflow: hidden; padding: 30px; gap: 20px;">
 
           <!-- 왼쪽: 시간표 영역 -->
           <div style="flex: 2; overflow-y: auto;">
@@ -403,9 +403,27 @@
           </div>
 
           <!-- 오른쪽: 수업 정보 리스트 영역 -->
-          <div id="classInfoList" style="flex: 1; overflow-y: auto; border-left: 1px solid #ddd; padding-left: 10px;">
-            <!-- 수업 정보가 JS로 채워짐 -->
+          <!-- 오른쪽 수업 정보 리스트 + 검색창 묶기 -->
+          <div style="flex: 1; display: flex; flex-direction: column; border-left: 1px solid #ddd; padding-left: 10px;">
+
+            <!-- 🔍 검색창 -->
+            <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="과목명 검색"
+                    style="width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 6px;"
+                    oninput="renderCourseList(currentCourseList)"
+            />
+
+            <!-- 📚 수업 리스트 -->
+            <div
+                    id="classInfoList"
+                    style="flex: 1; overflow-y: auto;"
+            >
+              <!-- JS로 수업 정보가 들어옵니다 -->
+            </div>
           </div>
+
 
         </div>
       </div>
@@ -777,16 +795,19 @@
     const listContainer = document.getElementById('classInfoList');
     listContainer.innerHTML = '';
 
+    const searchInput = document.getElementById('searchInput');
+    const searchTerm = searchInput?.value?.toLowerCase() || '';
+
     if (!Array.isArray(classList) || classList.length === 0) {
       listContainer.innerHTML = '<p>수업 정보가 없습니다.</p>';
       return;
     }
 
-    // 과목명을 기준으로 그룹핑
-    const groupedByCourse = groupByCourse(classList); // courseName 기준
+    const groupedByCourse = groupByCourse(classList);
 
     Object.entries(groupedByCourse).forEach(([courseName, allEntries]) => {
-      // 과목명 상자
+      if (searchTerm && !courseName.toLowerCase().includes(searchTerm)) return;
+
       const wrapper = document.createElement('div');
       wrapper.style.marginBottom = '12px';
       wrapper.style.border = '1px solid #ccc';
@@ -804,7 +825,6 @@
       subList.style.display = 'none';
       subList.style.marginTop = '8px';
 
-      // 여기에서 identifyNumberOfCourse 기준으로 다시 그룹핑
       const groupedByIdentifyNumber = {};
       allEntries.forEach(entry => {
         const key = entry.identifyNumberOfCourse;
@@ -821,30 +841,40 @@
 
         const professor = entries[0].professorName || '-';
         const classroom = entries[0].classroom;
+        const division = entries[0].identifyNumberOfCourse.split('-')[1] || '?';
         const weekdayNames = ['월','화','수','목','금'];
         const timeText = entries.map(e => {
-          const day = weekdayNames[e.scheduleDay] || `요일 ${e.scheduleDay}`;
+          const day = weekdayNames[e.scheduleDay - 1] || `요일 ${e.scheduleDay}`;
           return e.timeStart === e.timeEnd
                   ? `${day} ${e.timeStart}교시`
                   : `${day} ${e.timeStart}~${e.timeEnd}교시`;
         }).join(', ');
 
-
         detail.innerHTML = `
+        분반: ${division}<br>
         교수: ${professor}<br>
-        강의실: ${classroom}<br>
         시간: ${timeText}
       `;
-
-        // 클릭 시 시간표 반영
-        detail.addEventListener('click', () => {
-          addCourseToScheduleTable(entries);
+        detail.addEventListener('mouseover', () => {
+          if (!isCoursePermanentlyAdded(entries)) {
+            previewCourseOnSchedule(entries);
+          }
         });
+
+        detail.addEventListener('mouseout', () => {
+          if (!isCoursePermanentlyAdded(entries)) {
+            removePreviewFromSchedule();
+          }
+        });
+
+        detail.addEventListener('click', () => {
+          addCourseToScheduleTable(entries); // 실제 등록
+        });
+
 
         subList.appendChild(detail);
       });
 
-      // 과목명 클릭 시 열고 닫기
       header.addEventListener('click', () => {
         subList.style.display = (subList.style.display === 'none') ? 'block' : 'none';
       });
@@ -854,6 +884,7 @@
       listContainer.appendChild(wrapper);
     });
   }
+
 
 
 
@@ -867,47 +898,128 @@
     });
     return map;
   }
+  function previewCourseOnSchedule(courseEntries) {
+    const table = document.getElementById('scheduleTable');
+    if (!table) return;
+
+    courseEntries.forEach(entry => {
+      const dayIndex = entry.scheduleDay - 1;
+      for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
+        const cell = table.rows[p + 1].cells[dayIndex + 1];
+        // 이미 고정된 수업이면 건드리지 않음
+        if (!cell.getAttribute('data-course-id')) {
+          cell.style.backgroundColor = '#d0ebff';
+          cell.innerHTML = `${entry.courseName}<br>(${entry.classroom})`;
+          cell.setAttribute('data-preview', 'true');
+        }
+      }
+    });
+  }
+
+  function removePreviewFromSchedule() {
+    const table = document.getElementById('scheduleTable');
+    if (!table) return;
+
+    const cells = table.querySelectorAll('td[data-preview="true"]');
+    cells.forEach(cell => {
+      cell.innerHTML = '';
+      cell.style.backgroundColor = '';
+      cell.removeAttribute('data-preview');
+    });
+  }
+
+  function isCoursePermanentlyAdded(courseEntries) {
+    const table = document.getElementById('scheduleTable');
+    const courseId = courseEntries[0].identifyNumberOfCourse;
+
+    for (let entry of courseEntries) {
+      const dayIndex = entry.scheduleDay - 1;
+      for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
+        const cell = table.rows[p + 1].cells[dayIndex + 1];
+        if (cell.getAttribute('data-course-id') === courseId) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+
 
   // 시간표에 수업 반영
   function addCourseToScheduleTable(courseEntries) {
     const table = document.getElementById('scheduleTable');
     if (!table) return;
+
+    const courseId = courseEntries[0].identifyNumberOfCourse;
     const courseName = courseEntries[0].courseName;
     const classroom = courseEntries[0].classroom;
-    const courseId = courseEntries[0].identifyNumberOfCourse;
+
+    // 1. 이미 등록된 수업인지 확인
     let isAlreadyAdded = false;
-    const dayIndex = courseEntries[0].scheduleDay;
-    const firstPeriod = courseEntries[0].timeStart;
-    const row = table.rows[firstPeriod];
-    const cell = row.cells[dayIndex + 1];
-    if (cell && (cell.textContent.trim() === `${courseName}\n(${classroom})` ||
-            cell.innerHTML.trim() === `${courseName}<br>(${classroom})`)) {
-      isAlreadyAdded = true;
+
+    for (let entry of courseEntries) {
+      const dayIndex = entry.scheduleDay - 1;
+      for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
+        const cell = table.rows[p + 1].cells[dayIndex + 1];
+        if (cell.getAttribute('data-course-id') === courseId) {
+          isAlreadyAdded = true;
+          break;
+        }
+      }
+      if (isAlreadyAdded) break;
     }
-    // 랜덤색(중복방지) 할당
+
+    if (isAlreadyAdded) {
+      // 2. 이미 등록된 경우 → 삭제
+      courseEntries.forEach(entry => {
+        const dayIndex = entry.scheduleDay - 1;
+        for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
+          const cell = table.rows[p + 1].cells[dayIndex + 1];
+          if (cell.getAttribute('data-course-id') === courseId) {
+            cell.innerHTML = '';
+            cell.style.backgroundColor = '';
+            cell.removeAttribute('data-course-id');
+            cell.removeAttribute('data-preview');
+          }
+        }
+      });
+      return;
+    }
+
+    // 3. 시간 충돌 확인
+    for (let entry of courseEntries) {
+      const dayIndex = entry.scheduleDay - 1;
+      for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
+        const cell = table.rows[p + 1].cells[dayIndex + 1];
+        const existingId = cell.getAttribute('data-course-id');
+        if (existingId && existingId !== courseId) {
+          alert("해당 시간에 이미 다른 수업이 있습니다!");
+          return;
+        }
+      }
+    }
+
+    // 4. 수업 등록 (색상 지정 및 데이터 속성 부여)
     const randomColor = getRandomColorNoDuplicate();
 
     courseEntries.forEach(entry => {
-      const dayIndex = entry.scheduleDay;
+      const dayIndex = entry.scheduleDay - 1;
       for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
-        const row = table.rows[p+1];
-        const cell = row.cells[dayIndex+1];
-        if (cell) {
-          if (isAlreadyAdded) {
-            cell.textContent = '';
-            cell.style.backgroundColor = '';
-            cell.removeAttribute('data-course-id');
-          } else {
-            cell.innerHTML = `${entry.courseName}<br>(${entry.classroom})`;
-            cell.style.backgroundColor = randomColor;
-            cell.setAttribute('data-course-id', entry.identifyNumberOfCourse);
-          }
-          attachCellEvents();
-        }
+        const cell = table.rows[p + 1].cells[dayIndex + 1];
+        cell.innerHTML = `${courseName}<br>(${classroom})`;
+        cell.style.backgroundColor = randomColor;
+        cell.setAttribute('data-course-id', courseId);
+        cell.removeAttribute('data-preview'); // 미리보기 흔적 제거
       }
     });
+
+    // 5. 툴팁 다시 연결
+    attachCellEvents();
+
+    // 6. 저장 버튼 이벤트 다시 연결
     const saveBtn = document.getElementById("saveSchedule");
-    saveBtn.replaceWith(saveBtn.cloneNode(true));  // 가장 간단하게 기존 이벤트 초기화
+    saveBtn.replaceWith(saveBtn.cloneNode(true)); // 기존 이벤트 제거
     document.getElementById("saveSchedule").addEventListener("click", async function () {
       const semesterText = document.getElementById('modalSemesterTitle').textContent;
       const semesterCode = semesterText.replace("년 ", "").replace("학기", "").replace(" ", "");
@@ -925,20 +1037,18 @@
         });
 
         const data = await res.text();
-
-        // 여기가 핵심
         if (data.success === "ok") {
           alert("시간표가 저장되었습니다!");
         } else {
           alert("저장에 실패했습니다.");
         }
-
       } catch (err) {
         alert("요청 중 문제가 발생했습니다.");
       }
     });
-
   }
+
+
 
   // ===== 🟢🟢🟢 툴팁 부분 추가 ===========================
 
@@ -1065,7 +1175,7 @@
       const row = table.rows[item.period];
       if (!row) return;
 
-      const cell = row.cells[dayIndex + 1];
+      const cell = row.cells[dayIndex+1];
       if (cell) {
         cell.textContent = `${item.subject}\n(${item.professor})`;
         cell.dataset.scheduleId = item.id;

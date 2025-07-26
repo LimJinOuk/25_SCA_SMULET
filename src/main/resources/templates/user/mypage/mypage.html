@@ -734,11 +734,13 @@
     });
   }
 
+
   function openScheduleModal(semester) {
     const modal = document.getElementById('scheduleModal');
     const title = document.getElementById('modalSemesterTitle');
     const container = document.getElementById('scheduleTableContainer');
     const listContainer = document.getElementById('classInfoList');
+
     document.getElementById("closeScheduleModal").onclick = function (){
       document.getElementById("scheduleModal").classList.add("hidden");
       document.body.classList.remove("modal-open");
@@ -768,45 +770,92 @@
               listContainer.innerHTML = `<p style="color:red;">수업 목록을 불러오지 못했습니다.</p>`;
               console.error(err);
             });
+
   }
 
   function renderCourseList(classList) {
     const listContainer = document.getElementById('classInfoList');
-    currentCourseList = classList;
+    listContainer.innerHTML = '';
+
     if (!Array.isArray(classList) || classList.length === 0) {
       listContainer.innerHTML = '<p>수업 정보가 없습니다.</p>';
       return;
     }
 
-    listContainer.innerHTML = '';
+    // 과목명을 기준으로 그룹핑
+    const groupedByCourse = groupByCourse(classList); // courseName 기준
 
-    const grouped = groupByCourse(classList);
+    Object.entries(groupedByCourse).forEach(([courseName, allEntries]) => {
+      // 과목명 상자
+      const wrapper = document.createElement('div');
+      wrapper.style.marginBottom = '12px';
+      wrapper.style.border = '1px solid #ccc';
+      wrapper.style.borderRadius = '6px';
+      wrapper.style.background = '#f9f9f9';
+      wrapper.style.padding = '10px';
 
-    Object.entries(grouped).forEach(([key, entries]) => {
-      const box = document.createElement('div');
-      box.style.border = "1px solid #ccc";
-      box.style.padding = "10px";
-      box.style.marginBottom = "10px";
-      box.style.borderRadius = "6px";
-      box.style.backgroundColor = "#f9f9f9";
-      box.style.cursor = "pointer";
+      const header = document.createElement('div');
+      header.style.cursor = 'pointer';
+      header.style.fontWeight = 'bold';
+      header.style.color = '#2563eb';
+      header.textContent = courseName;
 
-      const courseName = entries[0].courseName;
-      const classroom = entries[0].classroom;
+      const subList = document.createElement('div');
+      subList.style.display = 'none';
+      subList.style.marginTop = '8px';
 
-      box.innerHTML = `
-      <strong>${courseName}</strong><br>
-      강의실: ${classroom}
-    `;
+      // 여기에서 identifyNumberOfCourse 기준으로 다시 그룹핑
+      const groupedByIdentifyNumber = {};
+      allEntries.forEach(entry => {
+        const key = entry.identifyNumberOfCourse;
+        if (!groupedByIdentifyNumber[key]) groupedByIdentifyNumber[key] = [];
+        groupedByIdentifyNumber[key].push(entry);
+      });
 
-      box.onclick = () => {
-        addCourseToScheduleTable(entries);
-        attachCellEvents();
-      };
+      Object.values(groupedByIdentifyNumber).forEach(entries => {
+        const detail = document.createElement('div');
+        detail.style.padding = '6px 10px';
+        detail.style.borderTop = '1px solid #ddd';
+        detail.style.cursor = 'pointer';
+        detail.style.background = '#fff';
 
-      listContainer.appendChild(box);
+        const professor = entries[0].professorName || '-';
+        const classroom = entries[0].classroom;
+        const weekdayNames = ['월','화','수','목','금'];
+        const timeText = entries.map(e => {
+          const day = weekdayNames[e.scheduleDay] || `요일 ${e.scheduleDay}`;
+          return e.timeStart === e.timeEnd
+                  ? `${day} ${e.timeStart}교시`
+                  : `${day} ${e.timeStart}~${e.timeEnd}교시`;
+        }).join(', ');
+
+
+        detail.innerHTML = `
+        교수: ${professor}<br>
+        강의실: ${classroom}<br>
+        시간: ${timeText}
+      `;
+
+        // 클릭 시 시간표 반영
+        detail.addEventListener('click', () => {
+          addCourseToScheduleTable(entries);
+        });
+
+        subList.appendChild(detail);
+      });
+
+      // 과목명 클릭 시 열고 닫기
+      header.addEventListener('click', () => {
+        subList.style.display = (subList.style.display === 'none') ? 'block' : 'none';
+      });
+
+      wrapper.appendChild(header);
+      wrapper.appendChild(subList);
+      listContainer.appendChild(wrapper);
     });
   }
+
+
 
   // 수업명을 기준으로 그룹핑
   function groupByCourse(data) {
@@ -829,7 +878,7 @@
     let isAlreadyAdded = false;
     const dayIndex = courseEntries[0].scheduleDay;
     const firstPeriod = courseEntries[0].timeStart;
-    const row = table.rows[firstPeriod + 1];
+    const row = table.rows[firstPeriod];
     const cell = row.cells[dayIndex + 1];
     if (cell && (cell.textContent.trim() === `${courseName}\n(${classroom})` ||
             cell.innerHTML.trim() === `${courseName}<br>(${classroom})`)) {
@@ -841,8 +890,8 @@
     courseEntries.forEach(entry => {
       const dayIndex = entry.scheduleDay;
       for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
-        const row = table.rows[p + 1];
-        const cell = row.cells[dayIndex + 1];
+        const row = table.rows[p+1];
+        const cell = row.cells[dayIndex+1];
         if (cell) {
           if (isAlreadyAdded) {
             cell.textContent = '';
@@ -977,10 +1026,12 @@
     });
     html += '</tr>';
 
-    let startHour = 9;
-    for (let period = 1; period <= 15; period++) {
-      const timeStr = startHour <= 12 ? `오전 ${startHour}시` : `오후 ${startHour - 12}시`;
-      html += `<tr><td style="border: 1px solid #ddd; padding: 8px; background:#e3e3fd; font-weight:bold;">${period}교시<br>(${timeStr})</td>`;
+    let startHour = 8;
+    let endHour = 9;
+    for (let period = 0; period <= 15; period++) {
+      const timeStr = startHour <= 12 ? `${startHour}시` : `${startHour - 12}시`;
+      const endtime = endHour <= 12 ? `${endHour}시` : `${endHour - 12}시`;
+      html += `<tr><td style="border: 1px solid #ddd; padding: 8px; background:#e3e3fd; font-weight:bold;">${period}교시<br>(${timeStr}~${endtime})</td>`;
 
       days.forEach(() => {
         html += `<td style="border: 1px solid #ddd; padding: 8px;" data-period="${period}"></td>`;
@@ -988,6 +1039,7 @@
 
       html += '</tr>';
       startHour++;
+      endHour++;
     }
 
     html += '</table>';

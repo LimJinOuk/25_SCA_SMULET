@@ -1,12 +1,14 @@
 package com.jinouk.smulet.domain.homecontrol.service;
 
 
+import com.jinouk.smulet.domain.SQLQuery.dto.TimetableDto;
+import com.jinouk.smulet.domain.SQLQuery.entity.timetable;
+import com.jinouk.smulet.domain.SQLQuery.repository.gettimeTableRepository;
+import com.jinouk.smulet.domain.homecontrol.dto.UserInfoDto;
 import com.jinouk.smulet.domain.homecontrol.dto.userdto;
 import com.jinouk.smulet.domain.homecontrol.entity.user;
 import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import com.jinouk.smulet.global.jwt.JWTUtil;
-import io.jsonwebtoken.Jwts;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,10 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -26,6 +26,7 @@ public class memberservice {
     private final loginrepository loginrepository;
     private final JWTUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final gettimeTableRepository gettimeTableRepository;
 
     public void save(userdto userdto)
     {
@@ -59,16 +60,24 @@ public class memberservice {
         loginrepository.deleteByEmail(email);
     }
 
-    public ResponseEntity<?> userInfo(String name)throws IllegalArgumentException
+    public ResponseEntity<UserInfoDto> userInfo(String name)throws IllegalArgumentException
     {
-        Map<String, String> map = new HashMap<>();
         Optional<user> entity = loginrepository.findByName(name);
         if(entity.isPresent())
         {
             user A = entity.get();
-            map.put("name", A.getName());
-            map.put("email", A.getEmail());
-            return ResponseEntity.status(HttpStatus.OK).body(map);
+            List<timetable> timetablesEntity = gettimeTableRepository.findAllByUserId_Id(A.getId());
+            List<TimetableDto> timetablesDTO = timetablesEntity.stream()
+                    .map(TimetableDto::entityToDto)
+                    .collect(Collectors.toList());
+
+            UserInfoDto user = UserInfoDto.builder()
+                    .name(A.getName())
+                    .email(A.getEmail())
+                    .timetables(timetablesDTO)
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.OK).body(user);
         }
         else{
             throw new IllegalArgumentException("사용자가 검색되지 않습니다.");

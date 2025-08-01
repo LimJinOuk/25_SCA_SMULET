@@ -1,9 +1,11 @@
 package com.jinouk.smulet.domain.SQLQuery.controller;
 
 import com.jinouk.smulet.domain.SQLQuery.dto.getTimeTableDTO;
+import com.jinouk.smulet.domain.SQLQuery.dto.setTimetableCourseDTO;
 import com.jinouk.smulet.domain.SQLQuery.entity.timetable;
 import com.jinouk.smulet.domain.SQLQuery.repository.gettimeTableRepository;
 import com.jinouk.smulet.domain.SQLQuery.service.getTimeTableService;
+import com.jinouk.smulet.domain.SQLQuery.service.setTimetableCourseService;
 import com.jinouk.smulet.domain.homecontrol.entity.user;
 import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.*;
@@ -26,6 +25,7 @@ import java.util.*;
 public class sqlcontroller {
 
     private final getTimeTableService sqlservice;
+    private final setTimetableCourseService settimetablecourseservice;
 
     @GetMapping("/course{userId}")
     public List<getTimeTableDTO> getcoursesByUserID(@RequestParam(required = false) Integer userId )
@@ -58,5 +58,21 @@ public class sqlcontroller {
             map.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
         }
+    }
+
+    @PostMapping("/addTC")
+    public ResponseEntity<?> setTimetableTC(@RequestBody setTimetableCourseDTO settimetableCourseDTO) {
+        Map<String , String> map = new HashMap<>();
+
+        try{
+            settimetablecourseservice.settimetableCourse(settimetableCourseDTO.getTimetableId() , settimetableCourseDTO.getCourseId());
+
+        }
+        catch (Exception e) {
+            map.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
+        }
+        map.put("Status" , "Success");
+        return ResponseEntity.ok(map);
     }
 }

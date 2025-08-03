@@ -61,13 +61,14 @@
     }
 
     .container {
-      display: grid;
+      display: flex;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       padding: 20px 16px;
       max-width: 1200px;
       width: 100%;
       flex-wrap: wrap;
+      margin: 0 auto;
     }
 
 
@@ -88,7 +89,8 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
       display: flex;
       flex-direction: column;
-      min-height: 430px;
+      min-height: 150px;
+      /*min-height: 430px;*/
       box-sizing: border-box;
       transition: all 0.3s ease;
     }
@@ -101,8 +103,9 @@
       font-size: 1.1rem;
       color: #111827;
     }
-
-    /* 내부 정렬 */
+    .section h3 {
+      margin-top: 24px;     /* “비밀번호 변경” 제목 위로 24px 띄움 */
+    }
     .nav {
       display: flex;
       justify-content: space-between;
@@ -111,11 +114,13 @@
       gap: 10px;
     }
     .section {
-      margin-bottom: 24px;
+      margin-bottom: 10px;
     }
     .section button{
-      display: block;
+      display: inline-block;    /* inline-block 이면 너비 지정도 가능 */
+      width: 140px;             /* 원하는 너비로 조정하세요 */
       margin-top: 8px;
+      text-align: center;       /* 버튼 텍스트도 가운데 정렬 */
     }
     .info p {
       margin: 3px 0;
@@ -156,8 +161,8 @@
     .button-group {
       display: flex;
       gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
+      margin: 10px 0;
+      justify-content: center;
     }
 
     /* 시간표 아이템 */
@@ -172,6 +177,29 @@
       justify-content: space-between;
       align-items: center;
     }
+
+    /* 대표 시간표 컨테이너  */
+    .representative-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-top: 20px; /* 위와 간격 */
+      order: 4; /* 세 박스 이후에 위치 */
+    }
+
+    .representative-box {
+      width: 70%;
+      max-width: 1000px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      padding: 30px;
+      box-sizing: border-box;
+      max-height: 775px; /* 원하는 최대 높이(px) 지정 */
+      overflow-y: auto;  /* 내부 요소가 넘칠 경우 스크롤 */
+    }
+
+
 
     /* 푸터 */
     footer {
@@ -223,29 +251,70 @@
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
     }
     .modal-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.5); /* 어두운 배경 */
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0,0,0,0.5);
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       z-index: 1000;
     }
     .modal-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: contents;
     }
 
     .modal {
-      background: white;
-      padding: 30px 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      min-width: 300px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px 32px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+      text-align: center;
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .modal-buttons button {
+      flex: 1;
+      max-width: 120px;
+      padding: 0.6rem 0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .modal-buttons #confirm,
+    .modal-buttons #changePwBtn {
+      background-color: #2563eb;
+      color: #fff;
+    }
+    .modal-buttons #close-btn,
+    .modal-buttons #cancelChange {
+      background-color: #e0e0e0;
+      color: #333;
+    }
+    .modal-buttons button:hover {
+      transform: translateY(-1px);
+      opacity: 0.9;
+    }
+    .modal-buttons button:active {
+      transform: translateY(1px);
+    }
+
+    .modal input[type="password"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
     }
 
     .hidden {
@@ -258,9 +327,6 @@
     }
     body.modal-open{
       overflow: hidden;
-    }
-    .hidden {
-      display: none;
     }
 
     #semesterList li {
@@ -278,6 +344,99 @@
       min-width: 80px; /* 칸의 가로폭도 조절 가능 */
       vertical-align: middle; /* 텍스트 수직 중앙정렬 */
     }
+    /* 대표 시간표에만 적용되는 행/열 크기 스타일 */
+
+
+    /* ───────────────────────────────────────── */
+    /* MOD: 사용자 정의 아이콘 + 모달 스타일 */
+
+    /* 1) 사용자 정의 아이콘 렌더 영역 */
+    #custom-icons {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    /* 2) + 버튼 박스 효과 */
+    #add-icon-btn .logo-box {
+      background-color: rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    #add-icon-btn:hover .logo-box {
+      background-color: rgba(0,0,0,0.35);
+    }
+
+    /* 3) 모달 오버레이 (아이콘 등록) */
+    #add-icon-modal.modal-overlay {
+      /* password 모달과 구분을 위해 ID 셀렉터 우선 적용 */
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #add-icon-modal.modal-overlay.hidden {
+      display: none;
+    }
+
+    /* 4) 모달 본문 */
+    #add-icon-modal .modal {
+      background: #fff;
+      padding: 24px;
+      border-radius: 8px;
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    #add-icon-modal .modal h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #111827;
+    }
+    #add-icon-modal .modal label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.9rem;
+    }
+    #add-icon-modal .modal input[type="url"] {
+      margin-top: 4px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    #add-icon-modal .modal .button-group-vertical {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    #add-icon-modal .modal button {
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #add-icon-modal .modal button[type="submit"] {
+      background: #2563eb;
+      color: #fff;
+    }
+    #add-icon-modal .modal button#cancel-icon-btn {
+      background: #ddd;
+      color: #333;
+    }
+    #scheduleTable td {
+      width: 80px;
+      /* 필요 시 최소/최대 너비 조절도 가능 */
+      max-width: 100px;
+      height: 50px; /* 원하는 값(px, em 등)으로 조정 */
+      min-width: 80px; /* 칸의 가로폭도 조절 가능 */
+      vertical-align: middle; /* 텍스트 수직 중앙정렬 */
+    }
+
     .course-tooltip {
       animation: fadeIn 0.12s;
     }
@@ -314,15 +473,12 @@
           </div>
         </div>
         <div class="section">
-          <h3>비밀번호 변경</h3>
-          <div class="button-group-vertical">
-            <button onclick="modifinguserinfo()">변경</button>
+          <h3>회원 설정</h3>
+          <div class="button-group">
+            <button onclick="modifinguserinfo()">비밀번호 변경</button>
+            <button class="red" onclick="deleteAccount()">회원탈퇴</button>
           </div>
         </div>
-      </div>
-      <div class="section">
-        <h3>회원탈퇴</h3>
-        <button class="red" onclick="deleteAccount()">탈퇴</button>
       </div>
     </div>
 
@@ -331,7 +487,7 @@
         <div class="modal">
           <p>비밀번호를 입력하세요</p>
           <input type="password" id="pw">
-          <div style="margin-top: 10px;">
+          <div class = "modal-buttons">
             <button id="confirm" type="button">확인</button>
             <button id="close-btn" type="button">닫기</button>
           </div>
@@ -345,7 +501,7 @@
           <p>새 비밀번호를 입력하세요</p>
           <input type="password" id="newPassword" placeholder="새 비밀번호">
           <input type="password" id="confirmPassword" placeholder="비밀번호 확인">
-          <div style="margin-top: 10px;">
+            <div class="modal-buttons">
             <button id="changePwBtn" type="button">변경</button>
             <button id="cancelChange" type="button">취소</button>
           </div>
@@ -428,7 +584,16 @@
         </div>
       </div>
     </div>
-
+    <div class="representative-container">
+      <div class="box representative-box">
+        <div style="display:flex; justify-content: space-between; align-items: center;">
+          <h2 id="representativeTitle">📌 대표 시간표</h2>
+        </div>
+        <div id="representativeScheduleContainer">
+          <p style="color: #888;">대표 시간표가 아직 설정되지 않았습니다.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </main>
 
@@ -465,6 +630,7 @@
   // 이미 사용된 색을 추적
   let usedColors = [];
   let UserId = null;
+  let representativeSemester = null;
 
   function getRandomColorNoDuplicate() {
     // 아직 안 쓴 색만 필터
@@ -741,8 +907,11 @@
     selectedSemesters.forEach((sem, index) => {
       const li = document.createElement('li');
       li.innerHTML = `
-        <span class="semester-name" style="cursor:pointer; color:#2563eb; text-decoration: underline;">${sem}</span>
-        <button onclick="removeSemester(${index})" style="color: white; background-color: red">삭제</button>
+      <span class="semester-name" style="cursor:pointer; color:#2563eb; text-decoration: underline;">${sem}</span>
+      <div>
+        <button onclick="removeSemester(${index})" style="color: white; background-color: red;">삭제</button>
+        <button onclick="loadRepresentativeSchedule('${sem}')" style="margin-left: 8px;">대표로 설정</button>
+      </div>
     `;
       list.appendChild(li);
 
@@ -751,6 +920,7 @@
       });
     });
   }
+
 
 
   function openScheduleModal(semester) {
@@ -780,6 +950,7 @@
     })
             .then(res => res.json())
             .then(data => {
+              console.log(data);
               currentCourseList = data;   // ★★★★★ 반드시 필요!
               renderCourseList(data);
               attachCellEvents();         // 또는 renderCourseList에서 호출
@@ -954,6 +1125,7 @@
     const courseId = courseEntries[0].identifyNumberOfCourse;
     const courseName = courseEntries[0].courseName;
     const classroom = courseEntries[0].classroom;
+    const id = courseEntries[0].timeTableId;
 
     // 1. 이미 등록된 수업인지 확인
     let isAlreadyAdded = false;
@@ -973,6 +1145,7 @@
     if (isAlreadyAdded) {
       // 2. 이미 등록된 경우 → 삭제
       courseEntries.forEach(entry => {
+
         const dayIndex = entry.scheduleDay - 1;
         for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
           const cell = table.rows[p + 1].cells[dayIndex + 1];
@@ -1011,6 +1184,7 @@
         cell.style.backgroundColor = randomColor;
         cell.setAttribute('data-course-id', courseId);
         cell.removeAttribute('data-preview'); // 미리보기 흔적 제거
+        cell.setAttribute('data-id', entry.timeTableId);
       }
     });
 
@@ -1024,8 +1198,16 @@
       const semesterText = document.getElementById('modalSemesterTitle').textContent;
       const semesterCode = semesterText.replace("년 ", "").replace("학기", "").replace(" ", "");
 
+      // 👇 이 부분: 시간표에서 수업 ID 수집
+      const courseIds = getCourseIdsFromSchedule(); // 아래에 함수 정의됨
+
       const formData = new FormData();
       formData.append("semester", semesterCode);
+
+      // 👇 수업 ID 여러 개 추가 (서버에서 courseIds[]로 받기 좋게)
+      courseIds.forEach(id => {
+        formData.append("courseIds[]", id);  // 또는 "courseIds"도 가능 (서버 설정에 따라)
+      });
 
       try {
         const res = await fetch('/addTimetable', {
@@ -1036,17 +1218,32 @@
           body: formData
         });
 
-        const data = await res.text();
-        if (data.success === "ok") {
+        const data = await res.text();  // JSON 아니라면 .text() 유지
+        if (data === "ok" || data.success === "ok") {
           alert("시간표가 저장되었습니다!");
         } else {
           alert("저장에 실패했습니다.");
+          console.log("📦 FormData 내용:");
+          for (const [key, value] of formData.entries()) {
+            console.log(key, value);
+          }
         }
       } catch (err) {
         alert("요청 중 문제가 발생했습니다.");
       }
     });
+
   }
+  function getCourseIdsFromSchedule() {
+    const cells = document.querySelectorAll('#scheduleTable td[data-id]');
+    const idSet = new Set();
+    cells.forEach(cell => {
+      const id = cell.dataset.id;
+      if (id) idSet.add(id);  // 중복 제거
+    });
+    return Array.from(idSet);
+  }
+
 
 
 
@@ -1156,18 +1353,73 @@
     return html;
   }
 
-  function renderScheduleWithData(scheduleData) {
-    // 예: [{ id, subject, professor, day, period }, ...]
-    const days = ['월', '화', '수', '목', '금'];
-    const table = document.getElementById('scheduleTable');
+  async function loadRepresentativeSchedule() {
+    const token = localStorage.getItem('jwtToken');
+
+    try {
+      // 1. 시간표 목록 불러오기
+      const res = await fetch('/tableId_List', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) throw new Error("시간표 목록을 불러오는 데 실패했습니다.");
+      const data = await res.json(); // 예: { "20242": [101, 102], "20241": [88] }
+
+      // 2. 최신 학기 찾기 (내림차순 정렬)
+      const semesters = Object.keys(data).sort((a, b) => b - a);
+      if (semesters.length === 0) {
+        alert("저장된 시간표가 없습니다.");
+        return;
+      }
+
+      const latestSemesterCode = semesters[0];            // 예: "20242"
+      const latestSemesterList = data[latestSemesterCode];
+      const representativeId = latestSemesterList[0];      // 최신 학기의 첫 번째 시간표 ID
+
+      // 3. 시간표 상세 정보 요청
+      const detailRes = await fetch(`/timetable/detail?id=${representativeId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!detailRes.ok) throw new Error("대표 시간표 정보를 불러오지 못했습니다.");
+      const scheduleData = await detailRes.json(); // 예: [{ subject, professor, day, period }, ...]
+
+      // 4. 학기 이름 포맷 (ex: "20242" → "2024년 2학기")
+      const year = latestSemesterCode.slice(0, 4);
+      const semester = latestSemesterCode.slice(4) === "1" ? "1학기" : "2학기";
+      const semesterName = `${year}년 ${semester}`;
+
+      // 5. 대표 시간표 렌더링
+      renderRepresentativeSchedule(scheduleData, semesterName);
+
+    } catch (err) {
+      console.error(err);
+      alert("대표 시간표를 불러오는 중 오류가 발생했습니다.");
+    }
+  }
+
+
+  function renderRepresentativeSchedule(scheduleData, semesterName) {
+    const container = document.getElementById('representativeScheduleContainer');
+    const title = document.getElementById('representativeTitle');
+
+    // 1. 제목 표시
+    title.innerHTML = `📌 대표 시간표 - ${semesterName}`;
+
+    // 2. 빈 시간표 렌더링
+    container.innerHTML = generateEmptyScheduleTable();
+
+    // 3. 테이블 선택 (⚠️ id 확인!)
+    const table = container.querySelector('#scheduleTable');
     if (!table) return;
 
-    Array.from(table.querySelectorAll('td[data-period]')).forEach(td => {
-      td.textContent = '';
-      td.dataset.scheduleId = '';
-      td.style.backgroundColor = '';
-    });
+    const days = ['월', '화', '수', '목', '금'];
 
+    // 4. 수업 정보 렌더링
     scheduleData.forEach(item => {
       const dayIndex = days.indexOf(item.day);
       if (dayIndex === -1) return;
@@ -1175,14 +1427,16 @@
       const row = table.rows[item.period];
       if (!row) return;
 
-      const cell = row.cells[dayIndex+1];
+      const cell = row.cells[dayIndex + 1];
       if (cell) {
-        cell.textContent = `${item.subject}\n(${item.professor})`;
-        cell.dataset.scheduleId = item.id;
-        cell.style.backgroundColor = '#dbeafe';
+        cell.innerHTML = `${item.subject}<br>(${item.professor})`;
+        cell.style.backgroundColor = '#e0f7fa';
+        cell.style.border = '1px solid #90caf9';
       }
     });
   }
+
+
 
   function removeSemester(index) {
     selectedSemesters.splice(index, 1);

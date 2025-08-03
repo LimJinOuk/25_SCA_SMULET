@@ -1,56 +1,1182 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>시간표 보기</title>
-    <link rel="stylesheet" href="/jsCss/mypage.css" />
+    <meta charset="UTF-8">
+    <title>My page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
     <style>
+        /* 기본 설정 */
         body {
-            font-family: 'Montserrat', sans-serif;
             margin: 0;
-            padding: 20px;
-        }
-        #scheduleContainer {
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f7f9fc;
+            min-height: 100vh;
             display: flex;
-            gap: 20px;
+            flex-direction: column;
         }
-        #scheduleTableContainer {
-            flex: 2;
-            overflow-y: auto;
-            max-height: 600px;
+
+        /* 헤더 */
+        header {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+            background-color: rgb(255, 255, 255, 0.85);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
         }
-        #classInfoList {
+
+        h1 {
+            font-size: 2.3rem;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 0;
+        }
+        h1 a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        nav a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.2s ease, font-size 0.2s ease;
+        }
+
+        nav a:hover {
+            color: #3b82f6;
+            font-size: 1.1rem;
+        }
+
+        main {
             flex: 1;
-            border-left: 1px solid #ccc;
-            padding-left: 10px;
-            overflow-y: auto;
-            max-height: 600px;
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            /*align-items: center; 가운데 정렬*/
+            align-items: flex-start;
         }
+
+        .container {
+            /*display: flex;*/
+            display: flex;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 20px 16px;
+            max-width: 1200px;
+            width: 100%;
+            flex-wrap: wrap;
+            margin: 0 auto;
+        }
+
+        /* 반응형 전환 */
+        @media (max-width: 900px) {
+            .container {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+
+        /* 박스 공통 */
+        .box {
+            flex: 1;
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            min-height: 150px; /*box 크기 줄이기 요소!*/
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+        .box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+        h2, h3 {
+            margin: 0 0 10px;
+            font-size: 1.1rem;
+            color: #111827;
+        }
+        .section h3 {
+            margin-top: 24px;     /* “비밀번호 변경” 제목 위로 24px 띄움 */
+        }
+        /* 내부 정렬 */
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .section {
+            margin-bottom: 10px;
+        }
+        .section button{
+            display: inline-block;    /* inline-block 이면 너비 지정도 가능 */
+            width: 140px;             /* 원하는 너비로 조정하세요 */
+            margin-top: 8px;
+            text-align: center;       /* 버튼 텍스트도 가운데 정렬 */
+        }
+        .info p {
+            margin: 3px 0;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+
+        /* 버튼 */
+        button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        button:hover {
+            background-color: #1e40af;
+            transform: scale(1.03);
+        }
+        button.red {
+            background-color: #ef4444;
+        }
+        button.red:hover {
+            background-color: #dc2626;
+        }
+
+        /* 테크트리 버튼 간 간격 */
+        .tech-buttons a {
+            display: block;
+            margin-bottom: 10px;
+            text-decoration: none;
+        }
+
+        /* 시간표 버튼 그룹 */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            justify-content: center;
+        }
+
+        /* 시간표 아이템 */
+        #scheduleList .schedule-item {
+            background-color: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 대표 시간표 컨테이너  */
+        .representative-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 20px; /* 위와 간격 */
+            order: 4; /* 세 박스 이후에 위치 */
+        }
+
+        .representative-box {
+            width: 70%;
+            max-width: 1000px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        /* 푸터 */
+        footer {
+            background-color: rgba(30, 30, 30, 0.98);
+            color: rgba(200, 200, 200, 0.7);
+            font-size: 0.9rem;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-top: 1px solid #444;
+            margin-top: auto;
+            position: static;
+            algin-items:flex-end; /*아래로 정렬*/
+        }
+        footer a {
+            text-decoration: none;
+            color: rgba(200, 200, 200, 0.7);
+            margin: 0 10px;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        select {
+            appearance: none; /* 기본 화살표 제거 */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+
+            background-color: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 1rem;
+            color: #111827;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px 16px;
+            padding-right: 40px; /* 화살표 공간 확보 */
+        }
+
+        select:hover {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-wrapper {
+            display: contents;
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .modal-buttons button {
+            flex: 1;
+            max-width: 120px;
+            padding: 0.6rem 0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .modal-buttons #confirm,
+        .modal-buttons #changePwBtn {
+            background-color: #2563eb;
+            color: #fff;
+        }
+        .modal-buttons #close-btn,
+        .modal-buttons #cancelChange {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        .modal-buttons button:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+        .modal-buttons button:active {
+            transform: translateY(1px);
+        }
+
+        .modal input[type="password"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .hidden {
+            display: none;
+        }
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        #semesterList li {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        /* ───────────────────────────────────────── */
+        /* MOD: 사용자 정의 아이콘 + 모달 스타일 */
+
+        /* 1) 사용자 정의 아이콘 렌더 영역 */
+        #custom-icons {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        /* 2) + 버튼 박스 효과 */
+        #add-icon-btn .logo-box {
+            background-color: rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        #add-icon-btn:hover .logo-box {
+            background-color: rgba(0,0,0,0.35);
+        }
+
+        /* 3) 모달 오버레이 (아이콘 등록) */
+        #add-icon-modal.modal-overlay {
+            /* password 모달과 구분을 위해 ID 셀렉터 우선 적용 */
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        #add-icon-modal.modal-overlay.hidden {
+            display: none;
+        }
+
+        /* 4) 모달 본문 */
+        #add-icon-modal .modal {
+            background: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        #add-icon-modal .modal h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #111827;
+        }
+        #add-icon-modal .modal label {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.9rem;
+        }
+        #add-icon-modal .modal input[type="url"] {
+            margin-top: 4px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        #add-icon-modal .modal .button-group-vertical {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        #add-icon-modal .modal button {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        #add-icon-modal .modal button[type="submit"] {
+            background: #2563eb;
+            color: #fff;
+        }
+        #add-icon-modal .modal button#cancel-icon-btn {
+            background: #ddd;
+            color: #333;
+        }
+        #scheduleTable td {
+            width: 80px;
+            /* 필요 시 최소/최대 너비 조절도 가능 */
+            max-width: 100px;
+            height: 50px; /* 원하는 값(px, em 등)으로 조정 */
+            min-width: 80px; /* 칸의 가로폭도 조절 가능 */
+            vertical-align: middle; /* 텍스트 수직 중앙정렬 */
+        }
+        .course-tooltip {
+            animation: fadeIn 0.12s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+
+
     </style>
 </head>
-<body>
-<div id="scheduleContainer">
-    <div id="scheduleTableContainer">
-        <h2 id="modalSemesterTitle"></h2>
-        <!-- 시간표 내용 동적 삽입 -->
-    </div>
-    <div id="classInfoList">
-        <!-- 수업 정보 동적 삽입 -->
-    </div>
-</div>
+<body onload="loaduserinfo()">
+<header>
+    <h1><a href="/">SMULET</a></h1>
+    <nav>
+        <a href="#"><b>이용안내</b></a>
+        <a href="/login_page" id="loginLink"><b>로그인</b></a>
+        <a href="/Register" id="registerLink"><b>회원가입</b></a>
+        <a href="/" id="logoutLink" style="display: none;"><b>로그아웃</b></a>
+        <a href="/" id="" style="display: none;"><b>마이페이지</b></a>
+    </nav>
+</header>
+<main>
+    <div class="container">
+        <!-- BOX1 -->
+        <div class="box box1">
+            <div class="section">
+                <h2>내 정보</h2>
+                <div class="nav">
+                    <div class="info">
+                        <p>이름: <span id="userName"></span></p>
+                        <p>이메일: <span id="studentId"></span></p>
+                        <p>학과: <span id="userMajor">컴퓨터과학과</span></p>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>회원 설정</h3>
+                    <div class="button-group">
+                        <button onclick="modifinguserinfo()">비밀번호 변경</button>
+                        <button class="red" onclick="deleteAccount()">회원탈퇴</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- 비밀번호 확인 모달 -->
+        <div id="modalOverlay" class="modal-overlay hidden">
+            <div class="modal-wrapper">
+                <div class="modal">
+                    <p>비밀번호를 입력하세요</p>
+                    <input type="password" id="pw">
+                    <div class="modal-buttons">
+                        <button id="confirm" type="button">확인</button>
+                        <button id="close-btn" type="button">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 비밀번호 변경 모달 -->
+        <div id="changePwModal" class="modal-overlay hidden">
+            <div class="modal-wrapper">
+                <div class="modal">
+                    <p>새 비밀번호를 입력하세요</p>
+                    <input type="password" id="newPassword" placeholder="새 비밀번호">
+                    <input type="password" id="confirmPassword" placeholder="비밀번호 확인">
+                    <div class="modal-buttons">
+                        <button id="changePwBtn" type="button">변경</button>
+                        <button id="cancelChange" type="button">취소</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOX2 -->
+        <div class="box box2">
+            <h2>테크트리</h2>
+            <p class="subtext">모든 테크트리를 만나보세요!</p>
+            <select id="techTreeSelect" onchange="goToTechTree()" style="margin-top: 12px;">
+                <option value="">학번을 선택하세요</option>
+                <option value="21">21학번 테크트리</option>
+                <option value="22">22학번 테크트리</option>
+                <option value="23">23학번 테크트리</option>
+                <option value="24">24학번 테크트리</option>
+                <option value="25">25학번 테크트리</option>
+            </select>
+        </div>
+
+        <!-- BOX3 -->
+        <div class="box box3">
+            <h2>시간표</h2>
+            <p class="subtext">시간표를 만나보세요!</p>
+            <div style="margin-top: 12px;">
+                <button id="showSemesterBtn">시간표 추가</button>
+            </div>
+            <div id="addSemesterList" class="hidden" style="margin-top: 10px;">
+                <select id="semesterSelect"></select>
+                <button onclick="addSemester()">추가</button>
+            </div>
+            <ul id="semesterList" style="margin-top: 12px;"></ul>
+        </div>
+
+        <!-- 시간표 모달 -->
+        <div id="scheduleModal" class="modal-overlay hidden">
+            <div class="modal-wrapper">
+                <div class="modal" style="display: flex; width: 90vw; max-width: 1000px; max-height: 700px; overflow: hidden; padding: 30px; gap: 20px;">
+                    <!-- 왼쪽: 시간표 -->
+                    <div style="flex: 2; overflow-y: auto;">
+                        <div style="text-align: right;">
+                            <button id="closeScheduleModal" style="background: #ef4444; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer;">닫기</button>
+                            <button id="saveSchedule" style="background: #4466ef; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer;">저장</button>
+                        </div>
+                        <h2 style="text-align:center; margin-bottom: 15px;" id="modalSemesterTitle"></h2>
+                        <div id="scheduleTableContainer"></div>
+                    </div>
+                    <!-- 오른쪽: 수업 정보 -->
+                    <div id="classInfoList" style="flex: 1; overflow-y: auto; border-left: 1px solid #ddd; padding-left: 10px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!--대표 시간표 설정-->
+        <div class="representative-container">
+            <div class="box representative-box">
+                <div style="display:flex; justify-content: space-between; align-items: center;">
+                    <h2 id="representativeTitle">📌 대표 시간표</h2>
+                </div>
+                <div id="representativeScheduleContainer">
+                    <p style="color: #888;">대표 시간표가 아직 설정되지 않았습니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</main>
+
+<footer>
+    <b>
+        <a href="#">Github</a>
+        <a href="#">개인정보처리방침</a>
+        <a href="#">이용약관</a><br><br>
+        <a href="#">Copyright</a>
+    </b>
+</footer>
 <script>
-    window.onload = () => {
-        const semester = localStorage.getItem("selectedSemester");
-        document.getElementById("modalSemesterTitle").textContent = semester;
+    const semesterOptions = [
+        "2025년 2학기", "2025년 1학기",
+        "2024년 2학기", "2024년 1학기",
+        "2023년 2학기", "2023년 1학기",
+        "2022년 2학기", "2022년 1학기",
+        "2021년 2학기", "2021년 1학기"
+    ];
+    // 스크립트 맨 위나 addCourseToScheduleTable 함수 바깥에 선언
+    const randomColors = [
+        "#F9E79F", // 연노랑
+        "#AEDFF7", // 연하늘
+        "#A7F3D0", // 민트그린
+        "#FFD6E0", // 연분홍
+        "#B4A7F7", // 라벤더
+        "#FFD9B3", // 살구
+        "#B9F6CA", // 연연두
+        "#FFE082", // 밝은 노랑
+        "#FFAB91", // 연코랄
+        "#D1C4E9"  // 연보라
+    ];
 
-        fetch(`/schedule_data?semester=${encodeURIComponent(semester)}`)
-            .then(res => res.json())
+    // 이미 사용된 색을 추적
+    let usedColors = [];
+    let UserId = null;
+
+    function getRandomColorNoDuplicate() {
+        // 아직 안 쓴 색만 필터
+        const availableColors = randomColors.filter(color => !usedColors.includes(color));
+        // 남은 게 없으면 usedColors 리셋
+        if (availableColors.length === 0) {
+            usedColors = [];
+            // 다시 전체 중에서 랜덤 선택
+            return getRandomColorNoDuplicate();
+        }
+        // 랜덤하게 하나 선택
+        const randomIndex = Math.floor(Math.random() * availableColors.length);
+        const selectedColor = availableColors[randomIndex];
+        usedColors.push(selectedColor); // 사용된 색에 추가
+        return selectedColor;
+    }
+
+
+
+    let selectedSemesters = [];
+    let currentCourseList = []; // 모달에 띄운 현재 학기 전체 수업정보 저장
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const loginLink = document.getElementById('loginLink');
+        const logoutLink = document.getElementById('logoutLink');
+        const registerLink = document.querySelector('nav a[href="/Register"]');
+        const token = localStorage.getItem('jwtToken');
+
+        // 로그인/로그아웃 링크 토글
+        if (token) {
+            loginLink.style.display = 'none';
+            logoutLink.style.display = 'inline';
+            registerLink.style.display = 'none';
+        } else {
+            loginLink.style.display = 'inline';
+            logoutLink.style.display = 'none';
+            registerLink.style.display = 'inline';
+        }
+
+        // 로그아웃
+        logoutLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            localStorage.removeItem('jwtToken');
+            alert('로그아웃 되었습니다.');
+            window.location.href = '/';
+        });
+
+        // 시간표 추가 버튼 연결
+        const showSemesterBtn = document.getElementById('showSemesterBtn');
+        if (showSemesterBtn) {
+            showSemesterBtn.addEventListener('click', showAddSemester);
+        }
+    });
+
+    // 사용자 정보 로드
+    function loaduserinfo() {
+        const token = localStorage.getItem('jwtToken');
+        fetch('/userinfo', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('사용자 정보 불러오기 실패');
+                return res.json();
+            })
             .then(data => {
-                document.getElementById("scheduleTableContainer").innerHTML += data.tableHtml;
-                document.getElementById("classInfoList").innerHTML += data.infoHtml;
+                document.getElementById('userName').textContent = data.name;
+                document.getElementById('studentId').textContent = data.email;
+                UserId = data.id;
+            })
+            .catch(err => {
+                console.error(err);
+                alert('사용자 정보를 불러오는데 실패했습니다.');
+            });
+    }
+
+    // 회원 탈퇴
+    function deleteAccount() {
+        const token = localStorage.getItem('jwtToken');
+        if (!confirm("정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) return;
+
+        fetch('/member/delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('서버 응답 오류');
+                return res.json();
+            })
+            .then(data => {
+                if (data.deleteStatus === 'success') {
+                    alert('회원 탈퇴가 완료되었습니다.');
+                    localStorage.removeItem('jwtToken');
+                    window.location.href = '/';
+                }
+            })
+            .catch(err => {
+                alert('회원 탈퇴 중 오류가 발생했습니다.');
+                console.error(err);
+            });
+    }
+
+    // 사용자 정보 수정 - 비밀번호 확인
+    function modifinguserinfo() {
+        const modalOverlay = document.getElementById('modalOverlay');
+        const closeBtn = document.getElementById('close-btn');
+        const confirmBtn = document.getElementById('confirm');
+        const token = localStorage.getItem('jwtToken');
+
+        modalOverlay.classList.remove('hidden');
+        document.body.classList.add("modal-open");
+
+        closeBtn.onclick = () => {
+            modalOverlay.classList.add("hidden");
+            document.body.classList.remove("modal-open");
+        };
+
+        confirmBtn.onclick = () => {
+            const pw = document.getElementById('pw').value;
+
+            fetch('/check_pw_button', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ pw: pw })
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error('서버 응답 오류');
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.Password === true) {
+                        alert('비밀번호 확인 완료!');
+                        modalOverlay.classList.add("hidden");
+                        const changeModal = document.getElementById("changePwModal");
+                        changeModal.classList.remove("hidden");
+                        document.body.classList.add("modal-open");
+                    } else {
+                        alert('비밀번호가 일치하지 않습니다.');
+                    }
+                })
+                .catch(err => {
+                    alert('요청 중 문제가 발생했습니다: ' + err.message);
+                    console.error(err);
+                });
+        };
+    }
+
+    // 비밀번호 재설정
+    document.getElementById("changePwBtn").onclick = function () {
+        const newPw = document.getElementById("newPassword").value;
+        const confirmPw = document.getElementById("confirmPassword").value;
+        const token = localStorage.getItem("jwtToken");
+
+        if (!newPw || !confirmPw || newPw !== confirmPw) {
+            alert("비밀번호를 정확히 입력해주세요.");
+            return;
+        }
+
+        fetch('/PWupdate_button', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ pw: newPw })
+        })
+            .then(async res => {
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    alert(`서버 오류 ${res.status}: ${errorText}`);
+                    throw new Error("서버 오류: " + res.status);
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.updateStatus === true) {
+                    alert("비밀번호가 성공적으로 변경되었습니다.");
+                    document.getElementById("changePwModal").classList.add("hidden");
+                } else {
+                    alert("비밀번호 변경에 실패했습니다.");
+                }
+            })
+            .catch(err => {
+                alert("비밀번호 변경 중 오류 발생: " + err.message);
             });
     };
+
+    // 모달 열기/닫기
+    const openBtn = document.getElementById("openPwModalBtn");
+    if (openBtn) {
+        openBtn.onclick = () => {
+            document.getElementById("changePwModal").classList.remove("hidden");
+            document.body.classList.add("modal-open");
+            document.getElementById("newPassword").value = "";
+            document.getElementById("confirmPassword").value = "";
+        };
+    }
+    document.getElementById("close-btn").onclick = function () {
+        document.getElementById("modalOverlay").classList.add("hidden");
+    };
+    document.getElementById("cancelChange").onclick = function () {
+        document.getElementById("changePwModal").classList.add("hidden");
+        document.body.classList.remove("modal-open");
+    };
+
+    function goToTechTree() {
+        const select = document.getElementById('techTreeSelect');
+        const year = select.value;
+        const token = localStorage.getItem('jwtToken');
+
+        if (!token) {
+            alert("로그인 토큰이 없습니다.");
+            return;
+        }
+        if (!year) {
+            alert("학번을 선택하세요.");
+            return;
+        }
+
+        fetch(`/tech_tree?year=${year}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(res => {
+                if (res.ok) return res.text();
+                else throw new Error("Unauthorized");
+            })
+            .then(html => {
+                document.open();
+                document.write(html);
+                document.close();
+            })
+            .catch(err => {
+                console.error(err);
+                window.location.href = '/';
+            });
+
+    }
+
+    function showAddSemester() {
+        const addList = document.getElementById('addSemesterList');
+        const select = document.getElementById('semesterSelect');
+
+        select.innerHTML = '';
+        semesterOptions.forEach(sem => {
+            if (!selectedSemesters.includes(sem)) {
+                const option = document.createElement('option');
+                option.value = sem;
+                option.textContent = sem;
+                select.appendChild(option);
+            }
+        });
+
+        addList.classList.toggle('hidden');
+    }
+
+    function addSemester() {
+        const select = document.getElementById('semesterSelect');
+        const selected = select.value;
+        if (!selected) return;
+
+        selectedSemesters.push(selected);
+        renderSemesterList();
+        document.getElementById('addSemesterList').classList.add('hidden');
+    }
+
+    function renderSemesterList() {
+        const list = document.getElementById('semesterList');
+        list.innerHTML = '';
+
+        selectedSemesters.forEach((sem, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+        <span class="semester-name" style="cursor:pointer; color:#2563eb; text-decoration: underline;">${sem}</span>
+        <button onclick="removeSemester(${index})" style="color: white; background-color: red">삭제</button>
+    `;
+            list.appendChild(li);
+
+            li.querySelector('.semester-name').addEventListener('click', () => {
+                openScheduleModal(sem);
+            });
+        });
+    }
+
+    function openScheduleModal(semester) {
+        const modal = document.getElementById('scheduleModal');
+        const title = document.getElementById('modalSemesterTitle');
+        const container = document.getElementById('scheduleTableContainer');
+        const listContainer = document.getElementById('classInfoList');
+        document.getElementById("closeScheduleModal").onclick = function (){
+            document.getElementById("scheduleModal").classList.add("hidden");
+            document.body.classList.remove("modal-open");
+            hideCourseTooltip();
+        }
+
+        title.textContent = semester;
+        container.innerHTML = generateEmptyScheduleTable();
+        listContainer.innerHTML = "<p>수업 정보를 불러오는 중입니다...</p>";
+        modal.classList.remove('hidden');
+        document.body.classList.add('modal-open');
+
+        // 여기서 수업 목록을 서버에서 불러온다고 가정
+        const token = localStorage.getItem('jwtToken');
+        fetch("/a", {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                currentCourseList = data;   // ★★★★★ 반드시 필요!
+                renderCourseList(data);
+                attachCellEvents();         // 또는 renderCourseList에서 호출
+            })
+            .catch(err => {
+                listContainer.innerHTML = `<p style="color:red;">수업 목록을 불러오지 못했습니다.</p>`;
+                console.error(err);
+            });
+    }
+
+    function renderCourseList(classList) {
+        const listContainer = document.getElementById('classInfoList');
+        currentCourseList = classList;
+        if (!Array.isArray(classList) || classList.length === 0) {
+            listContainer.innerHTML = '<p>수업 정보가 없습니다.</p>';
+            return;
+        }
+
+        listContainer.innerHTML = '';
+
+        const grouped = groupByCourse(classList);
+
+        Object.entries(grouped).forEach(([key, entries]) => {
+            const box = document.createElement('div');
+            box.style.border = "1px solid #ccc";
+            box.style.padding = "10px";
+            box.style.marginBottom = "10px";
+            box.style.borderRadius = "6px";
+            box.style.backgroundColor = "#f9f9f9";
+            box.style.cursor = "pointer";
+
+            const courseName = entries[0].courseName;
+            const classroom = entries[0].classroom;
+
+            box.innerHTML = `
+      <strong>${courseName}</strong><br>
+      강의실: ${classroom}
+    `;
+
+            box.onclick = () => {
+                addCourseToScheduleTable(entries);
+                attachCellEvents();
+            };
+
+            listContainer.appendChild(box);
+        });
+    }
+
+    // 수업명을 기준으로 그룹핑
+    function groupByCourse(data) {
+        const map = {};
+        data.forEach(entry => {
+            const key = entry.courseName;
+            if (!map[key]) map[key] = [];
+            map[key].push(entry);
+        });
+        return map;
+    }
+
+    // 시간표에 수업 반영
+    function addCourseToScheduleTable(courseEntries) {
+        const table = document.getElementById('scheduleTable');
+        if (!table) return;
+        const courseName = courseEntries[0].courseName;
+        const classroom = courseEntries[0].classroom;
+        const courseId = courseEntries[0].identifyNumberOfCourse;
+        let isAlreadyAdded = false;
+        const dayIndex = courseEntries[0].scheduleDay;
+        const firstPeriod = courseEntries[0].timeStart;
+        const row = table.rows[firstPeriod + 1];
+        const cell = row.cells[dayIndex + 1];
+        if (cell && (cell.textContent.trim() === `${courseName}\n(${classroom})` ||
+            cell.innerHTML.trim() === `${courseName}<br>(${classroom})`)) {
+            isAlreadyAdded = true;
+        }
+        // 랜덤색(중복방지) 할당
+        const randomColor = getRandomColorNoDuplicate();
+
+        courseEntries.forEach(entry => {
+            const dayIndex = entry.scheduleDay;
+            for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
+                const row = table.rows[p + 1];
+                const cell = row.cells[dayIndex + 1];
+                if (cell) {
+                    if (isAlreadyAdded) {
+                        cell.textContent = '';
+                        cell.style.backgroundColor = '';
+                        cell.removeAttribute('data-course-id');
+                    } else {
+                        cell.innerHTML = `${entry.courseName}<br>(${entry.classroom})`;
+                        cell.style.backgroundColor = randomColor;
+                        cell.setAttribute('data-course-id', entry.identifyNumberOfCourse);
+                    }
+                    attachCellEvents();
+                }
+            }
+        });
+        const saveBtn = document.getElementById("saveSchedule");
+        saveBtn.replaceWith(saveBtn.cloneNode(true));  // 가장 간단하게 기존 이벤트 초기화
+        document.getElementById("saveSchedule").addEventListener("click", async function () {
+            const semesterText = document.getElementById('modalSemesterTitle').textContent;
+            const semesterCode = semesterText.replace("년 ", "").replace("학기", "").replace(" ", "");
+
+            const formData = new FormData();
+            formData.append("semester", semesterCode);
+
+            try {
+                const res = await fetch('/addTimetable', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                    },
+                    body: formData
+                });
+
+                const data = await res.text();
+
+                // 여기가 핵심
+                if (data.success === "ok") {
+                    alert("시간표가 저장되었습니다!");
+                } else {
+                    alert("저장에 실패했습니다.");
+                }
+
+            } catch (err) {
+                alert("요청 중 문제가 발생했습니다.");
+            }
+        });
+
+    }
+
+    // ===== 🟢🟢🟢 툴팁 부분 추가 ===========================
+
+    function attachCellEvents() {
+        const table = document.getElementById('scheduleTable');
+        if (!table) return;
+        const allCells = table.querySelectorAll('td[data-period]');
+        allCells.forEach(cell => {
+            cell.onmouseover = function (e) {
+                const courseId = cell.getAttribute('data-course-id');
+                if (courseId) {
+                    const courseInfo = currentCourseList.find(c => c.identifyNumberOfCourse === courseId);
+                    if (courseInfo) showCourseTooltip(cell, courseInfo);
+                }
+            };
+            cell.onmouseout = function (e) {
+                hideCourseTooltip();
+            };
+        });
+    }
+
+    function showCourseTooltip(cell, courseInfo) {
+        hideCourseTooltip();
+        const tooltip = document.createElement('div');
+        tooltip.className = 'course-tooltip';
+        tooltip.style.position = 'absolute';
+        tooltip.style.zIndex = 2000;
+        tooltip.style.minWidth = '180px';
+        tooltip.style.maxWidth = '260px';
+        tooltip.style.background = '#ffffffcc';
+        tooltip.style.border = '1px solid #2563eb';
+        tooltip.style.borderRadius = '10px';
+        tooltip.style.boxShadow = '0 4px 18px rgba(30,80,210,0.13)';
+        tooltip.style.padding = '14px 18px 14px 14px';
+        tooltip.style.fontSize = '0.98rem';
+        tooltip.style.pointerEvents = 'none';
+        tooltip.innerHTML = `
+      <b>${courseInfo.courseName}</b>
+      <br>교수: ${courseInfo.professorName || "-"}
+      <br>강의실: ${courseInfo.classroom}
+      <br>구분: ${courseInfo.majorOrCulture ? "전공" : "교양"}
+      <br>학점: ${courseInfo.credit}
+      <br>요일: ${['월', '화', '수', '목', '금'][courseInfo.scheduleDay] || courseInfo.scheduleDay}
+      <br>교시: ${courseInfo.timeStart} ~ ${courseInfo.timeEnd}
+      <br>과목코드: ${courseInfo.identifyNumberOfCourse}
+    `;
+        document.body.appendChild(tooltip);
+
+        // 툴팁 위치
+        const rect = cell.getBoundingClientRect();
+        tooltip.style.left = (rect.right + 8) + "px";
+        tooltip.style.top = (rect.top + window.scrollY) + "px";
+    }
+
+    function hideCourseTooltip() {
+        const prev = document.querySelector('.course-tooltip');
+        if (prev) prev.remove();
+    }
+
+
+    function renderClassInfoList(scheduleData) {
+        const listContainer = document.getElementById('classInfoList');
+        if (!listContainer) return;
+
+        if (!Array.isArray(scheduleData) || scheduleData.length === 0) {
+            listContainer.innerHTML = '<p>수업 정보가 없습니다.</p>';
+            return;
+        }
+
+        listContainer.innerHTML = scheduleData.map(cls => `
+        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 6px; background-color: #f9f9f9;">
+            <strong>${cls.subject}</strong><br>
+            교수: ${cls.professor}<br>
+            요일: ${cls.day}, ${cls.period}교시
+        </div>
+    `).join('');
+    }
+    function generateEmptyScheduleTable() {
+        const days = ['월', '화', '수', '목', '금'];
+        let html = '<table id="scheduleTable" style="width:100%; border-collapse: collapse;">';
+
+        html += '<tr><th></th>';
+        days.forEach(day => {
+            html += `<th style="border: 1px solid #ddd; padding: 8px; background:#f8f9fa;">${day}</th>`;
+        });
+        html += '</tr>';
+
+        let startHour = 9;
+        for (let period = 1; period <= 15; period++) {
+            const timeStr = startHour <= 12 ? `오전 ${startHour}시` : `오후 ${startHour - 12}시`;
+            html += `<tr><td style="border: 1px solid #ddd; padding: 8px; background:#e3e3fd; font-weight:bold;">${period}교시<br>(${timeStr})</td>`;
+
+            days.forEach(() => {
+                html += `<td style="border: 1px solid #ddd; padding: 8px;" data-period="${period}"></td>`;
+            });
+
+            html += '</tr>';
+            startHour++;
+        }
+
+        html += '</table>';
+        return html;
+    }
+
+    function renderScheduleWithData(scheduleData) {
+        // 예: [{ id, subject, professor, day, period }, ...]
+        const days = ['월', '화', '수', '목', '금'];
+        const table = document.getElementById('scheduleTable');
+        if (!table) return;
+
+        Array.from(table.querySelectorAll('td[data-period]')).forEach(td => {
+            td.textContent = '';
+            td.dataset.scheduleId = '';
+            td.style.backgroundColor = '';
+        });
+
+        scheduleData.forEach(item => {
+            const dayIndex = days.indexOf(item.day);
+            if (dayIndex === -1) return;
+
+            const row = table.rows[item.period];
+            if (!row) return;
+
+            const cell = row.cells[dayIndex + 1];
+            if (cell) {
+                cell.textContent = `${item.subject}\n(${item.professor})`;
+                cell.dataset.scheduleId = item.id;
+                cell.style.backgroundColor = '#dbeafe';
+            }
+        });
+    }
+
+    function removeSemester(index) {
+        selectedSemesters.splice(index, 1);
+        renderSemesterList();
+    }
+
 </script>
 </body>
 </html>

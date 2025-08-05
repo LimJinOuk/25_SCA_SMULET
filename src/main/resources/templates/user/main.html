@@ -16,7 +16,6 @@
             display: flex;
             flex-direction: column;
         }
-
         body {
             font-family: 'Montserrat', sans-serif;
             margin: 0;
@@ -26,7 +25,6 @@
             background-size: cover;
             min-height: 100vh;
         }
-
         .wrapper {
             min-height: 100%;
             display: flex;
@@ -36,13 +34,12 @@
             background-color: white;
             padding: 20px;
             box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
-            background-color: rgb(255, 255, 255, 0.85);
+            background-color: rgba(255, 255, 255, 0.85);
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #e2e8f0;
         }
-
         h1 {
             font-size: 2.3rem;
             font-weight: bold;
@@ -53,7 +50,6 @@
             text-decoration: none;
             color: inherit;
         }
-
         nav a {
             margin-left: 20px;
             text-decoration: none;
@@ -61,21 +57,23 @@
             font-weight: 500;
             transition: color 0.2s ease, font-size 0.2s ease;
         }
-
         nav a:hover {
             color: #3b82f6;
             font-size: 1.1rem;
         }
 
+        /* ─── 아이콘 리스트 ─── */
         .links {
             display: flex;
+            flex-wrap: nowrap;       /* 한 줄 스크롤 */
+            overflow-x: auto;
             justify-content: center;
-            flex-wrap: wrap;
-            gap: 30px;
+            align-items: center;
+            gap: 20px;
+            padding: 0 20px;
             margin: 40px auto;
-            max-width: 700px;
+            width: 100%;
         }
-
         .logo-container {
             display: flex;
             flex-direction: column;
@@ -83,71 +81,83 @@
             width: 100px;
             position: relative;
         }
-
         .logo-box {
             width: 100px;
-            height: 127px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 20px;
+            height: 100px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 25px;
             overflow: hidden;
-            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
-
         .logo-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
         }
-
         .logo-caption {
-            color: white;
-            font-weight: bold;
-            font-size: 13px;
+            opacity: 1 !important;
             margin-top: 8px;
-            transition: opacity 0.3s ease;
+            font-size: 0.9rem;
+            text-align: center;
+            width: 100%;
+            color: #d1d5db;
         }
-
         .logo-box:hover {
             transform: scale(1.07);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
         }
 
-        .logo-box:hover + .logo-caption {
-            opacity: 0;
+        /* 삭제 버튼 */
+        .logo-container .remove-btn {
+            display: none;
+            position: absolute;
+            top: 4px; right: 4px;
+            width: 18px; height: 18px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 14px;
+            line-height: 18px;
+            text-align: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .logo-container:hover .remove-btn {
+            display: block;
         }
 
         main {
             flex: 1;
-            height: 100px; /* 원하는 고정값 */
-            width: 400px; /* 고정 너비도 같이 주면 깔끔 */
+            height: 100px;
+            width: 400px;
             padding: 20px;
-            background-color: rgba(255, 255, 255, 0.85);
+            background-color: rgba(255,255,255,0.85);
             border-radius: 30px;
             margin: 40px auto;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
         }
-
         .title {
             font-size: 32px;
             font-weight: 700;
             margin-bottom: 10px;
         }
-
         .subtitle {
             font-size: 28px;
             margin-bottom: 30px;
             color: #3b82f6;
             font-weight: 700;
         }
-
-        .login-btn, .mypage-btn{
+        .login-btn, .mypage-btn {
             display: inline-block;
             border: none;
             padding: 15px 40px;
@@ -158,30 +168,89 @@
             background: #60a5fa;
             color: white;
             transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .login-btn a, .mypage-btn a {
-            color: white; /* 흰색 글씨 */
-            text-decoration: none; /* 밑줄 제거 */
         }
         .login-btn:hover, .mypage-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
         }
         footer {
-            background-color: rgb(40, 40, 40, 0.99);
+            background-color: rgba(40,40,40,0.99);
             font-size: 15px;
             padding: 1.5rem;
             text-align: center;
-            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 4px rgba(0,0,0,0.1);
         }
         footer a {
             text-decoration: none;
-            color: rgba(156, 156, 156, 0.7);
+            color: rgba(156,156,156,0.7);
         }
         footer a:hover {
             text-decoration: underline;
+        }
+
+        /* dialog backdrop */
+        dialog::backdrop {
+            background: rgba(0,0,0,0.4);
+        }
+        #addIconDialog {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        #addIconDialog .modal {
+            background: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        #addIconDialog label {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.9rem;
+        }
+        #addIconDialog input {
+            margin-top: 4px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        #addIconDialog .button-group-vertical {
+            margin-top: 24px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        #addIconDialog .button-group-vertical button {
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        #addIconDialog button[value="cancel"] {
+            background: #e0e0e0;
+            color: #333;
+        }
+        #addIconDialog button[value="cancel"]:hover {
+            background: #d5d5d5;
+        }
+        #addIconDialog #confirmAdd {
+            background: #2563eb;
+            color: white;
+        }
+        #addIconDialog #confirmAdd:hover {
+            background: #1f4fc1;
+        }
+        #addIconDialog .button-group-vertical button:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
     </style>
 </head>
@@ -192,62 +261,93 @@
         <nav>
             <a href="#"><b>이용안내</b></a>
             <a href="/login_page" id="loginLink"><b>로그인</b></a>
-            <a href="/Register" id = "registerLink"><b>회원가입</b></a>
+            <a href="/Register" id="registerLink"><b>회원가입</b></a>
             <a href="/" id="logoutLink" style="display: none;"><b>로그아웃</b></a>
         </nav>
     </header>
 
     <div class="links">
+        <!-- 기본 4개 아이콘 -->
         <div class="logo-container">
             <a href="https://www.smu.ac.kr" class="logo-box" target="_blank">
                 <img src="images/상명대 로고.jpg" alt="상명대 로고" />
             </a>
             <div class="logo-caption">상명대</div>
         </div>
-
         <div class="logo-container">
             <a href="https://lib.smu.ac.kr" class="logo-box" target="_blank">
                 <img src="images/학술정보관.png" alt="학술정보관" />
             </a>
             <div class="logo-caption">학술정보관</div>
         </div>
-
         <div class="logo-container">
             <a href="https://ecampus.smu.ac.kr" class="logo-box" target="_blank">
                 <img src="images/코스모스.png" alt="e-campus" />
             </a>
             <div class="logo-caption">e-campus</div>
         </div>
-
         <div class="logo-container">
-            <a
-                    href="https://sso.smu.ac.kr/sso/index.jsp"
-                    class="logo-box"
-                    target="_blank"
-            >
+            <a href="https://sso.smu.ac.kr/sso/index.jsp" class="logo-box" target="_blank">
                 <img src="images/샘물.png" alt="샘물" />
             </a>
             <div class="logo-caption">샘물</div>
+        </div>
+
+        <!-- 사용자 정의 아이콘이 렌더될 영역 -->
+        <div id="custom-icons"></div>
+
+        <!-- “+” 버튼 -->
+        <div class="logo-container" id="add-icon-btn">
+            <div class="logo-box">
+                <img src="images/plus.svg" alt="아이콘 추가" />
+            </div>
+            <div class="logo-caption">추가</div>
         </div>
     </div>
 
     <main>
         <div class="title">상명대 컴퓨터과학과</div>
         <div class="subtitle">SMULET</div>
-        <div class="login-btn"  id="loginbox"><a href="/login_page">로그인</a></div>
-        <button class="mypage-btn" id = "myPagelink" onclick="mypage()">마이페이지</button>
+        <div class="login-btn" id="loginbox">
+            <a href="/login_page">로그인</a>
+        </div>
+        <button class="mypage-btn" id="myPagelink" onclick="mypage()">마이페이지</button>
     </main>
+
     <footer>
         <b>
             <a href="#">Github</a>
             <a href="#">개인정보처리방침</a>
             <a href="#">이용약관</a>
-            <br />
-            <br />
+            <br /><br />
             <a href="#">Copyright</a>
         </b>
     </footer>
 </div>
+
+<!-- 아이콘 추가 모달(dialog) -->
+<dialog id="addIconDialog">
+    <form method="dialog" class="modal">
+        <h2>새 아이콘 등록</h2>
+        <label>
+            이름:
+            <input type="text" name="name" required placeholder="예: 네이버" />
+        </label>
+        <label>
+            URL:
+            <input type="url" name="url" required placeholder="https://example.com" />
+        </label>
+        <div class="button-group-vertical">
+            <button type="submit" value="cancel" formnovalidate>취소</button>
+            <button id="confirmAdd" value="confirm">추가</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- custom-icons.js 로드 -->
+<script src="/jsCss/custom-icons.js" defer></script>
+
+<!-- 로그인/마이페이지 스크립트 -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const loginLink = document.getElementById('loginLink');
@@ -277,41 +377,32 @@
             alert('로그아웃 되었습니다.');
             window.location.href = '/';
         });
-
     });
+
     function mypage() {
         const token = localStorage.getItem('jwtToken');
         if (!token) {
-            alert("로그인이 필요합니다.");
+            alert('로그인이 필요합니다.');
             return;
         }
-
         fetch('/my_page', {
             method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { Authorization: `Bearer ${token}` }
         })
-            .then(res => {
+            .then((res) => {
                 if (!res.ok) throw new Error('요청 실패: ' + res.status);
                 return res.text();
             })
-            .then(html => {
-                console.log("📥 전체 HTML 응답 수신됨");
-
-                // 페이지 전체 갈아끼움
+            .then((html) => {
                 document.open();
-                document.write(html);  // 💥 이거는 기존 상태 완전 초기화
+                document.write(html);
                 document.close();
             })
-            .catch(err => {
-                console.error("❌ 마이페이지 전체 로딩 실패:", err);
-                alert("마이페이지 로딩 중 오류 발생");
+            .catch((err) => {
+                console.error('마이페이지 로딩 실패', err);
+                alert('마이페이지 로딩 중 오류 발생');
             });
     }
-
-
 </script>
-
 </body>
 </html>

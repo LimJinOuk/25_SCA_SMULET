@@ -653,6 +653,36 @@
   let selectedSemesters = [];
   let currentCourseList = []; // 모달에 띄운 현재 학기 전체 수업정보 저장
 
+  async function attemptRefreshToken() {
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    const res = await fetch('/refreshT', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ refreshToken })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem('jwtToken', data.accessToken);
+      return true;
+    } else {
+      logout();
+      return false;
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem('jwtToken');
+    localStorage.removeItem('refreshToken');
+    alert('세션이 만료되어 로그아웃되었습니다.');
+    window.location.href = '/login_page';
+  }
+
+
+
   document.addEventListener('DOMContentLoaded', function () {
     const loginLink = document.getElementById('loginLink');
     const logoutLink = document.getElementById('logoutLink');
@@ -686,27 +716,41 @@
   });
 
   // 사용자 정보 로드
-  function loaduserinfo() {
-    const token = localStorage.getItem('jwtToken');
-    fetch('/userinfo', {
+  async function loaduserinfo() {
+    let token = localStorage.getItem('jwtToken');
+
+    let res = await fetch('/userinfo', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
       }
-    })
-            .then(res => {
-              if (!res.ok) throw new Error('사용자 정보 불러오기 실패');
-              return res.json();
-            })
-            .then(data => {
-              document.getElementById('userName').textContent = data.name;
-              document.getElementById('studentId').textContent = data.email;
-              UserId = data.id;
-            })
-            .catch(err => {
-              console.error(err);
-              alert('사용자 정보를 불러오는데 실패했습니다.');
-            });
+    });
+
+    // Access Token이 만료된 경우
+    if (res.status === 401) {
+      const refreshed = await attemptRefreshToken();
+      if (!refreshed) return; // Refresh까지 실패 시 → 자동 로그아웃됨
+      token = localStorage.getItem('jwtToken');
+
+      // 새 Access Token으로 재요청
+      res = await fetch('/userinfo', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    }
+
+    if (!res.ok) {
+      console.error('사용자 정보 불러오기 실패:', res.status);
+      alert('사용자 정보를 불러오는데 실패했습니다.');
+      return;
+    }
+
+    const data = await res.json();
+    document.getElementById('userName').textContent = data.name;
+    document.getElementById('studentId').textContent = data.email;
+    UserId = data.id;
   }
 
   // 회원 탈퇴
@@ -910,7 +954,8 @@
       <span class="semester-name" style="cursor:pointer; color:#2563eb; text-decoration: underline;">${sem}</span>
       <div>
         <button onclick="removeSemester(${index})" style="color: white; background-color: red;">삭제</button>
-        <button onclick="loadRepresentativeSchedule('${sem}')" style="margin-left: 8px;">대표로 설정</button>
+        <button onclick="setRepresentativeSchedule('${sem}')" style="margin-left: 8px;">대표로 설정</button>
+
       </div>
     `;
       list.appendChild(li);
@@ -1353,54 +1398,79 @@
     return html;
   }
 
+  function setRepresentativeSchedule(sem) {
+    // 학기명을 코드로 변환
+    const year = sem.slice(0, 4);
+    const semester = sem.includes("1학기") ? "1" : "2";
+    const semesterCode = `${year}${semester}`;
+
+    // localStorage에 저장
+    localStorage.setItem("representativeId", semesterCode);
+
+    alert("대표 시간표로 설정되었습니다.");
+    loadRepresentativeSchedule();  // 저장 후 렌더링
+  }
+
+
   async function loadRepresentativeSchedule() {
     const token = localStorage.getItem('jwtToken');
+    const representativeId = localStorage.getItem('representativeId');
+
+    if (!representativeId) {
+      alert("대표 시간표가 설정되어 있지 않습니다.");
+      return;
+    }
 
     try {
-      // 1. 시간표 목록 불러오기
       const res = await fetch('/tableId_List', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
-      if (!res.ok) throw new Error("시간표 목록을 불러오는 데 실패했습니다.");
-      const data = await res.json(); // 예: { "20242": [101, 102], "20241": [88] }
+      if (!res.ok){
+        console.log("대표 ID(localStorage):", localStorage.getItem('representativeId'));
 
-      // 2. 최신 학기 찾기 (내림차순 정렬)
-      const semesters = Object.keys(data).sort((a, b) => b - a);
-      if (semesters.length === 0) {
-        alert("저장된 시간표가 없습니다.");
+        throw new Error("시간표 데이터를 불러오지 못했습니다.");
+      }
+
+      const data = await res.json(); // 예: { "2024": [10], "2025": [12, 13], ... }
+
+      // 👇 현재 모든 수업 정보가 담겨있는 곳 (기존 전역)
+      if (!currentCourseList || currentCourseList.length === 0) {
+        alert("전체 수업 정보가 없습니다. 먼저 로딩해야 합니다.");
         return;
       }
 
-      const latestSemesterCode = semesters[0];            // 예: "20242"
-      const latestSemesterList = data[latestSemesterCode];
-      const representativeId = latestSemesterList[0];      // 최신 학기의 첫 번째 시간표 ID
+      // ✅ 해당 tableId에 속한 수업만 필터링
+      const scheduleEntries = Object.entries(data)
+              .filter(([courseId, times]) => courseId === representativeId)
+              .map(([courseId, times]) => {
+                const courseData = currentCourseList.find(c => c.identifyNumberOfCourse === courseId);
+                if (!courseData) return null;
 
-      // 3. 시간표 상세 정보 요청
-      const detailRes = await fetch(`/timetable/detail?id=${representativeId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+                const [start, end] = times.length === 2 ? times : [times[0], times[0]];
 
-      if (!detailRes.ok) throw new Error("대표 시간표 정보를 불러오지 못했습니다.");
-      const scheduleData = await detailRes.json(); // 예: [{ subject, professor, day, period }, ...]
+                return {
+                  courseName: courseData.courseName,
+                  professor: courseData.professorName || '-',
+                  day: ['월', '화', '수', '목', '금'][courseData.scheduleDay - 1],
+                  periodStart: start,
+                  periodEnd: end
+                };
+              })
+              .filter(Boolean); // null 제거
 
-      // 4. 학기 이름 포맷 (ex: "20242" → "2024년 2학기")
-      const year = latestSemesterCode.slice(0, 4);
-      const semester = latestSemesterCode.slice(4) === "1" ? "1학기" : "2학기";
-      const semesterName = `${year}년 ${semester}`;
-
-      // 5. 대표 시간표 렌더링
-      renderRepresentativeSchedule(scheduleData, semesterName);
+      // ✅ 렌더링
+      renderRepresentativeSchedule(scheduleEntries, "대표 시간표");
 
     } catch (err) {
       console.error(err);
       alert("대표 시간표를 불러오는 중 오류가 발생했습니다.");
     }
   }
+
+
 
 
   function renderRepresentativeSchedule(scheduleData, semesterName) {

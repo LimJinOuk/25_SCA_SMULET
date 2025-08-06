@@ -49,8 +49,8 @@ public interface gettimeTableRepository extends JpaRepository<timetable, Long> {
             + "WHERE user.id = :userId", nativeQuery = true)
     List<getTimeTableDTO> findCoursesByUserId(@Param("userId") int userId);
 
-    @Query("SELECT y.id FROM timetable y WHERE y.userId=:userId")
-    List<Integer> findTableIdsByUserId(Integer userId);
+    @Query("SELECT y.id FROM timetable y WHERE y.userId.id = :userId")
+    List<Integer> findTableIdsByUserId(@Param("userId") Integer userId);
 
     List<timetable> findAllByUserId_Id(Integer userId);
 }

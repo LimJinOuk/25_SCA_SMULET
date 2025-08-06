@@ -30,7 +30,9 @@ public class JWTAtuhFilter extends OncePerRequestFilter
             String token = AuthHeader.substring(7);
             System.out.println("JWT 토큰: " + token);
             try {
-                if(jwtUtil.validateToken(token)){
+                boolean valid = jwtUtil.validateToken(token);
+                System.out.println("토큰 유효성 검사 결과: " + valid);
+                if(valid){
                     String username = jwtUtil.getUserName(token);
 
                     UsernamePasswordAuthenticationToken authentication =
@@ -39,18 +41,7 @@ public class JWTAtuhFilter extends OncePerRequestFilter
                 }
             } catch (JwtException e)
             {
-
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json;charset=UTF-8");
-
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "토큰이 만료되었거나 유효하지 않습니다");
-
-                ObjectMapper objectMapper = new ObjectMapper();
-                String json = objectMapper.writeValueAsString(error);
-
-                response.getWriter().write(json);
-                return;
+                System.out.println("JWT 유효성 검사 실패: " + e.getMessage());
             }
         }
         filterChain.doFilter(request, response);

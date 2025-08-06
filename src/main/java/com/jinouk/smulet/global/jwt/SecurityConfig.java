@@ -56,7 +56,9 @@ public class SecurityConfig {
                                 "/my_page1",
                                 "/a",
                                 "/addTimetable",
-                                "/addTC"
+                                "/addTC",
+                                "/tableId_List",
+                                "/detail"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )

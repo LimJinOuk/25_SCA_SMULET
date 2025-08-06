@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Component
@@ -35,8 +37,9 @@ public class JWTUtil
     //Generate The Token
     public String generateToken(String username)
     {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expiration);
+        ZonedDateTime nowKST = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        Date now = Date.from(nowKST.toInstant());
+        Date expiryDate = Date.from(nowKST.plusSeconds(expiration / 1000).toInstant());
 
         return Jwts.builder()
                 .setSubject(username)
@@ -49,8 +52,9 @@ public class JWTUtil
     //Generate Refresh Token
     public String generateRefresh(String username)
     {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + refresh);
+        ZonedDateTime nowKST = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        Date now = Date.from(nowKST.toInstant());
+        Date expiryDate = Date.from(nowKST.plusSeconds(refresh / 1000).toInstant());
 
         return Jwts.builder()
                 .setSubject(username)

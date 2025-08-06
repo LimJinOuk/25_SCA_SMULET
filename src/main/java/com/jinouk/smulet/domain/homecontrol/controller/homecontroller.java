@@ -15,7 +15,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -63,15 +65,17 @@ public class homecontroller {
         return mservice.userInfo(principal.toString());
     }
 
-    @GetMapping("/tableId_List") //return table ID as List
-    public ResponseEntity<Map<Integer, List<Integer>>> send_tableID_count(@AuthenticationPrincipal UserDetails principal, Model model)
-    {
-        String username = principal.getUsername();
+    @GetMapping("/tableId_List")
+    public ResponseEntity<Map<Integer, List<Integer>>> send_tableID_count(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = (String) auth.getPrincipal();
+
         Optional<user> Byname = loginrepository.findByName(username);
         Integer userid = Byname.get().getId();
         Map<Integer, List<Integer>> map = tservice.find_tableIDs(userid);
         return ResponseEntity.ok(map);
     }
+
 
     @PostMapping("/do_Register")
     public ResponseEntity<Map<String , String>> save(@RequestBody userdto userdto)

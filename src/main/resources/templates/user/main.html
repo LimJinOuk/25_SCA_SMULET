@@ -273,45 +273,80 @@
 
         logoutLink.addEventListener('click', function (e) {
             e.preventDefault();
-            localStorage.removeItem('jwtToken');
-            alert('로그아웃 되었습니다.');
-            window.location.href = '/';
+            logout();
+        });
+    });
+
+    function logout() {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('refreshToken');
+        alert('로그아웃되었습니다.');
+        window.location.href = '/login_page';
+    }
+
+    async function attemptRefreshToken() {
+        const refreshToken = localStorage.getItem('refreshToken');
+
+        const res = await fetch('/refreshT', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ refreshToken })
         });
 
-    });
-    function mypage() {
-        const token = localStorage.getItem('jwtToken');
+        if (res.ok) {
+            const data = await res.json();
+            localStorage.setItem('jwtToken', data.accessToken);
+            return true;
+        } else {
+            logout();
+            return false;
+        }
+    }
+
+    async function mypage() {
+        let token = localStorage.getItem('jwtToken');
         if (!token) {
             alert("로그인이 필요합니다.");
             return;
         }
 
-        fetch('/my_page', {
+        let res = await fetch('/my_page', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
             }
-        })
-            .then(res => {
-                if (!res.ok) throw new Error('요청 실패: ' + res.status);
-                return res.text();
-            })
-            .then(html => {
-                console.log("📥 전체 HTML 응답 수신됨");
+        });
 
-                // 페이지 전체 갈아끼움
-                document.open();
-                document.write(html);  // 💥 이거는 기존 상태 완전 초기화
-                document.close();
-            })
-            .catch(err => {
-                console.error("❌ 마이페이지 전체 로딩 실패:", err);
-                alert("마이페이지 로딩 중 오류 발생");
-            });
+        if (res.status === 401) {
+            const refreshed = await attemptRefreshToken();
+            if (refreshed) {
+                token = localStorage.getItem('jwtToken');
+                res = await fetch('/my_page', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+            } else {
+                return;
+            }
+        }
+
+        if (!res.ok) {
+            console.error("❌ 마이페이지 로딩 실패:", res.status);
+            alert("마이페이지 로딩 중 오류 발생");
+            return;
+        }
+
+        const html = await res.text();
+        document.open();
+        document.write(html);
+        document.close();
     }
-
-
 </script>
+
 
 </body>
 </html>

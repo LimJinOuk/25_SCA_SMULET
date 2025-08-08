@@ -606,6 +606,9 @@
   </b>
 </footer>
 <script>
+  /***********************
+   * 상수 / 전역 상태
+   ***********************/
   const semesterOptions = [
     "2025년 2학기", "2025년 1학기",
     "2024년 2학기", "2024년 1학기",
@@ -613,53 +616,135 @@
     "2022년 2학기", "2022년 1학기",
     "2021년 2학기", "2021년 1학기"
   ];
-  // 스크립트 맨 위나 addCourseToScheduleTable 함수 바깥에 선언
-  const randomColors = [
-    "#F9E79F", // 연노랑
-    "#AEDFF7", // 연하늘
-    "#A7F3D0", // 민트그린
-    "#FFD6E0", // 연분홍
-    "#B4A7F7", // 라벤더
-    "#FFD9B3", // 살구
-    "#B9F6CA", // 연연두
-    "#FFE082", // 밝은 노랑
-    "#FFAB91", // 연코랄
-    "#D1C4E9"  // 연보라
-  ];
 
-  // 이미 사용된 색을 추적
+  const randomColors = [
+    "#F9E79F","#AEDFF7","#A7F3D0","#FFD6E0","#B4A7F7",
+    "#FFD9B3","#B9F6CA","#FFE082","#FFAB91","#D1C4E9"
+  ];
   let usedColors = [];
+
   let UserId = null;
   let representativeSemester = null;
 
+  let selectedSemesters = [];
+  let currentCourseList = []; // 모달에 띄운 현재 학기 전체 수업정보
+
+  // 새 구조 핵심
+  let timetableIdsBySemester = {}; // { "20252": 123, ... }
+  let currentSemesterCode = null;  // 현재 모달에서 편집 중인 학기 코드
+  let currentTimetableId = null;   // 현재 모달의 timetableId
+
+  /***********************
+   * 공통 유틸
+   ***********************/
+  function toSemesterCode(semText){
+    // "2025년 2학기" -> "20252"
+    return semText.replace("년 ","").replace("학기","").replace(" ","");
+  }
+
   function getRandomColorNoDuplicate() {
-    // 아직 안 쓴 색만 필터
-    const availableColors = randomColors.filter(color => !usedColors.includes(color));
-    // 남은 게 없으면 usedColors 리셋
-    if (availableColors.length === 0) {
+    const available = randomColors.filter(c => !usedColors.includes(c));
+    if (available.length === 0) {
       usedColors = [];
-      // 다시 전체 중에서 랜덤 선택
       return getRandomColorNoDuplicate();
     }
-    // 랜덤하게 하나 선택
-    const randomIndex = Math.floor(Math.random() * availableColors.length);
-    const selectedColor = availableColors[randomIndex];
-    usedColors.push(selectedColor); // 사용된 색에 추가
-    return selectedColor;
+    const color = available[Math.floor(Math.random() * available.length)];
+    usedColors.push(color);
+    return color;
+  }
+  //
+  // "2025년 2학기" -> "20252"
+  function toSemesterCode(semText){
+    return semText.replace("년 ","").replace("학기","").replace(" ","");
+  }
+
+  // 작은 대기 유틸
+  function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+  // /userinfo에서 timetables 배열을 보고, term===semesterCode 인 항목 중 가장 최신 timetableId 반환
+  async function fetchLatestTimetableIdFromUserInfo(semesterCode, { tries = 6, baseDelay = 300 } = {}) {
+    if (!semesterCode) throw new Error('semesterCode가 필요합니다.');
+    const termNum = Number(semesterCode);
+
+    const token = localStorage.getItem('jwtToken');
+    const headers = { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' };
+
+    for (let i = 0; i < tries; i++) {
+      const res = await fetch(`/userinfo?_=${Date.now()}`, {
+        headers,
+        cache: 'no-store',
+        credentials: 'include'
+      });
+
+      if (res.ok) {
+        const u = await res.json();
+        // console.warn('[userinfo]', u); // 필요하면 구조 확인용
+
+        if (Array.isArray(u?.timetables)) {
+          // term이 일치하는 것들만 필터
+          const matches = u.timetables.filter(t => Number(t.term) === termNum);
+          if (matches.length) {
+            // 가장 큰 timetableId를 최신으로 간주
+            const tid = matches.reduce((max, t) => Math.max(max, Number(t.timetableId)), 0);
+            if (tid) return tid;
+          }
+        }
+      }
+
+      // DB 반영 지연 대비 백오프
+      await sleep(baseDelay * (i + 1));
+    }
+
+    return null;
+  }
+
+  //
+  // 빈 시간표 생성 → /userinfo로 timetableId 획득
+  async function createTimetableOnServer(semesterCode) {
+    let token = localStorage.getItem('jwtToken');
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      window.location.href = '/login_page';
+      throw new Error('JWT 없음');
+    }
+
+    // 서버가 FormData를 받는다고 가정 (JSON이면 아래를 JSON으로 바꿔도 됨)
+    const fd = new FormData();
+    fd.append('semester', semesterCode);
+
+    const res = await fetch('/addTimetable', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }, // FormData일 땐 Content-Type 지정 X
+      body: fd,
+      credentials: 'include'
+    });
+
+    const raw = await res.text();
+    if (!res.ok) throw new Error(`addTimetable 실패 (${res.status}): ${raw}`);
+
+    // 응답에 이미 id가 있으면 바로 사용
+    try {
+      const j = JSON.parse(raw);
+      const directId = j.timetableId ?? j.id ?? j.data?.id ?? null;
+      if (directId) return Number(directId);
+    } catch(_) { /* ignore */ }
+
+    // 없으면 /userinfo에서 term 기준으로 찾아오기 (폴링)
+    const tid = await fetchLatestTimetableIdFromUserInfo(semesterCode, { tries: 8, baseDelay: 250 });
+    if (!tid) throw new Error('userinfo에서 timetableId를 찾지 못했습니다.');
+    return tid;
   }
 
 
-
-  let selectedSemesters = [];
-  let currentCourseList = []; // 모달에 띄운 현재 학기 전체 수업정보 저장
-
+  /***********************
+   * 초기 바인딩
+   ***********************/
   document.addEventListener('DOMContentLoaded', function () {
     const loginLink = document.getElementById('loginLink');
     const logoutLink = document.getElementById('logoutLink');
     const registerLink = document.querySelector('nav a[href="/Register"]');
     const token = localStorage.getItem('jwtToken');
 
-    // 로그인/로그아웃 링크 토글
     if (token) {
       loginLink.style.display = 'none';
       logoutLink.style.display = 'inline';
@@ -670,7 +755,6 @@
       registerLink.style.display = 'inline';
     }
 
-    // 로그아웃
     logoutLink.addEventListener('click', function (e) {
       e.preventDefault();
       localStorage.removeItem('jwtToken');
@@ -678,21 +762,20 @@
       window.location.href = '/';
     });
 
-    // 시간표 추가 버튼 연결
     const showSemesterBtn = document.getElementById('showSemesterBtn');
     if (showSemesterBtn) {
       showSemesterBtn.addEventListener('click', showAddSemester);
     }
   });
 
-  // 사용자 정보 로드
+  /***********************
+   * 사용자/계정 관련
+   ***********************/
   function loaduserinfo() {
     const token = localStorage.getItem('jwtToken');
     fetch('/userinfo', {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      headers: { 'Authorization': `Bearer ${token}` }
     })
             .then(res => {
               if (!res.ok) throw new Error('사용자 정보 불러오기 실패');
@@ -709,7 +792,6 @@
             });
   }
 
-  // 회원 탈퇴
   function deleteAccount() {
     const token = localStorage.getItem('jwtToken');
     if (!confirm("정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) return;
@@ -738,7 +820,6 @@
             });
   }
 
-  // 사용자 정보 수정 - 비밀번호 확인
   function modifinguserinfo() {
     const modalOverlay = document.getElementById('modalOverlay');
     const closeBtn = document.getElementById('close-btn');
@@ -762,7 +843,7 @@
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ pw: pw })
+        body: JSON.stringify({ pw })
       })
               .then(res => {
                 if (!res.ok) throw new Error('서버 응답 오류');
@@ -784,7 +865,6 @@
     };
   }
 
-  // 비밀번호 재설정
   document.getElementById("changePwBtn").onclick = function () {
     const newPw = document.getElementById("newPassword").value;
     const confirmPw = document.getElementById("confirmPassword").value;
@@ -823,13 +903,11 @@
               alert("비밀번호 변경 중 오류 발생: " + err.message);
             });
   };
-
-  // 모달 열기/닫기
-  document.getElementById("openPwModalBtn").onclick = function () {
+  document.getElementById("openPwModalBtn")?.addEventListener('click', () => {
     document.getElementById("changePwModal").classList.remove("hidden");
     document.getElementById("newPassword").value = "";
     document.getElementById("confirmPassword").value = "";
-  };
+  });
   document.getElementById("close-btn").onclick = function () {
     document.getElementById("modalOverlay").classList.add("hidden");
   };
@@ -842,37 +920,29 @@
     const year = select.value;
     const token = localStorage.getItem('jwtToken');
 
-    if (!token) {
-      alert("로그인 토큰이 없습니다.");
-      return;
-    }
-    if (!year) {
-      alert("학번을 선택하세요.");
-      return;
-    }
+    if (!token) { alert("로그인 토큰이 없습니다."); return; }
+    if (!year)  { alert("학번을 선택하세요."); return; }
 
     fetch(`/tech_tree?year=${year}`, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      headers: { 'Authorization': `Bearer ${token}` }
     })
             .then(res => {
               if (res.ok) return res.text();
               else throw new Error("Unauthorized");
             })
             .then(html => {
-              document.open();
-              document.write(html);
-              document.close();
+              document.open(); document.write(html); document.close();
             })
             .catch(err => {
               console.error(err);
               window.location.href = '/';
             });
-
   }
 
+  /***********************
+   * 학기 추가/리스트/모달
+   ***********************/
   function showAddSemester() {
     const addList = document.getElementById('addSemesterList');
     const select = document.getElementById('semesterSelect');
@@ -890,14 +960,27 @@
     addList.classList.toggle('hidden');
   }
 
-  function addSemester() {
+  async function addSemester() {
     const select = document.getElementById('semesterSelect');
     const selected = select.value;
     if (!selected) return;
 
-    selectedSemesters.push(selected);
-    renderSemesterList();
-    document.getElementById('addSemesterList').classList.add('hidden');
+    const semesterCode = toSemesterCode(selected);
+
+    try {
+      // 1) 서버에 빈 시간표 생성
+      const tid = await createTimetableOnServer(semesterCode);
+
+      // 2) 로컬 상태 업데이트
+      timetableIdsBySemester[semesterCode] = tid;
+      if (!selectedSemesters.includes(selected)) selectedSemesters.push(selected);
+
+      renderSemesterList();
+      document.getElementById('addSemesterList').classList.add('hidden');
+    } catch (err) {
+      console.error(err);
+      alert(`시간표 생성 중 오류: ${err.message}`);
+    }
   }
 
   function renderSemesterList() {
@@ -907,12 +990,12 @@
     selectedSemesters.forEach((sem, index) => {
       const li = document.createElement('li');
       li.innerHTML = `
-      <span class="semester-name" style="cursor:pointer; color:#2563eb; text-decoration: underline;">${sem}</span>
-      <div>
-        <button onclick="removeSemester(${index})" style="color: white; background-color: red;">삭제</button>
-        <button onclick="loadRepresentativeSchedule('${sem}')" style="margin-left: 8px;">대표로 설정</button>
-      </div>
-    `;
+        <span class="semester-name" style="cursor:pointer; color:#2563eb; text-decoration: underline;">${sem}</span>
+        <div>
+          <button onclick="removeSemester(${index})" style="color: white; background-color: red;">삭제</button>
+          <button onclick="loadRepresentativeSchedule('${sem}')" style="margin-left: 8px;">대표로 설정</button>
+        </div>
+      `;
       list.appendChild(li);
 
       li.querySelector('.semester-name').addEventListener('click', () => {
@@ -921,19 +1004,26 @@
     });
   }
 
-
-
   function openScheduleModal(semester) {
     const modal = document.getElementById('scheduleModal');
     const title = document.getElementById('modalSemesterTitle');
     const container = document.getElementById('scheduleTableContainer');
     const listContainer = document.getElementById('classInfoList');
 
+    // 현재 학기코드/ID 확보
+    currentSemesterCode = toSemesterCode(semester);
+    currentTimetableId = timetableIdsBySemester[currentSemesterCode] ?? null;
+
+    if (!currentTimetableId) {
+      alert('이 학기의 시간표 ID가 없습니다. 먼저 "시간표 추가"에서 학기를 추가하세요.');
+      return;
+    }
+
     document.getElementById("closeScheduleModal").onclick = function (){
       document.getElementById("scheduleModal").classList.add("hidden");
       document.body.classList.remove("modal-open");
       hideCourseTooltip();
-    }
+    };
 
     title.textContent = semester;
     container.innerHTML = generateEmptyScheduleTable();
@@ -941,27 +1031,29 @@
     modal.classList.remove('hidden');
     document.body.classList.add('modal-open');
 
-    // 여기서 수업 목록을 서버에서 불러온다고 가정
+    // 수업 목록 로드
     const token = localStorage.getItem('jwtToken');
-    fetch("/a", {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
+    fetch("/a", { headers: { 'Authorization': `Bearer ${token}` }})
             .then(res => res.json())
             .then(data => {
-              console.log(data);
-              currentCourseList = data;   // ★★★★★ 반드시 필요!
+              currentCourseList = data;
               renderCourseList(data);
-              attachCellEvents();         // 또는 renderCourseList에서 호출
+              attachCellEvents();
             })
             .catch(err => {
               listContainer.innerHTML = `<p style="color:red;">수업 목록을 불러오지 못했습니다.</p>`;
               console.error(err);
             });
 
+    // 저장 핸들러(중복 방지)
+    const saveBtn = document.getElementById("saveSchedule");
+    saveBtn.replaceWith(saveBtn.cloneNode(true));
+    document.getElementById("saveSchedule").addEventListener("click", onClickSaveSchedule);
   }
 
+  /***********************
+   * 수업 리스트/선택/미리보기
+   ***********************/
   function renderCourseList(classList) {
     const listContainer = document.getElementById('classInfoList');
     listContainer.innerHTML = '';
@@ -1011,7 +1103,6 @@
         detail.style.background = '#fff';
 
         const professor = entries[0].professorName || '-';
-        const classroom = entries[0].classroom;
         const division = entries[0].identifyNumberOfCourse.split('-')[1] || '?';
         const weekdayNames = ['월','화','수','목','금'];
         const timeText = entries.map(e => {
@@ -1022,26 +1113,20 @@
         }).join(', ');
 
         detail.innerHTML = `
-        분반: ${division}<br>
-        교수: ${professor}<br>
-        시간: ${timeText}
-      `;
+          분반: ${division}<br>
+          교수: ${professor}<br>
+          시간: ${timeText}
+        `;
+
         detail.addEventListener('mouseover', () => {
-          if (!isCoursePermanentlyAdded(entries)) {
-            previewCourseOnSchedule(entries);
-          }
+          if (!isCoursePermanentlyAdded(entries)) previewCourseOnSchedule(entries);
         });
-
         detail.addEventListener('mouseout', () => {
-          if (!isCoursePermanentlyAdded(entries)) {
-            removePreviewFromSchedule();
-          }
+          if (!isCoursePermanentlyAdded(entries)) removePreviewFromSchedule();
         });
-
         detail.addEventListener('click', () => {
-          addCourseToScheduleTable(entries); // 실제 등록
+          addCourseToScheduleTable(entries); // 실제 등록/토글
         });
-
 
         subList.appendChild(detail);
       });
@@ -1056,10 +1141,6 @@
     });
   }
 
-
-
-
-  // 수업명을 기준으로 그룹핑
   function groupByCourse(data) {
     const map = {};
     data.forEach(entry => {
@@ -1069,6 +1150,7 @@
     });
     return map;
   }
+
   function previewCourseOnSchedule(courseEntries) {
     const table = document.getElementById('scheduleTable');
     if (!table) return;
@@ -1077,7 +1159,6 @@
       const dayIndex = entry.scheduleDay - 1;
       for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
         const cell = table.rows[p + 1].cells[dayIndex + 1];
-        // 이미 고정된 수업이면 건드리지 않음
         if (!cell.getAttribute('data-course-id')) {
           cell.style.backgroundColor = '#d0ebff';
           cell.innerHTML = `${entry.courseName}<br>(${entry.classroom})`;
@@ -1090,7 +1171,6 @@
   function removePreviewFromSchedule() {
     const table = document.getElementById('scheduleTable');
     if (!table) return;
-
     const cells = table.querySelectorAll('td[data-preview="true"]');
     cells.forEach(cell => {
       cell.innerHTML = '';
@@ -1115,37 +1195,17 @@
     return false;
   }
 
-
-
-  // 시간표에 수업 반영
-  function addCourseToScheduleTable(courseEntries) {
+  function addCourseToScheduleTable(entries) {
     const table = document.getElementById('scheduleTable');
     if (!table) return;
 
-    const courseId = courseEntries[0].identifyNumberOfCourse;
-    const courseName = courseEntries[0].courseName;
-    const classroom = courseEntries[0].classroom;
-    const id = courseEntries[0].timeTableId;
+    const courseId = entries[0].identifyNumberOfCourse;
+    const courseName = entries[0].courseName;
+    const classroom = entries[0].classroom;
 
-    // 1. 이미 등록된 수업인지 확인
-    let isAlreadyAdded = false;
-
-    for (let entry of courseEntries) {
-      const dayIndex = entry.scheduleDay - 1;
-      for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
-        const cell = table.rows[p + 1].cells[dayIndex + 1];
-        if (cell.getAttribute('data-course-id') === courseId) {
-          isAlreadyAdded = true;
-          break;
-        }
-      }
-      if (isAlreadyAdded) break;
-    }
-
-    if (isAlreadyAdded) {
-      // 2. 이미 등록된 경우 → 삭제
-      courseEntries.forEach(entry => {
-
+    // 이미 등록되어 있으면 토글 삭제
+    if (isCoursePermanentlyAdded(entries)) {
+      entries.forEach(entry => {
         const dayIndex = entry.scheduleDay - 1;
         for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
           const cell = table.rows[p + 1].cells[dayIndex + 1];
@@ -1153,6 +1213,7 @@
             cell.innerHTML = '';
             cell.style.backgroundColor = '';
             cell.removeAttribute('data-course-id');
+            cell.removeAttribute('data-class-id');
             cell.removeAttribute('data-preview');
           }
         }
@@ -1160,8 +1221,8 @@
       return;
     }
 
-    // 3. 시간 충돌 확인
-    for (let entry of courseEntries) {
+    // 시간 충돌 체크
+    for (let entry of entries) {
       const dayIndex = entry.scheduleDay - 1;
       for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
         const cell = table.rows[p + 1].cells[dayIndex + 1];
@@ -1173,95 +1234,40 @@
       }
     }
 
-    // 4. 수업 등록 (색상 지정 및 데이터 속성 부여)
-    const randomColor = getRandomColorNoDuplicate();
-
-    courseEntries.forEach(entry => {
+    // 등록
+    const bg = getRandomColorNoDuplicate();
+    entries.forEach(entry => {
       const dayIndex = entry.scheduleDay - 1;
       for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
         const cell = table.rows[p + 1].cells[dayIndex + 1];
         cell.innerHTML = `${courseName}<br>(${classroom})`;
-        cell.style.backgroundColor = randomColor;
-        cell.setAttribute('data-course-id', courseId);
-        cell.removeAttribute('data-preview'); // 미리보기 흔적 제거
-        cell.setAttribute('data-id', entry.timeTableId);
+        cell.style.backgroundColor = bg;
+        cell.setAttribute('data-course-id', entry.identifyNumberOfCourse);
+        cell.setAttribute('data-class-id', entry.timeTableId); // ← addTC에 보낼 "수업 PK"
+        cell.removeAttribute('data-preview');
       }
     });
 
-    // 5. 툴팁 다시 연결
     attachCellEvents();
-
-    // 6. 저장 버튼 이벤트 다시 연결
-    const saveBtn = document.getElementById("saveSchedule");
-    saveBtn.replaceWith(saveBtn.cloneNode(true)); // 기존 이벤트 제거
-    document.getElementById("saveSchedule").addEventListener("click", async function () {
-      const semesterText = document.getElementById('modalSemesterTitle').textContent;
-      const semesterCode = semesterText.replace("년 ", "").replace("학기", "").replace(" ", "");
-
-      // 👇 이 부분: 시간표에서 수업 ID 수집
-      const courseIds = getCourseIdsFromSchedule(); // 아래에 함수 정의됨
-
-      const formData = new FormData();
-      formData.append("semester", semesterCode);
-
-      // 👇 수업 ID 여러 개 추가 (서버에서 courseIds[]로 받기 좋게)
-      courseIds.forEach(id => {
-        formData.append("courseIds[]", id);  // 또는 "courseIds"도 가능 (서버 설정에 따라)
-      });
-
-      try {
-        const res = await fetch('/addTC', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
-          },
-          body: formData
-        });
-
-        const data = await res.text();  // JSON 아니라면 .text() 유지
-        if (data === "ok" || data.success === "ok") {
-          alert("시간표가 저장되었습니다!");
-        } else {
-          alert("저장에 실패했습니다.");
-          console.log("📦 FormData 내용:");
-          for (const [key, value] of formData.entries()) {
-            console.log(key, value);
-          }
-        }
-      } catch (err) {
-        alert("요청 중 문제가 발생했습니다.");
-      }
-    });
-
-  }
-  function getCourseIdsFromSchedule() {
-    const cells = document.querySelectorAll('#scheduleTable td[data-id]');
-    const idSet = new Set();
-    cells.forEach(cell => {
-      const id = cell.dataset.id;
-      if (id) idSet.add(id);  // 중복 제거
-    });
-    return Array.from(idSet);
   }
 
-
-
-
-  // ===== 🟢🟢🟢 툴팁 부분 추가 ===========================
-
+  /***********************
+   * 툴팁
+   ***********************/
   function attachCellEvents() {
     const table = document.getElementById('scheduleTable');
     if (!table) return;
     const allCells = table.querySelectorAll('td[data-period]');
     allCells.forEach(cell => {
-      cell.onmouseover = function (e) {
+      cell.onmouseover = function () {
         const courseId = cell.getAttribute('data-course-id');
         if (courseId) {
+          // 같은 과목 여러 엔트리 중 첫 항목
           const courseInfo = currentCourseList.find(c => c.identifyNumberOfCourse === courseId);
           if (courseInfo) showCourseTooltip(cell, courseInfo);
         }
       };
-      cell.onmouseout = function (e) {
+      cell.onmouseout = function () {
         hideCourseTooltip();
       };
     });
@@ -1288,13 +1294,12 @@
       <br>강의실: ${courseInfo.classroom}
       <br>구분: ${courseInfo.majorOrCulture ? "전공" : "교양"}
       <br>학점: ${courseInfo.credit}
-      <br>요일: ${['월', '화', '수', '목', '금'][courseInfo.scheduleDay] || courseInfo.scheduleDay}
+      <br>요일: ${['월', '화', '수', '목', '금'][courseInfo.scheduleDay - 1] || courseInfo.scheduleDay}
       <br>교시: ${courseInfo.timeStart} ~ ${courseInfo.timeEnd}
       <br>과목코드: ${courseInfo.identifyNumberOfCourse}
     `;
     document.body.appendChild(tooltip);
 
-    // 툴팁 위치
     const rect = cell.getBoundingClientRect();
     tooltip.style.left = (rect.right + 8) + "px";
     tooltip.style.top = (rect.top + window.scrollY) + "px";
@@ -1305,24 +1310,61 @@
     if (prev) prev.remove();
   }
 
-
-  function renderClassInfoList(scheduleData) {
-    const listContainer = document.getElementById('classInfoList');
-    if (!listContainer) return;
-
-    if (!Array.isArray(scheduleData) || scheduleData.length === 0) {
-      listContainer.innerHTML = '<p>수업 정보가 없습니다.</p>';
-      return;
-    }
-
-    listContainer.innerHTML = scheduleData.map(cls => `
-        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 6px; background-color: #f9f9f9;">
-            <strong>${cls.subject}</strong><br>
-            교수: ${cls.professor}<br>
-            요일: ${cls.day}, ${cls.period}교시
-        </div>
-    `).join('');
+  /***********************
+   * 저장(addTC) & 헬퍼
+   ***********************/
+  function getSelectedClassIds() {
+    const cells = document.querySelectorAll('#scheduleTable td[data-class-id]');
+    const set = new Set();
+    cells.forEach(cell => {
+      const id = cell.getAttribute('data-class-id');
+      if (id) set.add(Number(id));
+    });
+    return Array.from(set);
   }
+
+  async function onClickSaveSchedule() {
+    try {
+      // 혹시 유실됐으면 복구
+      if (!currentTimetableId) {
+        currentTimetableId = timetableIdsBySemester[currentSemesterCode] ?? null;
+      }
+      if (!currentTimetableId) {
+        currentTimetableId = await fetchLatestTimetableIdFromUserInfo();
+      }
+      if (!currentTimetableId) throw new Error('timetableId가 없습니다.');
+
+      const classIds = getSelectedClassIds();
+      if (classIds.length === 0) {
+        alert('저장할 수업이 없습니다.');
+        return;
+      }
+
+      const token = localStorage.getItem('jwtToken');
+
+      // 서버가 FormData만 받는 경우:
+       const fd = new FormData();
+       fd.append('timetableId', currentTimetableId);
+       classIds.forEach(id => fd.append('classIds[]', id));
+       const res = await fetch('/addTC', {
+         method: 'POST',
+         headers: { 'Authorization': `Bearer ${token}` },
+         body: fd
+       });
+
+      const txt = await res.text();
+      if (!res.ok) throw new Error(`addTC 실패: ${txt}`);
+
+      alert('저장 완료!');
+    } catch (err) {
+      console.error(err);
+      alert(`저장 중 오류: ${err.message}`);
+    }
+  }
+
+  /***********************
+   * 테이블 렌더
+   ***********************/
   function generateEmptyScheduleTable() {
     const days = ['월', '화', '수', '목', '금'];
     let html = '<table id="scheduleTable" style="width:100%; border-collapse: collapse;">';
@@ -1353,73 +1395,60 @@
     return html;
   }
 
+  /***********************
+   * 대표 시간표 (기존 로직 유지)
+   ***********************/
   async function loadRepresentativeSchedule() {
     const token = localStorage.getItem('jwtToken');
 
     try {
-      // 1. 시간표 목록 불러오기
       const res = await fetch('/tableId_List', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (!res.ok) throw new Error("시간표 목록을 불러오는 데 실패했습니다.");
       const data = await res.json(); // 예: { "20242": [101, 102], "20241": [88] }
 
-      // 2. 최신 학기 찾기 (내림차순 정렬)
       const semesters = Object.keys(data).sort((a, b) => b - a);
       if (semesters.length === 0) {
         alert("저장된 시간표가 없습니다.");
         return;
       }
 
-      const latestSemesterCode = semesters[0];            // 예: "20242"
+      const latestSemesterCode = semesters[0];
       const latestSemesterList = data[latestSemesterCode];
-      const representativeId = latestSemesterList[0];      // 최신 학기의 첫 번째 시간표 ID
+      const representativeId = latestSemesterList[0];
 
-      // 3. 시간표 상세 정보 요청
       const detailRes = await fetch(`/timetable/detail?id=${representativeId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (!detailRes.ok) throw new Error("대표 시간표 정보를 불러오지 못했습니다.");
       const scheduleData = await detailRes.json(); // 예: [{ subject, professor, day, period }, ...]
 
-      // 4. 학기 이름 포맷 (ex: "20242" → "2024년 2학기")
       const year = latestSemesterCode.slice(0, 4);
       const semester = latestSemesterCode.slice(4) === "1" ? "1학기" : "2학기";
       const semesterName = `${year}년 ${semester}`;
 
-      // 5. 대표 시간표 렌더링
       renderRepresentativeSchedule(scheduleData, semesterName);
-
     } catch (err) {
       console.error(err);
       alert("대표 시간표를 불러오는 중 오류가 발생했습니다.");
     }
   }
 
-
   function renderRepresentativeSchedule(scheduleData, semesterName) {
     const container = document.getElementById('representativeScheduleContainer');
     const title = document.getElementById('representativeTitle');
 
-    // 1. 제목 표시
     title.innerHTML = `📌 대표 시간표 - ${semesterName}`;
-
-    // 2. 빈 시간표 렌더링
     container.innerHTML = generateEmptyScheduleTable();
 
-    // 3. 테이블 선택 (⚠️ id 확인!)
     const table = container.querySelector('#scheduleTable');
     if (!table) return;
 
     const days = ['월', '화', '수', '목', '금'];
 
-    // 4. 수업 정보 렌더링
     scheduleData.forEach(item => {
       const dayIndex = days.indexOf(item.day);
       if (dayIndex === -1) return;
@@ -1436,12 +1465,11 @@
     });
   }
 
-
-
   function removeSemester(index) {
     selectedSemesters.splice(index, 1);
     renderSemesterList();
   }
 </script>
+
 </body>
 </html>

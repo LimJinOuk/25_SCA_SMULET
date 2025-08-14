@@ -61,12 +61,9 @@ public class sqlcontroller {
     }
 
     @PostMapping("/addTC")
-    public ResponseEntity<?> setTimetableTC(@RequestParam("semester") int timetableId,
-                                            @RequestParam("courseIds[]") List<Integer> courseIds) {
+    public ResponseEntity<?> setTimetableTC(@RequestParam("timetableId") int timetableId,
+                                            @RequestParam("classIds[]") List<Integer> courseIds) {
         Map<String , String> map = new HashMap<>();
-        System.out.println("semester=" + timetableId);
-        System.out.println("resolved timetableId=" + timetableId);
-        System.out.println("courseIds=" + courseIds);
         try{
             settimetablecourseservice.settimetableCourse(timetableId , courseIds);
 

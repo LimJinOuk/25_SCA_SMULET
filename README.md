@@ -12,9 +12,6 @@
     <li>
       🌠Team Mate <a href = "https://github.com/LeeGJin">이경진 , SangMyung Univ. </a>
     </li>
-    <li>
-      🌠Team Mate <a href = "https://github.com/leegoeun-art">이고은 , SangMyung Univ. </a>
-    </li>
   </ul>
   <ul>
     <h2>Front-End</h2>
@@ -24,6 +21,9 @@
     <li>
       🌠Team Mate <a href = "https://github.com/hyun-sai">최현성 , SangMyung Univ. </a>
     </li>
+      <li>
+      🌠Team Mate <a href = "https://github.com/leegoeun-art">이고은 , SangMyung Univ. </a>
+      </li>
   </ul>
 </ul>
 

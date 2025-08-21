@@ -183,6 +183,82 @@
         footer a:hover {
             text-decoration: underline;
         }
+
+        /* === 이용안내 모달 추가 부분 8.21 수정 === */
+        .guide-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(2px);
+            display: none; /* 기본 숨김 */
+            align-items: center; justify-content: center;
+            z-index: 9999;
+        }
+        .guide-backdrop.open { display: flex; }
+
+        .guide-modal {
+            width: min(820px, 92vw);
+            max-height: 86vh;
+            overflow: auto;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            text-align: left;
+        }
+
+        .guide-head {
+            position: sticky; top: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.9));
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex; align-items: center; gap: 12px;
+            border-top-left-radius: 24px; border-top-right-radius: 24px;
+        }
+        .guide-title {
+            font-size: 1.25rem; font-weight: 700; color: #2563eb; margin: 0;
+            letter-spacing: 0.2px;
+        }
+        .guide-close {
+            margin-left: auto;
+            border: 0; background: #2563eb; color: #fff;
+            padding: 8px 12px; border-radius: 10px; cursor: pointer;
+            font-weight: 700;
+        }
+        .guide-close:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(37,99,235,0.3); }
+
+        .guide-body { padding: 18px 24px 26px; line-height: 1.65; color: #111827; }
+        .guide-section { margin: 18px 0 22px; }
+        .guide-section h3 { margin: 0 0 10px; font-size: 1.05rem; color: #374151; }
+        .guide-section p, .guide-section li { font-size: 0.95rem; }
+
+        .guide-steps {
+            display: grid; gap: 12px;
+        }
+        .step {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+        .step strong { color: #111827; }
+
+        .guide-footer {
+            position: sticky; bottom: 0;
+            background: linear-gradient(0deg, rgba(255,255,255,0.98), rgba(255,255,255,0.9));
+            border-top: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            display: flex; gap: 8px; justify-content: flex-end;
+            border-bottom-left-radius: 24px; border-bottom-right-radius: 24px;
+        }
+        .guide-secondary {
+            border: 1px solid #d1d5db; background: #fff; color: #374151;
+            padding: 10px 14px; border-radius: 10px; font-weight: 600; cursor: pointer;
+        }
+        .guide-primary {
+            border: 0; background: #60a5fa; color: #fff;
+            padding: 10px 14px; border-radius: 10px; font-weight: 700; cursor: pointer;
+        }
+        .guide-primary:hover, .guide-secondary:hover { transform: translateY(-1px); }
+
     </style>
 </head>
 <body>
@@ -248,6 +324,56 @@
         </b>
     </footer>
 </div>
+<!-- 이용안내 모달 8.21 수정 -->
+<div class="guide-backdrop" id="guideModal" aria-hidden="true">
+    <div class="guide-modal" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+        <header class="guide-head">
+            <h2 id="guideTitle" class="guide-title">SMULET 이용안내</h2>
+            <button class="guide-close" id="guideCloseBtn" type="button" aria-label="닫기 (Esc)">닫기</button>
+        </header>
+
+        <div class="guide-body" id="guideContent" tabindex="-1">
+            <section class="guide-section">
+                <h3>빠른 시작 (60초 요약)</h3>
+                <div class="guide-steps">
+                    <div class="step"><strong>1) 로그인/회원가입</strong> — 우측 상단에서 진행합니다. 토큰 만료 시 자동 재발급 실패하면 재로그인하세요.</div>
+                    <div class="step"><strong>2) 마이페이지</strong> — 시간표 만들기/불러오기, 과목 추가·삭제, 저장을 할 수 있어요.</div>
+                    <div class="step"><strong>3) 대표 시간표 지정</strong> — 가장 최근 학기를 대표로 설정하면 메인에 표시됩니다.</div>
+                </div>
+            </section>
+
+            <section class="guide-section">
+                <h3>핵심 기능 가이드</h3>
+                <ul>
+                    <li><strong>로그인 노출 규칙</strong> — 토큰이 있으면 “로그인/회원가입”은 숨김, “로그아웃/마이페이지”만 표시됩니다.</li>
+                    <li><strong>마이페이지 이동 오류(401)</strong> — 자동 재발급 시도 후 실패하면 로그아웃 안내 및 재로그인 필요.</li>
+                    <li><strong>시간표 입력 팁</strong> — 같은 시간대 중복 추가 방지, 시작·종료 시간이 같으면 단일 시간 표시.</li>
+                    <li><strong>대표 시간표</strong> — 여러 학기 중 대표로 지정하면 메인 박스에 렌더링됩니다.</li>
+                </ul>
+            </section>
+
+            <section class="guide-section">
+                <h3>FAQ</h3>
+                <ul>
+                    <li><strong>로그인 버튼이 안 보여요</strong> — 이미 로그인 상태입니다. 로그아웃 후 다시 시도해보세요.</li>
+                    <li><strong>마이페이지가 안 열려요</strong> — 토큰 만료 가능성: 새로고침 후 재로그인.</li>
+                    <li><strong>대표 시간표가 비어 있어요</strong> — 마이페이지에서 시간표 생성/불러오기 후 “대표로 설정”을 눌러주세요.</li>
+                </ul>
+            </section>
+
+            <section class="guide-section">
+                <h3>정책 & 문의</h3>
+                <p>개인정보처리방침 및 이용약관은 푸터 링크에서 확인하세요. 버그/제안은 깃허브(준비 중) 또는 담당자에게 문의해주세요.</p>
+            </section>
+        </div>
+
+        <footer class="guide-footer">
+            <button class="guide-secondary" type="button" id="guideCopyLink">이 안내 복사</button>
+            <button class="guide-primary" type="button" id="guideGotoMyPage">마이페이지로</button>
+        </footer>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const loginLink = document.getElementById('loginLink');
@@ -345,6 +471,89 @@
         document.write(html);
         document.close();
     }
+
+    // === 이용안내 모달 제어 8.21 수정 ===
+    (function () {
+        const modal = document.getElementById('guideModal');
+        const closeBtn = document.getElementById('guideCloseBtn');
+        const content = document.getElementById('guideContent');
+        const gotoMyPageBtn = document.getElementById('guideGotoMyPage');
+        const copyBtn = document.getElementById('guideCopyLink');
+
+        // 기존 코드를 수정하지 않기 위해 텍스트로 대상 링크 탐색
+        const guideLink = Array.from(document.querySelectorAll('nav a'))
+            .find(a => a.textContent && a.textContent.includes('이용안내'));
+
+        let lastFocused = null;
+
+        function openGuide() {
+            lastFocused = document.activeElement;
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            // 포커스 이동
+            setTimeout(() => content.focus(), 0);
+            // 해시(선택): location.hash = '#guide';
+        }
+        function closeGuide() {
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+        }
+
+        // 포커스 트랩 (간단)
+        modal.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                const focusables = modal.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])');
+                const list = Array.from(focusables).filter(el => !el.hasAttribute('disabled'));
+                if (list.length === 0) return;
+                const first = list[0], last = list[list.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+            if (e.key === 'Escape') { e.preventDefault(); closeGuide(); }
+        });
+
+        // 바깥 클릭으로 닫기
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeGuide();
+        });
+
+        // 버튼 이벤트
+        closeBtn.addEventListener('click', closeGuide);
+
+        if (guideLink) {
+            guideLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                openGuide();
+            });
+        }
+
+        gotoMyPageBtn.addEventListener('click', async () => {
+            // 기존 mypage() 재사용
+            closeGuide();
+            try { await mypage(); } catch (_) {}
+        });
+
+        copyBtn.addEventListener('click', async () => {
+            const text = document.getElementById('guideContent').innerText.trim();
+            try {
+                await navigator.clipboard.writeText(text);
+                copyBtn.textContent = '복사됨!';
+                setTimeout(() => (copyBtn.textContent = '이 안내 복사'), 1200);
+            } catch {
+                alert('복사에 실패했어요. 수동으로 복사해주세요.');
+            }
+        });
+
+        // 선택: URL에 ?guide=1 이 포함되면 자동 오픈 (북마크/공유용)
+        try {
+            const usp = new URLSearchParams(location.search);
+            if (usp.get('guide') === '1') openGuide();
+        } catch {}
+    })();
+
 </script>
 
 

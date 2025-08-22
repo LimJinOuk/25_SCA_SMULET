@@ -1,20 +1,15 @@
 package com.jinouk.smulet.domain.SQLQuery.controller;
 
 import com.jinouk.smulet.domain.SQLQuery.dto.getTimeTableDTO;
-import com.jinouk.smulet.domain.SQLQuery.dto.setTimetableCourseDTO;
-import com.jinouk.smulet.domain.SQLQuery.entity.timetable;
-import com.jinouk.smulet.domain.SQLQuery.repository.gettimeTableRepository;
+import com.jinouk.smulet.domain.SQLQuery.repository.getTimetableRepo;
+import com.jinouk.smulet.domain.SQLQuery.service.deletetimetable;
+import com.jinouk.smulet.domain.SQLQuery.service.getTcService;
 import com.jinouk.smulet.domain.SQLQuery.service.getTimeTableService;
 import com.jinouk.smulet.domain.SQLQuery.service.setTimetableCourseService;
-import com.jinouk.smulet.domain.homecontrol.entity.user;
-import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -26,6 +21,8 @@ public class sqlcontroller {
 
     private final getTimeTableService sqlservice;
     private final setTimetableCourseService settimetablecourseservice;
+    private final deletetimetable deletetimetable;
+    private final getTcService service;
 
     @GetMapping("/course{userId}")
     public List<getTimeTableDTO> getcoursesByUserID(@RequestParam(required = false) Integer userId )
@@ -46,6 +43,12 @@ public class sqlcontroller {
         return courseList;
     }
 
+    @GetMapping("/getTC")
+    public ResponseEntity<?> getTC(@RequestParam("userId") int userId) {
+        var rows = service.getAllRowsByUserId(userId);
+        return ResponseEntity.ok(rows);
+    }
+
     @PostMapping("/addTimetable")
     public ResponseEntity<?> addTimetable (Principal principal, @RequestParam int semester) {
         Map<String, String> map = new HashMap<>();
@@ -58,6 +61,13 @@ public class sqlcontroller {
             map.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
         }
+    }
+
+    @PostMapping("/deleteTC")
+    public ResponseEntity<?> deleteTimetable(@RequestParam int timetableId) {
+        Map<String, String> map = new HashMap<>();
+        int affected = deletetimetable.deleteByIdNative(timetableId);
+        return affected > 0 ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     @PostMapping("/addTC")

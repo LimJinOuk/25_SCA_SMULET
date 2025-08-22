@@ -42,7 +42,9 @@ public class SecurityConfig {
                                 "/jsCss/**",
                                 "/images/**",
                                 "/techtree/**",
-                                "/course"
+                                "/course",
+                                "/getTC",
+                                "/deleteTC"
                         ).permitAll()
                         .requestMatchers(
                                 "/member/delete",

@@ -1031,8 +1031,31 @@
     modal.classList.remove('hidden');
     document.body.classList.add('modal-open');
 
-    // 수업 목록 로드
     const token = localStorage.getItem('jwtToken');
+
+    // 🟢 1) 현재 시간표 불러오기
+    fetch("/getTC", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({ timetableId: currentTimetableId })
+    })
+            .then(res => {
+              if (!res.ok) throw new Error("시간표 조회 실패");
+              return res.json();
+            })
+            .then(scheduleData => {
+              if (Array.isArray(scheduleData) && scheduleData.length > 0) {
+                renderScheduleWithData(scheduleData);
+              }
+            })
+            .catch(err => {
+              console.error("getTC 오류:", err);
+            });
+
+    // 🟢 2) 수업 목록 불러오기
     fetch("/a", { headers: { 'Authorization': `Bearer ${token}` }})
             .then(res => res.json())
             .then(data => {
@@ -1050,6 +1073,7 @@
     saveBtn.replaceWith(saveBtn.cloneNode(true));
     document.getElementById("saveSchedule").addEventListener("click", onClickSaveSchedule);
   }
+
 
   /***********************
    * 수업 리스트/선택/미리보기
@@ -1465,10 +1489,43 @@
     });
   }
 
-  function removeSemester(index) {
-    selectedSemesters.splice(index, 1);
-    renderSemesterList();
+  async function removeSemester(timetableId) {
+    if (!Number.isInteger(timetableId)) {
+      alert("유효한 timetableId가 필요합니다.");
+      return;
+    }
+
+    const token = localStorage.getItem('jwtToken');
+
+    try {
+      const res = await fetch('/deleteTC', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ timetableId: timetableId })
+      });
+
+      const txt = await res.text();
+      let data;
+      try {
+        data = JSON.parse(txt);
+      } catch {
+        data = { raw: txt };
+      }
+
+      if (res.ok && (data.deleteStatus === "success" || data.success === true)) {
+        alert("시간표가 삭제되었습니다.");
+      } else {
+        alert("삭제 실패: " + txt);
+      }
+    } catch (err) {
+      alert("삭제 중 오류 발생: " + err.message);
+      console.error(err);
+    }
   }
+
 </script>
 
 </body>

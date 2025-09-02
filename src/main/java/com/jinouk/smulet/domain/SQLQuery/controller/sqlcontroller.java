@@ -6,10 +6,15 @@ import com.jinouk.smulet.domain.SQLQuery.service.deletetimetable;
 import com.jinouk.smulet.domain.SQLQuery.service.getTcService;
 import com.jinouk.smulet.domain.SQLQuery.service.getTimeTableService;
 import com.jinouk.smulet.domain.SQLQuery.service.setTimetableCourseService;
+import com.jinouk.smulet.domain.homecontrol.entity.user;
+import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -23,6 +28,8 @@ public class sqlcontroller {
     private final setTimetableCourseService settimetablecourseservice;
     private final deletetimetable deletetimetable;
     private final getTcService service;
+    private final getTimeTableService tservice;
+    private final loginrepository loginrepository;
 
     @GetMapping("/course{userId}")
     public List<getTimeTableDTO> getcoursesByUserID(@RequestParam(required = false) Integer userId )
@@ -83,6 +90,28 @@ public class sqlcontroller {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
         }
         map.put("Status" , "Success");
+        return ResponseEntity.ok(map);
+    }
+
+    @GetMapping("/tableId_List")
+    public ResponseEntity<Map<Integer, List<Integer>>> send_tableID_count(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = (String) auth.getPrincipal();
+
+        Optional<user> Byname = loginrepository.findByName(username);
+        Integer userid = Byname.get().getId();
+        Map<Integer, List<Integer>> map = tservice.find_tableIDs(userid);
+        return ResponseEntity.ok(map);
+    }
+
+    @PostMapping("/representative_Timetable")
+    public ResponseEntity<?> representative_Timetable(Model model, @RequestParam int timetableId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = (String) auth.getPrincipal();
+
+        Optional<user> Byname = loginrepository.findByName(username);
+        Integer userid = Byname.get().getId();
+        Map<String, String> map = tservice.representativeTimeTable(userid, timetableId);
         return ResponseEntity.ok(map);
     }
 }

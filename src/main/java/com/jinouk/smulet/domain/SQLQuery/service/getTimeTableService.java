@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -73,5 +74,27 @@ public class getTimeTableService {
         } else {
             throw new UsernameNotFoundException("User not found");
         }
+    }
+
+    @Transactional
+    public Map<String, String> representativeTimeTable(int userId, int timetableId) {
+        Map<String, String> result = new HashMap<>();
+
+        timetable target = timetablerepository.findByIdAndUserId_Id(timetableId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저의 시간표가 아닙니다."));
+
+        if(target.isTag()) {
+            result.put("Status", "Success");
+            result.put("message", "이미 대표 시간표입니다.");
+            return result;
+        }
+
+        timetablerepository.clearPrimary(userId);
+
+        target.setTag(true);
+
+        result.put("Status", "Success");
+        result.put("massage", "대표 시간표가 설정되었습니다.");
+        return result;
     }
 }

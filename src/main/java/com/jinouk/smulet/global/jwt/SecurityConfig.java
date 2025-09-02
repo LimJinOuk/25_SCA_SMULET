@@ -60,7 +60,8 @@ public class SecurityConfig {
                                 "/addTimetable",
                                 "/addTC",
                                 "/tableId_List",
-                                "/detail"
+                                "/detail",
+                                "/representative_Timetable"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )

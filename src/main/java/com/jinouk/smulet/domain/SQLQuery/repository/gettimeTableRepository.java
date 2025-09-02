@@ -9,11 +9,13 @@ import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.SqlResultSetMapping;
 import org.apache.catalina.util.Introspection;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @SqlResultSetMapping(
         name = "CourseDTO",
@@ -53,4 +55,12 @@ public interface gettimeTableRepository extends JpaRepository<timetable, Long> {
     List<Integer> findTableIdsByUserId(@Param("userId") Integer userId);
 
     List<timetable> findAllByUserId_Id(Integer userId);
+
+    Optional<timetable> findByUserId_IdAndTag(Integer userId, boolean tag);
+
+    Optional<timetable> findByIdAndUserId_Id(Integer id, Integer userId);
+
+    @Modifying
+    @Query("update timetable t set t.tag = false where t.userId.id = :userId and t.tag = true")
+    int clearPrimary(@Param("userId") Integer userId);
 }

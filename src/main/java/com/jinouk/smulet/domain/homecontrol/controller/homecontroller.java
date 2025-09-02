@@ -32,7 +32,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class homecontroller {
     private final memberservice mservice;
-    private final getTimeTableService tservice;
     private final loginrepository loginrepository;
     private final JWTUtil jwtutil;
 
@@ -64,18 +63,6 @@ public class homecontroller {
         model.addAttribute("username", principal.toString());
         return mservice.userInfo(principal.toString());
     }
-
-    @GetMapping("/tableId_List")
-    public ResponseEntity<Map<Integer, List<Integer>>> send_tableID_count(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = (String) auth.getPrincipal();
-
-        Optional<user> Byname = loginrepository.findByName(username);
-        Integer userid = Byname.get().getId();
-        Map<Integer, List<Integer>> map = tservice.find_tableIDs(userid);
-        return ResponseEntity.ok(map);
-    }
-
 
     @PostMapping("/do_Register")
     public ResponseEntity<Map<String , String>> save(@RequestBody userdto userdto)

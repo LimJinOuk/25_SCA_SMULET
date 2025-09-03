@@ -501,7 +501,7 @@
           <p>새 비밀번호를 입력하세요</p>
           <input type="password" id="newPassword" placeholder="새 비밀번호">
           <input type="password" id="confirmPassword" placeholder="비밀번호 확인">
-            <div class="modal-buttons">
+          <div class="modal-buttons">
             <button id="changePwBtn" type="button">변경</button>
             <button id="cancelChange" type="button">취소</button>
           </div>
@@ -784,8 +784,15 @@
             .then(data => {
               document.getElementById('userName').textContent = data.name;
               document.getElementById('studentId').textContent = data.email;
-              UserId = data.id;
+
+              // userId 제대로 저장하기
+              if (data.timetables && data.timetables.length > 0) {
+                UserId = data.timetables[0].userId;
+              } else {
+                console.warn("userinfo에 timetables 데이터가 없음:", data);
+              }
             })
+
             .catch(err => {
               console.error(err);
               alert('사용자 정보를 불러오는데 실패했습니다.');
@@ -993,7 +1000,7 @@
         <span class="semester-name" style="cursor:pointer; color:#2563eb; text-decoration: underline;">${sem}</span>
         <div>
           <button onclick="removeSemester(${index})" style="color: white; background-color: red;">삭제</button>
-          <button onclick="loadRepresentativeSchedule('${sem}')" style="margin-left: 8px;">대표로 설정</button>
+          <button onclick="setRepresentativeSchedule('${sem}')" style="margin-left: 8px;">대표로 설정</button>
         </div>
       `;
       list.appendChild(li);
@@ -1011,8 +1018,8 @@
     const listContainer = document.getElementById('classInfoList');
 
     // 현재 학기코드/ID 확보
-    currentSemesterCode = toSemesterCode(semester);
-    currentTimetableId = timetableIdsBySemester[currentSemesterCode] ?? null;
+      currentSemesterCode = toSemesterCode(semester);
+      currentTimetableId = timetableIdsBySemester[currentSemesterCode] ?? null;
 
     if (!currentTimetableId) {
       alert('이 학기의 시간표 ID가 없습니다. 먼저 "시간표 추가"에서 학기를 추가하세요.');
@@ -1033,6 +1040,10 @@
 
     const token = localStorage.getItem('jwtToken');
 
+    console.log("👉 timetableId:", currentTimetableId);
+    console.log("👉 userId:", UserId);
+
+
     // 🟢 1) 현재 시간표 불러오기
     fetch("/getTC", {
       method: "POST",
@@ -1040,7 +1051,10 @@
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({ timetableId: currentTimetableId })
+      body: JSON.stringify({
+        //timetableId: currentTimetableId,
+        userId: UserId
+      })
     })
             .then(res => {
               if (!res.ok) throw new Error("시간표 조회 실패");
@@ -1367,14 +1381,14 @@
       const token = localStorage.getItem('jwtToken');
 
       // 서버가 FormData만 받는 경우:
-       const fd = new FormData();
-       fd.append('timetableId', currentTimetableId);
-       classIds.forEach(id => fd.append('classIds[]', id));
-       const res = await fetch('/addTC', {
-         method: 'POST',
-         headers: { 'Authorization': `Bearer ${token}` },
-         body: fd
-       });
+      const fd = new FormData();
+      fd.append('timetableId', currentTimetableId);
+      classIds.forEach(id => fd.append('classIds[]', id));
+      const res = await fetch('/addTC', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: fd
+      });
 
       const txt = await res.text();
       if (!res.ok) throw new Error(`addTC 실패: ${txt}`);
@@ -1422,72 +1436,142 @@
   /***********************
    * 대표 시간표 (기존 로직 유지)
    ***********************/
-  async function loadRepresentativeSchedule() {
+  /**
+   * 대표 시간표 설정 (리스트 버튼에서 학기 텍스트를 넘김)
+   * @param {string} semText - 예) "2025년 2학기"
+   */
+  async function setRepresentativeSchedule(semText)
+  {
     const token = localStorage.getItem('jwtToken');
+    if (!token) { alert('로그인이 필요합니다.'); return; }
+    if (!semText) { alert('학기 정보가 없습니다.'); return; }
+
+    // "2025년 2학기" -> "20252"
+    const termCode = toSemesterCode(semText);
+    let timetableId = timetableIdsBySemester?.[termCode] ?? null;
+    if (!timetableId) {
+      try {
+        timetableId = await fetchLatestTimetableIdFromUserInfo(termCode);
+      } catch (_) {}
+    }
+    if (!timetableId) {
+      alert('해당 학기의 시간표 ID를 찾지 못했습니다. 먼저 "시간표 추가"를 진행해주세요.');
+      return;
+    }
+
+    // 버튼 상태 업데이트
+    const btns = Array.from(document.querySelectorAll('#semesterList button'))
+            .filter(b => b.textContent.includes('대표로 설정'));
+    const clickedBtn = btns.find(b => b.getAttribute('onclick')?.includes(semText));
+    const prevText = clickedBtn?.textContent;
+    if (clickedBtn) { clickedBtn.disabled = true; clickedBtn.textContent = '설정 중...'; }
 
     try {
-      const res = await fetch('/tableId_List', {
-        headers: { 'Authorization': `Bearer ${token}` }
+      // 🟢 1) FormData 구성
+      const fd = new FormData();
+      fd.append('timetableId', String(timetableId));
+      fd.append('term', String(termCode)); // 서버에서 term도 받는다면
+
+      // 🟢 2) POST 요청
+      const res = await fetch('/representative_Timetable',{
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: fd,
+        credentials: 'include'
       });
 
-      if (!res.ok) throw new Error("시간표 목록을 불러오는 데 실패했습니다.");
-      const data = await res.json(); // 예: { "20242": [101, 102], "20241": [88] }
-
-      const semesters = Object.keys(data).sort((a, b) => b - a);
-      if (semesters.length === 0) {
-        alert("저장된 시간표가 없습니다.");
-        return;
+      if (!res.ok) {
+        let msg = `대표 시간표 설정에 실패했습니다. (HTTP ${res.status})`;
+        try { const err = await res.json(); if (err?.message) msg = err.message; } catch {}
+        throw new Error(msg);
       }
 
-      const latestSemesterCode = semesters[0];
-      const latestSemesterList = data[latestSemesterCode];
-      const representativeId = latestSemesterList[0];
+      // 🟢 3) 지정된 대표 시간표 상세 불러오기
+      const detailRes = await fetch(`/timetable/detail?id=${timetableId}`,
+              {
+                headers: { 'Authorization': `Bearer ${token}` },
+                credentials: 'include'
+              });
+      if (!detailRes.ok) throw new Error('대표 시간표 정보를 불러오지 못했습니다.');
+      const scheduleData = await detailRes.json();
 
-      const detailRes = await fetch(`/timetable/detail?id=${representativeId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
 
-      if (!detailRes.ok) throw new Error("대표 시간표 정보를 불러오지 못했습니다.");
-      const scheduleData = await detailRes.json(); // 예: [{ subject, professor, day, period }, ...]
-
-      const year = latestSemesterCode.slice(0, 4);
-      const semester = latestSemesterCode.slice(4) === "1" ? "1학기" : "2학기";
-      const semesterName = `${year}년 ${semester}`;
-
+      // 🟢 4) 대표 박스 렌더
+      const semesterName = `${String(termCode).slice(0,4)}년 ${String(termCode).slice(4)==="1" ? "1학기" : "2학기"}`;
       renderRepresentativeSchedule(scheduleData, semesterName);
-    } catch (err) {
+
+      if (clickedBtn) clickedBtn.textContent = '대표로 설정됨';
+      alert('대표 시간표가 설정되었습니다.');
+    } catch (err)
+    {
       console.error(err);
-      alert("대표 시간표를 불러오는 중 오류가 발생했습니다.");
+      alert(err.message || '대표 시간표 설정 중 오류가 발생했습니다.');
+      if (clickedBtn && prevText) { clickedBtn.disabled = false; clickedBtn.textContent = prevText; }
     }
   }
+
 
   function renderRepresentativeSchedule(scheduleData, semesterName) {
     const container = document.getElementById('representativeScheduleContainer');
     const title = document.getElementById('representativeTitle');
 
-    title.innerHTML = `📌 대표 시간표 - ${semesterName}`;
-    container.innerHTML = generateEmptyScheduleTable();
+    title.textContent = `📌 대표 시간표 - ${semesterName}`;
 
-    const table = container.querySelector('#scheduleTable');
-    if (!table) return;
+    // 같은 id("scheduleTable") 충돌 방지: 대표 전용 ID로 교체
+    const repTableHtml = generateEmptyScheduleTable()
+            .replace('id="scheduleTable"', 'id="repScheduleTable"');
+    container.innerHTML = repTableHtml;
 
-    const days = ['월', '화', '수', '목', '금'];
+    const table = container.querySelector('#repScheduleTable');
+    if (!table || !Array.isArray(scheduleData)) return;
 
-    scheduleData.forEach(item => {
-      const dayIndex = days.indexOf(item.day);
-      if (dayIndex === -1) return;
+    const DAYS = ['월','화','수','목','금'];
 
-      const row = table.rows[item.period];
-      if (!row) return;
+    for (const item of scheduleData) {
+      // 과목/교수명 키 다양성 대응
+      const subject = item.subject ?? item.courseName ?? '';
+      const professor = item.professor ?? item.professorName ?? '';
+      const classroom = item.classroom ?? '';
 
-      const cell = row.cells[dayIndex + 1];
-      if (cell) {
-        cell.innerHTML = `${item.subject}<br>(${item.professor})`;
+      // day → '월'/'화' 또는 숫자(1~5) 또는 scheduleDay
+      let dayIdx = -1;
+      if (item.day != null) {
+        dayIdx = (typeof item.day === 'string') ? DAYS.indexOf(item.day) : (Number(item.day) - 1);
+      } else if (item.scheduleDay != null) {
+        dayIdx = Number(item.scheduleDay) - 1;
+      }
+      if (dayIdx < 0) continue;
+
+      // period 한 칸 또는 구간(start~end) 모두 지원
+      const pStart =
+              (item.period != null ? Number(item.period) :
+                      (item.timeStart != null ? Number(item.timeStart) :
+                              (item.periodStart != null ? Number(item.periodStart) : null)));
+      const pEnd =
+              (item.timeEnd != null ? Number(item.timeEnd) :
+                      (item.periodEnd != null ? Number(item.periodEnd) : pStart));
+
+      if (pStart == null) continue;
+
+      for (let p = pStart; p <= pEnd; p++) {
+        const rowIndex = p + 1;           // ❗헤더 한 줄 보정
+        const row = table.rows[rowIndex];
+        if (!row) continue;
+
+        const cell = row.cells[dayIdx + 1];
+        if (!cell) continue;
+
+        const label = classroom
+                ? `${subject}<br>(${professor})<br>${classroom}`
+                : `${subject}<br>(${professor})`;
+
+        cell.innerHTML = label;
         cell.style.backgroundColor = '#e0f7fa';
         cell.style.border = '1px solid #90caf9';
       }
-    });
+    }
   }
+
 
   async function removeSemester(timetableId) {
     if (!Number.isInteger(timetableId)) {
@@ -1504,7 +1588,10 @@
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ timetableId: timetableId })
+        body: JSON.stringify({
+          timetableId: currentTimetableId,
+          userId: UserId
+          })
       });
 
       const txt = await res.text();

@@ -1,6 +1,7 @@
 package com.jinouk.smulet.domain.SQLQuery.controller;
 
 import com.jinouk.smulet.domain.SQLQuery.dto.getTimeTableDTO;
+import com.jinouk.smulet.domain.SQLQuery.entity.timetable;
 import com.jinouk.smulet.domain.SQLQuery.repository.getTimetableRepo;
 import com.jinouk.smulet.domain.SQLQuery.service.deletetimetable;
 import com.jinouk.smulet.domain.SQLQuery.service.getTcService;
@@ -94,13 +95,13 @@ public class sqlcontroller {
     }
 
     @GetMapping("/tableId_List")
-    public ResponseEntity<Map<Integer, List<Integer>>> send_tableID_count(Model model) {
+    public ResponseEntity<Map<String, List<Map<String, Object>>>> send_tableID_count(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = (String) auth.getPrincipal();
 
         Optional<user> Byname = loginrepository.findByName(username);
         Integer userid = Byname.get().getId();
-        Map<Integer, List<Integer>> map = tservice.find_tableIDs(userid);
+        Map<String, List<Map<String, Object>>> map = tservice.find_tableIDs(userid);
         return ResponseEntity.ok(map);
     }
 

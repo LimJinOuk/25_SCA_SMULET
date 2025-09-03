@@ -12,6 +12,6 @@ import org.springframework.stereotype.Repository;
 public interface deleteTimetableRepository extends JpaRepository<timetable, Long> {
     @Modifying
     @Transactional
-    @Query(value = "DELETE FROM timetable WHERE id = :timetableid", nativeQuery = true)
-    int deletetimetable(@Param("timetableid") Integer timetableid);
+    @Query(value = "DELETE FROM timetable WHERE id = :timetableId", nativeQuery = true)
+    int deletetimetable(@Param("timetableId") Integer timetableId);
 }

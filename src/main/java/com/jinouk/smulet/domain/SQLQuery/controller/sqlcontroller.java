@@ -1,5 +1,7 @@
 package com.jinouk.smulet.domain.SQLQuery.controller;
 
+import com.jinouk.smulet.domain.SQLQuery.dto.deleteTCDTO;
+import com.jinouk.smulet.domain.SQLQuery.dto.getTCRequestDTO;
 import com.jinouk.smulet.domain.SQLQuery.dto.getTimeTableDTO;
 import com.jinouk.smulet.domain.SQLQuery.entity.timetable;
 import com.jinouk.smulet.domain.SQLQuery.repository.getTimetableRepo;
@@ -51,9 +53,9 @@ public class sqlcontroller {
         return courseList;
     }
 
-    @GetMapping("/getTC")
-    public ResponseEntity<?> getTC(@RequestParam("userId") int userId) {
-        var rows = service.getAllRowsByUserId(userId);
+    @PostMapping("/getTC")
+    public ResponseEntity<?> getTC(@RequestBody getTCRequestDTO req) {
+        var rows = service.getAllRowsByUserId(req.timetableId);
         return ResponseEntity.ok(rows);
     }
 
@@ -72,10 +74,15 @@ public class sqlcontroller {
     }
 
     @PostMapping("/deleteTC")
-    public ResponseEntity<?> deleteTimetable(@RequestParam int timetableId) {
+    public ResponseEntity<?> deleteTimetable(@RequestBody deleteTCDTO req) {
         Map<String, String> map = new HashMap<>();
-        int affected = deletetimetable.deleteByIdNative(timetableId);
-        return affected > 0 ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        int affected = deletetimetable.deleteByIdNative(req.timetableId);
+        if(affected > 0){
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("/addTC")

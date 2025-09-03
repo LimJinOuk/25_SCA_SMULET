@@ -11,7 +11,7 @@ import java.util.List;
 public class getTcService {
     private final getTimetableRepo repo;
 
-    public List<getTimetableRepo.TimetableCourseRow> getAllRowsByUserId(Integer userId) {
-        return repo.findAllByUserIdAsRows(userId);
+    public List<getTimetableRepo.TimetableCourseRow> getAllRowsByUserId(Integer timetableId) {
+        return repo.findAllByTimetableId(timetableId);
     }
 }

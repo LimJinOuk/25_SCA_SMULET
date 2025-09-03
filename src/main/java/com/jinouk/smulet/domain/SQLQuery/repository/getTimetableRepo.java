@@ -18,10 +18,9 @@ public interface getTimetableRepo extends JpaRepository<timetableCourse, Long> {
     @Query(value = """
         SELECT 
             tc.timetable_id AS timetableId,
-            tc.course_id     AS courseId
+            tc.course_id    AS courseId
         FROM timetableCourse tc
-        JOIN timetable t ON tc.timetable_id = t.id
-        WHERE t.user_id = :userId
+        WHERE tc.timetable_id = :timetableId
         """, nativeQuery = true)
-    List<TimetableCourseRow> findAllByUserIdAsRows(@Param("userId") Integer userId);
+    List<TimetableCourseRow> findAllByTimetableId(@Param("timetableId") Integer timetableId);
 }

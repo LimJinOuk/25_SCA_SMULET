@@ -1052,8 +1052,7 @@
         "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify({
-        //timetableId: currentTimetableId,
-        userId: UserId
+        timetableId: currentTimetableId,
       })
     })
             .then(res => {
@@ -1590,7 +1589,6 @@
         },
         body: JSON.stringify({
           timetableId: currentTimetableId,
-          userId: UserId
           })
       });
 
@@ -1602,7 +1600,7 @@
         data = { raw: txt };
       }
 
-      if (res.ok && (data.deleteStatus === "success" || data.success === true)) {
+      if (res.ok) {
         alert("시간표가 삭제되었습니다.");
       } else {
         alert("삭제 실패: " + txt);

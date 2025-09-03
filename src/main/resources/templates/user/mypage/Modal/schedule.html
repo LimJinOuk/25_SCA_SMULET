@@ -660,8 +660,15 @@
             .then(data => {
                 document.getElementById('userName').textContent = data.name;
                 document.getElementById('studentId').textContent = data.email;
-                UserId = data.id;
+
+                // userId 제대로 저장하기
+                if (data.timetables && data.timetables.length > 0) {
+                    UserId = data.timetables[0].userId;
+                } else {
+                    console.warn("userinfo에 timetables 데이터가 없음:", data);
+                }
             })
+
             .catch(err => {
                 console.error(err);
                 alert('사용자 정보를 불러오는데 실패했습니다.');

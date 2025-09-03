@@ -67,15 +67,19 @@
             font-size: 1.1rem;
         }
 
+
+        /* ─── 아이콘 리스트 ─── */
         .links {
             display: flex;
+            flex-wrap: nowrap;       /* 한 줄 스크롤 */
+            overflow-x: auto;
             justify-content: center;
-            flex-wrap: wrap;
-            gap: 30px;
+            align-items: center;
+            gap: 20px;
+            padding: 0 20px;
             margin: 40px auto;
-            max-width: 700px;
+            width: 100%;
         }
-
         .logo-container {
             display: flex;
             flex-direction: column;
@@ -83,40 +87,55 @@
             width: 100px;
             position: relative;
         }
-
         .logo-box {
             width: 100px;
-            height: 127px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 20px;
+            height: 100px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 25px;
             overflow: hidden;
-            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
-
         .logo-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
         }
-
         .logo-caption {
-            color: white;
-            font-weight: bold;
-            font-size: 13px;
+            opacity: 1 !important;
             margin-top: 8px;
-            transition: opacity 0.3s ease;
+            font-size: 0.9rem;
+            text-align: center;
+            width: 100%;
+            color: #d1d5db;
         }
-
         .logo-box:hover {
             transform: scale(1.07);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
         }
 
-        .logo-box:hover + .logo-caption {
-            opacity: 0;
+        /* 삭제 버튼 */
+        .logo-container .remove-btn {
+            display: none;
+            position: absolute;
+            top: 4px; right: 4px;
+            width: 18px; height: 18px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 14px;
+            line-height: 18px;
+            text-align: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .logo-container:hover .remove-btn {
+            display: block;
         }
 
         main {
@@ -259,6 +278,27 @@
         }
         .guide-primary:hover, .guide-secondary:hover { transform: translateY(-1px); }
 
+        /* === 아이콘 추가 모달 === */
+        dialog::backdrop { background: rgba(0,0,0,0.4); }
+        #addIconDialog {
+            border: none; border-radius: 15px; overflow: hidden;
+        }
+        #addIconDialog .modal {
+            background: #fff; padding: 24px; border-radius: 8px; width: 320px;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        #addIconDialog label { display: flex; flex-direction: column; font-size: 0.9rem; text-align: left; }
+        #addIconDialog input { margin-top: 4px; padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+        #addIconDialog .button-group-vertical {
+            margin-top: 8px; display: flex; justify-content: center; gap: 12px;
+        }
+        #addIconDialog .button-group-vertical button {
+            padding: 8px 20px; border-radius: 8px; font-size: 1rem; font-weight: 500; border: none; cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        #addIconDialog button[value="cancel"] { background: #e0e0e0; color: #333; }
+        #addIconDialog #confirmAdd { background: #2563eb; color: #fff; }
+        #addIconDialog .button-group-vertical button:active { transform: scale(0.97); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -305,6 +345,22 @@
             </a>
             <div class="logo-caption">샘물</div>
         </div>
+
+        <!-- 사용자 정의 아이콘이 렌더될 영역 -->
+        <div id="custom-icons"></div>
+
+        <!-- “+” 버튼 -->
+        <div class="logo-container" id="add-icon-btn">
+            <div class="logo-box" aria-label="아이콘 추가" role="button" tabindex="0">
+                <!-- inline SVG (흰색 원 + '+' 표시) -->
+                <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+                    <circle cx="32" cy="32" r="30" fill="#fff"/>
+                    <rect x="30" y="16" width="4" height="32" rx="2" fill="#2563eb"/>
+                    <rect x="16" y="30" width="32" height="4" rx="2" fill="#2563eb"/>
+                </svg>
+            </div>
+            <div class="logo-caption">추가</div>
+        </div>
     </div>
 
     <main>
@@ -324,6 +380,26 @@
         </b>
     </footer>
 </div>
+
+<!-- 아이콘 추가 모달(dialog) -->
+<dialog id="addIconDialog">
+    <form method="dialog" class="modal">
+        <h2>새 아이콘 등록</h2>
+        <label>
+            이름:
+            <input type="text" name="name" required placeholder="예: 네이버" />
+        </label>
+        <label>
+            URL:
+            <input type="url" name="url" required placeholder="https://example.com" />
+        </label>
+        <div class="button-group-vertical">
+            <button type="submit" value="cancel" formnovalidate>취소</button>
+            <button id="confirmAdd" value="confirm">추가</button>
+        </div>
+    </form>
+</dialog>
+
 <!-- 이용안내 모달 8.21 수정 -->
 <div class="guide-backdrop" id="guideModal" aria-hidden="true">
     <div class="guide-modal" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
@@ -554,6 +630,127 @@
         } catch {}
     })();
 
+    /* === 사용자 정의 아이콘 추가 기능 ===
+       - “추가” 아이콘 클릭 → 모달(dialog) 오픈
+       - 이름/URL/이미지URL(선택) 입력 → 로컬스토리지 저장
+       - 이미지URL이 없으면 해당 도메인의 파비콘 자동 사용
+       - X 버튼으로 개별 아이콘 삭제 가능
+    */
+    (function(){
+        const PLUS_BTN = document.getElementById('add-icon-btn');
+        const DIALOG = document.getElementById('addIconDialog');
+        const FORM = DIALOG?.querySelector('form.modal');
+        const NAME_INPUT = FORM?.querySelector('input[name="name"]');
+        const URL_INPUT = FORM?.querySelector('input[name="url"]');
+        const IMG_INPUT = FORM?.querySelector('input[name="img"]');
+        const CUSTOM_WRAP = document.getElementById('custom-icons');
+
+        const LS_KEY = 'smulet.customIcons';
+
+        function loadIcons(){
+            try {
+                return JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+            } catch { return []; }
+        }
+        function saveIcons(list){
+            localStorage.setItem(LS_KEY, JSON.stringify(list));
+        }
+
+        function faviconFrom(urlStr){
+            // 이미지 URL을 미입력한 경우 파비콘 자동 사용
+            try {
+                const u = new URL(urlStr);
+                return `https://www.google.com/s2/favicons?sz=128&domain_url=${u.origin}`;
+            } catch {
+                return 'images/plus.svg'; // Fallback
+            }
+        }
+
+        function normalizeUrl(u){
+            if (!/^https?:\/\//i.test(u)) return 'https://' + u;
+            return u;
+        }
+
+        function render(){
+            if (!CUSTOM_WRAP) return;
+            CUSTOM_WRAP.innerHTML = ''; // reset
+            const items = loadIcons();
+            for (const item of items){
+                const cont = document.createElement('div');
+                cont.className = 'logo-container';
+                cont.dataset.id = item.id;
+
+                const a = document.createElement('a');
+                a.href = item.url;
+                a.target = '_blank';
+                a.className = 'logo-box';
+
+                const img = document.createElement('img');
+                img.alt = item.name;
+                img.src = item.img || faviconFrom(item.url);
+                a.appendChild(img);
+
+                const cap = document.createElement('div');
+                cap.className = 'logo-caption';
+                cap.textContent = item.name;
+
+                // 삭제 버튼
+                const del = document.createElement('button');
+                del.className = 'remove-btn';
+                del.type = 'button';
+                del.title = '삭제';
+                del.textContent = '×';
+                del.addEventListener('click', () => {
+                    const curr = loadIcons().filter(x => x.id !== item.id);
+                    saveIcons(curr);
+                    render();
+                });
+
+                cont.appendChild(a);
+                cont.appendChild(cap);
+                cont.appendChild(del);
+                CUSTOM_WRAP.appendChild(cont);
+            }
+        }
+
+        // 초기 렌더
+        render();
+
+        // “+” 버튼 → 모달 열기
+        PLUS_BTN?.addEventListener('click', () => {
+            FORM?.reset();
+            DIALOG?.showModal();
+            setTimeout(()=> NAME_INPUT?.focus(), 0);
+        });
+
+        // dialog 기본 동작: value="cancel" 버튼은 자동 닫힘
+        FORM?.addEventListener('submit', (e) => {
+            const submitter = e.submitter?.value;
+            if (submitter === 'cancel') return; // 기본 닫힘
+            e.preventDefault();
+
+            const name = (NAME_INPUT?.value || '').trim();
+            let url = (URL_INPUT?.value || '').trim();
+            let img = (IMG_INPUT?.value || '').trim();
+
+            if (!name || !url) {
+                alert('이름과 URL을 입력해주세요.');
+                return;
+            }
+
+            url = normalizeUrl(url);
+            if (img) img = normalizeUrl(img);
+
+            const list = loadIcons();
+            const id = 'ci_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+            list.push({
+                id, name, url, img: img || faviconFrom(url)
+            });
+            saveIcons(list);
+            render();
+            DIALOG?.close();
+        });
+    })();
 </script>
 
 

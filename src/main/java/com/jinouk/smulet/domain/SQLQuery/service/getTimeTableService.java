@@ -30,11 +30,11 @@ public class getTimeTableService {
         return timetablerepository.findCoursesByUserId(userId);
     }
 
-    public Map<Integer, List<Integer>> find_tableIDs(Integer userId)
+    public Map<String, List<Map<String, Object>>> find_tableIDs(Integer userId)
     {
-        Map<Integer, List<Integer>> map = new HashMap<>();
-        List<Integer> list = timetablerepository.findTableIdsByUserId(userId);
-        map.put(userId, list);
+        Map<String, List<Map<String, Object>>> map = new HashMap<>();
+        List<Map<String, Object>> list = timetablerepository.findTablesByUserId(userId);
+        map.put("Timetable List", list);
         return map;
     }
 

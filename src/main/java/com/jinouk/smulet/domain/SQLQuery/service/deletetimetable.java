@@ -12,8 +12,8 @@ public class deletetimetable {
     private final deleteTimetableRepository deletetimetableRepository;
 
     @Transactional
-    public int deleteByIdNative(Integer timetableId) {
-        return deletetimetableRepository.deletetimetable(timetableId);
+    public int deleteByIdNative(Integer id) {
+        return deletetimetableRepository.deletetimetable(id);
     }
 
 }

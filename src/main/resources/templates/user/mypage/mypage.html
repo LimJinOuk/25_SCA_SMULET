@@ -406,6 +406,44 @@
       from { opacity: 0; transform: translateY(8px);}
       to { opacity: 1; transform: translateY(0);}
     }
+    .details-container {
+      display: flex;       /* 가로 배치 */
+      flex-direction: row;
+      gap: 20px;           /* 박스 사이 간격 */
+      margin-top: 16px;
+    }
+
+    .detail {
+      flex: 1;             /* 동일한 크기 */
+      height: 80px;        /* 세로는 낮게, 가로는 길게 */
+      background-color: #f4f4f4;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;  /* 세로 정렬 */
+      justify-content: center; /* 세로 중앙 */
+      align-items: center;     /* 가로 중앙 */
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease-in-out,
+      box-shadow 0.2s ease-in-out
+    }
+    .detail:hover{
+      transform: translateY(-4px);       /* 살짝 위로 */
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15); /* 그림자 강조 */
+      cursor: pointer;                   /* 마우스 커서 변경 */
+      transition: all 0.5s ease;         /* 부드럽게 변화 */
+    }
+
+    .detail .label {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .detail .value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #007bff;
+    }
   </style>
 </head>
 <body onload="loaduserinfo()">
@@ -483,20 +521,40 @@
         <option value="25">25학번 테크트리</option>
       </select>
 
+      <!-- 가로 정렬된 박스들 -->
+      <div class="details-container">
+        <div class="detail">
+          <span class="label">bsm</span>
+          <span class="value" id="bsmCredit">0</span>
+        </div>
+        <div class="detail">
+          <span class="label">설계</span>
+          <span class="value" id="designCredit">0</span>
+        </div>
+        <div class="detail">
+          <span class="label">전공선택</span>
+          <span class="value" id="majorElectiveCredit">0</span>
+        </div>
+        <div class="detail">
+          <span class="label">전공심화</span>
+          <span class="value" id="majorAdvancedCredit">0</span>
+        </div>
+      </div>
+
     </div>
 
     <div class="box box3">
       <h2>시간표</h2>
       <p class="subtext">시간표를 만나보세요!</p>
 
+      <!-- 드롭다운만으로 바로 학기 추가 -->
       <div style="margin-top: 12px;">
-        <button id="showSemesterBtn">시간표 추가</button>
+        <select id="semesterSelectInline" style="min-width: 220px;">
+          <option value="">학기를 선택해 추가</option>
+          <!-- JS에서 옵션 채워짐 -->
+        </select>
       </div>
 
-      <div id="addSemesterList" class="hidden" style="margin-top: 10px;">
-        <select id="semesterSelect"></select>
-        <button onclick="addSemester()">추가</button>
-      </div>
 
       <ul id="semesterList" style="margin-top: 12px;"></ul>
       <!-- 시간표 모달 -->
@@ -718,11 +776,12 @@
       alert('로그아웃 되었습니다.');
       window.location.href = '/';
     });
-
+/*
     const showSemesterBtn = document.getElementById('showSemesterBtn');
     if (showSemesterBtn) {
       showSemesterBtn.addEventListener('click', showAddSemester);
     }
+    */
 /*
     // ✅ 추가: 대표 시간표 갱신 & 학기 리스트 복원
     if (token) {
@@ -730,6 +789,10 @@
       await hydrateSemestersFromServer();
     }
  */
+    // 드롭다운 채우기 & 체인지 바인딩
+    populateSemesterSelectInline();
+    document.getElementById('semesterSelectInline')?.addEventListener('change', onSemesterSelectInlineChange);
+
 
     if (token) {
          // 1) userInfo 먼저 확보(→ UserId 세팅 보장)
@@ -741,6 +804,65 @@
        }
   });
 
+  /** 드롭다운 옵션을 갱신한다. (이미 추가된 학기는 제외) */
+  function populateSemesterSelectInline() {
+    const select = document.getElementById('semesterSelectInline');
+    if (!select) return;
+
+    // 현재 값 보존
+    const prev = select.value;
+
+    // 옵션 초기화
+    select.innerHTML = '';
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = '학기를 선택해 추가';
+    select.appendChild(placeholder);
+
+    // 아직 추가하지 않은 학기만 채우기
+    semesterOptions.forEach(sem => {
+      if (!selectedSemesters.includes(sem)) {
+        const opt = document.createElement('option');
+        opt.value = sem;
+        opt.textContent = sem;
+        select.appendChild(opt);
+      }
+    });
+
+    // 보존하려던 값이 유효하면 유지, 아니면 placeholder로
+    if ([...select.options].some(o => o.value === prev)) {
+      select.value = prev;
+    } else {
+      select.value = '';
+    }
+  }
+
+  /** 드롭다운에서 학기를 선택하면 즉시 서버에 시간표를 만들고 리스트에 반영 */
+  async function onSemesterSelectInlineChange(e) {
+    const semText = e.target.value;
+    if (!semText) return; // placeholder 선택
+
+    const semesterCode = toSemesterCode(semText);
+    try {
+      // 1) 서버에 빈 시간표 생성
+      const tid = await createTimetableOnServer(semesterCode);
+
+      // 2) 로컬 상태 반영
+      timetableIdsBySemester[semesterCode] = tid;
+      if (!selectedSemesters.includes(semText)) {
+        selectedSemesters.push(semText);
+      }
+
+      // 3) UI 갱신
+      renderSemesterList();
+      populateSemesterSelectInline();   // 방금 추가한 학기는 드롭다운에서 제거
+      e.target.value = '';              // 다시 placeholder로
+
+    } catch (err) {
+      console.error(err);
+      alert(`시간표 생성 중 오류: ${err.message}`);
+    }
+  }
 
   /***********************
    * 사용자/계정 관련
@@ -1756,6 +1878,7 @@
       }
 
       renderSemesterList();
+      populateSemesterSelectInline();
     } catch (err) {
       console.error('hydrateSemestersFromServer 오류:', err);
     }
@@ -1903,9 +2026,6 @@
       renderSemesterList(); // 실패 시 원상복구
     }
   }
-
-
 </script>
-
 </body>
 </html>

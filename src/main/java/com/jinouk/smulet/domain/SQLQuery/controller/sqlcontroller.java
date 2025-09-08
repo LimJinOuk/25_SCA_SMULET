@@ -3,12 +3,9 @@ package com.jinouk.smulet.domain.SQLQuery.controller;
 import com.jinouk.smulet.domain.SQLQuery.dto.deleteTCDTO;
 import com.jinouk.smulet.domain.SQLQuery.dto.getTCRequestDTO;
 import com.jinouk.smulet.domain.SQLQuery.dto.getTimeTableDTO;
-import com.jinouk.smulet.domain.SQLQuery.entity.timetable;
-import com.jinouk.smulet.domain.SQLQuery.repository.getTimetableRepo;
-import com.jinouk.smulet.domain.SQLQuery.service.deletetimetable;
-import com.jinouk.smulet.domain.SQLQuery.service.getTcService;
-import com.jinouk.smulet.domain.SQLQuery.service.getTimeTableService;
-import com.jinouk.smulet.domain.SQLQuery.service.setTimetableCourseService;
+import com.jinouk.smulet.domain.SQLQuery.service.*;
+import com.jinouk.smulet.domain.SQLQuery.dto.getTS2TEDTO;
+import com.jinouk.smulet.domain.SQLQuery.entity.schedule_of_course;
 import com.jinouk.smulet.domain.homecontrol.entity.user;
 import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +30,7 @@ public class sqlcontroller {
     private final getTcService service;
     private final getTimeTableService tservice;
     private final loginrepository loginrepository;
+    private final getCourseTS2TE TS2TE;
 
     @GetMapping("/course{userId}")
     public List<getTimeTableDTO> getcoursesByUserID(@RequestParam(required = false) Integer userId )
@@ -121,5 +119,10 @@ public class sqlcontroller {
         Integer userid = Byname.get().getId();
         Map<String, String> map = tservice.representativeTimeTable(userid, timetableId);
         return ResponseEntity.ok(map);
+    }
+
+    @PostMapping("/getTS2TE")
+    public ResponseEntity<List<schedule_of_course>> getTimesByIds(@RequestBody getTS2TEDTO request) {
+        return ResponseEntity.ok(TS2TE.getTimesByIds(request.getScheduleIds()));
     }
 }

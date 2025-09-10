@@ -1207,10 +1207,7 @@
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({
-        timetableId: currentTimetableId,
-        userId: UserId
-      })
+      body: JSON.stringify(UserId)
     })
             .then(res => {
               if (!res.ok) throw new Error("시간표 조회 실패");
@@ -1704,7 +1701,7 @@
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ timetableId, userId: UserId })
+        body: JSON.stringify(UserId)
       });
       if (!tcRes.ok) throw new Error('대표 시간표 상세를 불러오지 못했습니다.');
       const scheduleData = await tcRes.json();
@@ -1770,7 +1767,7 @@
         'Authorization': `Bearer ${token}`
       },
       // 백엔드가 userId를 쓸 수도 있으니 함께 전달(무시돼도 무방)
-      body: JSON.stringify({ timetableId, userId: UserId })
+      body: JSON.stringify(UserId)
     });
     if (!tcRes.ok) return;
     const rows = await tcRes.json();

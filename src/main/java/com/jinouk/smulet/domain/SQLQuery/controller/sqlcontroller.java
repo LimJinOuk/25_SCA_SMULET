@@ -49,8 +49,8 @@ public class sqlcontroller {
         return courseList;
     }
 
-    @GetMapping("/getTC")
-    public ResponseEntity<?> getTC(@RequestParam("userId") int userId) {
+    @PostMapping("/getTC")
+    public ResponseEntity<?> getTC(@RequestBody int userId) {
         var rows = service.getAllRowsByUserId(userId);
         return ResponseEntity.ok(rows);
     }

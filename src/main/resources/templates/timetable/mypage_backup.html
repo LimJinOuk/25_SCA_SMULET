@@ -308,16 +308,13 @@
     body.modal-open{
       overflow: hidden;
     }
-    #semesterList {
-      list-style: none;
-      padding-left: 0;
-      margin: 12px 0 0 0; /* 위쪽만 12px, 나머지 0 */
-    }
+
     #semesterList li {
       margin: 5px 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-left: -39px;  /* 원하는 만큼 값 조절 */
     }
 
     /* 학기 리스트 카드 스타일 */
@@ -332,7 +329,7 @@
       background: #fff;
       transition: background-color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
       cursor: pointer;                   /* 카드 전체 클릭 가능 */
-      width: 80%;
+      width: 100%;
     }
 
     #semesterList .semester-item:hover {
@@ -1212,7 +1209,10 @@
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify(UserId)
+      body: JSON.stringify({
+        timetableId: currentTimetableId,
+        userId: UserId
+      })
     })
             .then(res => {
               if (!res.ok) throw new Error("시간표 조회 실패");
@@ -1706,7 +1706,7 @@
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(UserId)
+        body: JSON.stringify({ timetableId, userId: UserId })
       });
       if (!tcRes.ok) throw new Error('대표 시간표 상세를 불러오지 못했습니다.');
       const scheduleData = await tcRes.json();
@@ -1772,7 +1772,7 @@
         'Authorization': `Bearer ${token}`
       },
       // 백엔드가 userId를 쓸 수도 있으니 함께 전달(무시돼도 무방)
-      body: JSON.stringify(UserId)
+      body: JSON.stringify({ timetableId, userId: UserId })
     });
     if (!tcRes.ok) return;
     const rows = await tcRes.json();

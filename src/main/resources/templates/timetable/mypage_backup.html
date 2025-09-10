@@ -308,16 +308,13 @@
     body.modal-open{
       overflow: hidden;
     }
-    #semesterList {
-      list-style: none;
-      padding-left: 0;
-      margin: 12px 0 0 0; /* 위쪽만 12px, 나머지 0 */
-    }
+
     #semesterList li {
       margin: 5px 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-left: -39px;  /* 원하는 만큼 값 조절 */
     }
 
     /* 학기 리스트 카드 스타일 */
@@ -332,7 +329,7 @@
       background: #fff;
       transition: background-color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
       cursor: pointer;                   /* 카드 전체 클릭 가능 */
-      width: 80%;
+      width: 100%;
     }
 
     #semesterList .semester-item:hover {

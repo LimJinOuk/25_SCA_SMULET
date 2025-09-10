@@ -70,7 +70,7 @@ public class sqlcontroller {
     }
 
     @PostMapping("/deleteTC")
-    public ResponseEntity<?> deleteTimetable(@RequestParam int timetableId) {
+    public ResponseEntity<?> deleteTimetable(@RequestBody int timetableId) {
         Map<String, String> map = new HashMap<>();
         int affected = deletetimetable.deleteByIdNative(timetableId);
         return affected > 0 ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();

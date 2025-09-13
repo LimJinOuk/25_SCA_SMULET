@@ -18,7 +18,6 @@
 
     /* 헤더 */
     header {
-      background-color: white;
       padding: 20px;
       box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
       background-color: rgb(255, 255, 255, 0.85);
@@ -70,8 +69,6 @@
       flex-wrap: wrap;
       margin: 0 auto;
     }
-
-
     /* 반응형 전환 */
     @media (max-width: 900px) {
       .container {
@@ -308,13 +305,16 @@
     body.modal-open{
       overflow: hidden;
     }
-
+    #semesterList {
+      list-style: none;
+      padding-left: 0;
+      margin: 12px 0 0 0; /* 위쪽만 12px, 나머지 0 */
+    }
     #semesterList li {
       margin: 5px 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-left: -39px;  /* 원하는 만큼 값 조절 */
     }
 
     /* 학기 리스트 카드 스타일 */
@@ -329,7 +329,7 @@
       background: #fff;
       transition: background-color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
       cursor: pointer;                   /* 카드 전체 클릭 가능 */
-      width: 100%;
+      width: 80%;
     }
 
     #semesterList .semester-item:hover {
@@ -482,7 +482,7 @@
       </div>
     </div>
 
-    <div id="modalOverlay" class="modal-overlay hidden">
+    <div id="modalOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pwTitle">>
       <div class="modal-wrapper">
         <div class="modal">
           <p>비밀번호를 입력하세요</p>
@@ -669,11 +669,14 @@
     usedColors.push(color);
     return color;
   }
-  //
-  // "2025년 2학기" -> "20252"
+
+
   function toSemesterCode(semText){
-    return semText.replace("년 ","").replace("학기","").replace(" ","");
+    // "2025년 2학기" → "20252"
+    const m = String(semText).match(/(\d{4})\D*(1|2)\D*학기?/);
+    return m ? `${m[1]}${m[2]}` : semText.replace(/\D/g,''); // 백업: 숫자만
   }
+
 
   // 작은 대기 유틸
   function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
@@ -1209,10 +1212,7 @@
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({
-        timetableId: currentTimetableId,
-        userId: UserId
-      })
+      body: JSON.stringify(UserId)
     })
             .then(res => {
               if (!res.ok) throw new Error("시간표 조회 실패");
@@ -1706,7 +1706,7 @@
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ timetableId, userId: UserId })
+        body: JSON.stringify(UserId)
       });
       if (!tcRes.ok) throw new Error('대표 시간표 상세를 불러오지 못했습니다.');
       const scheduleData = await tcRes.json();
@@ -1772,7 +1772,7 @@
         'Authorization': `Bearer ${token}`
       },
       // 백엔드가 userId를 쓸 수도 있으니 함께 전달(무시돼도 무방)
-      body: JSON.stringify({ timetableId, userId: UserId })
+      body: JSON.stringify(UserId)
     });
     if (!tcRes.ok) return;
     const rows = await tcRes.json();
@@ -1991,7 +1991,7 @@
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ timetableId })
+        body: JSON.stringify(timetableId)
       });
 
       const txt = await res.text();

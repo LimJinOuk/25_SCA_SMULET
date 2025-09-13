@@ -1,5 +1,6 @@
 package com.jinouk.smulet.domain.SQLQuery.controller;
 
+import com.jinouk.smulet.domain.SQLQuery.dto.addTCDTO;
 import com.jinouk.smulet.domain.SQLQuery.dto.getTimeTableDTO;
 import com.jinouk.smulet.domain.SQLQuery.service.*;
 import com.jinouk.smulet.domain.SQLQuery.dto.getTS2TEDTO;
@@ -77,11 +78,10 @@ public class sqlcontroller {
     }
 
     @PostMapping("/addTC")
-    public ResponseEntity<?> setTimetableTC(@RequestParam("timetableId") int timetableId,
-                                            @RequestParam("classIds[]") List<Integer> courseIds) {
+    public ResponseEntity<?> setTimetableTC(@RequestBody addTCDTO timetableDTO) {
         Map<String , String> map = new HashMap<>();
         try{
-            settimetablecourseservice.settimetableCourse(timetableId , courseIds);
+            settimetablecourseservice.settimetableCourse(timetableDTO.getTimetableId(), timetableDTO.getCourseIds());
 
         }
         catch (Exception e) {

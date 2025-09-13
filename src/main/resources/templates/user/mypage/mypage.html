@@ -1602,12 +1602,17 @@
 
       // 서버가 FormData만 받는 경우:
       const fd = new FormData();
-      fd.append('timeTableId', currentTimetableId);
       classIds.forEach(id => fd.append('classIds[]', id));
       const res = await fetch('/addTC', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: fd
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          timetableId: Number(currentTimetableId),
+          courseIds: classIds.map(Number)   // ← DTO의 getCourseIds()에 맞춤
+        })
       });
 
       const txt = await res.text();
@@ -1849,7 +1854,7 @@
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({scheduleIds: scheduleIdsOrCourseIds})   // DTO에 맞게 전달
+        body: JSON.stringify({scheduleIdsOrCourseIds})   // DTO에 맞게 전달
       });
 
       if (!res.ok) throw new Error("대표 시간표 조회 실패");

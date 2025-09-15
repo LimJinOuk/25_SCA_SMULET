@@ -1889,13 +1889,13 @@
       const classroom = item.classroom || "";
       console.log("classroom: ", classroom);
 
-      const dayIdx = item.scheduleDay - 1;
+      const dayIdx = item.day - 1;
       console.log("dayIdx: ", dayIdx);
       if (dayIdx < 0 || dayIdx > 4) return;
 
-      const pStart = Number(item.timeStart);
+      const pStart = Number(item.time_start);
       console.log("timeStart: ", pStart);
-      const pEnd   = Number(item.timeEnd);
+      const pEnd   = Number(item.time_end);
       console.log("timeEnd: ", pEnd);
 
       for (let p = pStart; p <= pEnd; p++) {

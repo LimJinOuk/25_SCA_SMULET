@@ -116,6 +116,6 @@ public class sqlcontroller {
 
     @PostMapping("/getTS2TE")
     public ResponseEntity<List<schedule_of_course>> getTimesByIds(@RequestBody getTS2TEDTO request) {
-        return ResponseEntity.ok(TS2TE.getTimesByIds(request.getScheduleIds()));
+        return ResponseEntity.ok(TS2TE.getTimesByIds(request.getGetScheduleIds()));
     }
 }

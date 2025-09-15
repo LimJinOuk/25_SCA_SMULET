@@ -24,4 +24,7 @@ public class schedule_of_course {
 
     @Column
     private int time_end;
+
+    @Column
+    private int day;
 }

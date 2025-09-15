@@ -15,7 +15,10 @@ public class getCourseTS2TE {
     private final getTS2TE repository;
 
     public List<schedule_of_course> getTimesByIds(List<Integer> ids) {
-        if (ids == null || ids.isEmpty()) return Collections.emptyList();
+        if (ids == null || ids.isEmpty()){
+            System.out.println("ids is null or empty");
+            return Collections.emptyList();
+        }
         return repository.findTimesByIds(ids);
     }
 }

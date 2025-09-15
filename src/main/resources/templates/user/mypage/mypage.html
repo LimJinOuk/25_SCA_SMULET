@@ -1838,8 +1838,8 @@
   }
 
 
-  async function loadRepresentativeSchedule(scheduleIdsOrCourseIds) {
-    console.log("hi");
+  async function loadRepresentativeSchedule(getScheduleIds) {
+    console.log(getScheduleIds);
     const token = localStorage.getItem("jwtToken");
     if (!token) {
       alert("로그인이 필요합니다.");
@@ -1854,7 +1854,7 @@
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({scheduleIdsOrCourseIds})   // DTO에 맞게 전달
+        body: JSON.stringify({getScheduleIds})
       });
 
       if (!res.ok) throw new Error("대표 시간표 조회 실패");
@@ -1871,6 +1871,7 @@
     }
   }
   function renderRepresentativeSchedule(scheduleData) {
+    console.log("대표시간표 데이터:", scheduleData);
     const container = document.getElementById("representativeScheduleContainer");
     container.innerHTML = generateEmptyScheduleTable()
             .replace('id="scheduleTable"', 'id="repScheduleTable"');
@@ -1882,14 +1883,20 @@
 
     scheduleData.forEach(item => {
       const subject   = item.courseName || "";
+      console.log("subject: ", subject);
       const professor = item.professorName || "";
+      console.log("professeor: ", professor);
       const classroom = item.classroom || "";
+      console.log("classroom: ", classroom);
 
       const dayIdx = item.scheduleDay - 1;
+      console.log("dayIdx: ", dayIdx);
       if (dayIdx < 0 || dayIdx > 4) return;
 
       const pStart = Number(item.timeStart);
-      const pEnd   = Number(item.timeEnd ?? pStart);
+      console.log("timeStart: ", pStart);
+      const pEnd   = Number(item.timeEnd);
+      console.log("timeEnd: ", pEnd);
 
       for (let p = pStart; p <= pEnd; p++) {
         const row = table.rows[p + 1]; // 0행 = 요일 헤더

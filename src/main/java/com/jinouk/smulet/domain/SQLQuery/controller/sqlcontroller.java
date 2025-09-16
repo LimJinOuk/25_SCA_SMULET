@@ -2,9 +2,9 @@ package com.jinouk.smulet.domain.SQLQuery.controller;
 
 import com.jinouk.smulet.domain.SQLQuery.dto.addTCDTO;
 import com.jinouk.smulet.domain.SQLQuery.dto.getTimeTableDTO;
+import com.jinouk.smulet.domain.SQLQuery.repository.ScheduleCourseRow;
 import com.jinouk.smulet.domain.SQLQuery.service.*;
 import com.jinouk.smulet.domain.SQLQuery.dto.getTS2TEDTO;
-import com.jinouk.smulet.domain.SQLQuery.entity.schedule_of_course;
 import com.jinouk.smulet.domain.homecontrol.entity.user;
 import com.jinouk.smulet.domain.homecontrol.repository.loginrepository;
 import lombok.RequiredArgsConstructor;
@@ -115,7 +115,7 @@ public class sqlcontroller {
     }
 
     @PostMapping("/getTS2TE")
-    public ResponseEntity<List<schedule_of_course>> getTimesByIds(@RequestBody getTS2TEDTO request) {
+    public ResponseEntity<List<ScheduleCourseRow>> getTimesByIds(@RequestBody getTS2TEDTO request) {
         return ResponseEntity.ok(TS2TE.getTimesByIds(request.getGetScheduleIds()));
     }
 }

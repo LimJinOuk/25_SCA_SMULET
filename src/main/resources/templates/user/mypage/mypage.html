@@ -655,6 +655,13 @@
   let currentSemesterCode = null;  // 현재 모달에서 편집 중인 학기 코드
   let currentTimetableId = null;   // 현재 모달의 timetableId
 
+
+  // 미리보기로 임시 추가한 요소들을 추적
+  const previewSession = {
+    zeroAdded: false,        // 미리보기 중 0교시를 추가했는가
+    extendedTo: null         // 미리보기로 확장한 최댓 교시(숫자)
+  };
+
   /***********************
    * 공통 유틸
    ***********************/
@@ -1255,21 +1262,31 @@
     const table = document.getElementById('scheduleTable');
     if (!table || !Array.isArray(items)) return;
 
+    // 0교시 필요 시 추가 (데이터에 실제 0교시가 있을 때만)
+    const needsZero = items.some(it =>
+            Number((it.timeStart ?? it.periodStart ?? it.period)) === 0 ||
+            Number((it.timeEnd   ?? it.periodEnd)) === 0
+    );
+    if (needsZero && !hasZeroPeriod(table)) prependZeroPeriodRow(table);
+
+    // 아래로 확장
+    let neededMax = 9;
+    items.forEach(item => {
+      const pEnd = Number(item.timeEnd ?? item.periodEnd ?? item.period ?? item.timeStart ?? 9);
+      if (Number.isFinite(pEnd)) neededMax = Math.max(neededMax, pEnd);
+    });
+    ensureTableMaxPeriod(table, neededMax);
+
     const DAYS = ['월','화','수','목','금'];
 
-    // 색상 중복 초기화(선택)
-    // usedColors = [];
-
+    // 채우기
     items.forEach(item => {
-      // 필드 유연 매핑
       const courseName = item.courseName ?? item.subject ?? item.name ?? '';
       const professor  = item.professorName ?? item.professor ?? '';
       const classroom  = item.classroom ?? item.room ?? '';
       const courseId   = item.identifyNumberOfCourse ?? item.courseId ?? item.subjectCode ?? '';
-      // 서버가 저장한 "수업 행 PK" (addTC에 보냈던 값과 매칭)
       const classPk    = item.timeTableId ?? item.classId ?? item.id ?? '';
 
-      // 요일: '월/화/…' 또는 숫자(1~5)
       let dayIdx = -1;
       if (item.day != null) {
         dayIdx = (typeof item.day === 'string') ? DAYS.indexOf(item.day) : (Number(item.day) - 1);
@@ -1278,28 +1295,18 @@
       }
       if (dayIdx < 0) return;
 
-      // 교시 범위
-      const pStart = (item.period != null) ? Number(item.period)
-              : (item.timeStart != null) ? Number(item.timeStart)
-                      : (item.periodStart != null) ? Number(item.periodStart)
-                              : null;
-      const pEnd   = (item.timeEnd != null) ? Number(item.timeEnd)
-              : (item.periodEnd != null) ? Number(item.periodEnd)
-                      : pStart;
-
-      if (pStart == null) return;
+      const pStart = Number(item.period ?? item.timeStart ?? item.periodStart);
+      const pEnd   = Number(item.timeEnd ?? item.periodEnd ?? item.period ?? item.timeStart);
+      if (!Number.isFinite(pStart) || !Number.isFinite(pEnd)) return;
 
       const bg = getRandomColorNoDuplicate();
       for (let p = pStart; p <= pEnd; p++) {
-        const row = table.rows[p + 1];           // 헤더 보정
-        if (!row) continue;
-        const cell = row.cells[dayIdx + 1];
+        const cell = getCell(table, dayIdx, p);
         if (!cell) continue;
 
         cell.innerHTML = classroom
                 ? `${courseName}<br>(${classroom})`
                 : `${courseName}${professor ? `<br>(${professor})` : ''}`;
-
         cell.style.backgroundColor = bg;
         if (courseId) cell.setAttribute('data-course-id', courseId);
         if (classPk)  cell.setAttribute('data-class-id', classPk);
@@ -1307,8 +1314,13 @@
       }
     });
 
-    attachCellEvents(); // 툴팁/호버 다시 연결
+    attachCellEvents();
   }
+
+
+
+
+
   /***********************
    * 수업 리스트/선택/미리보기
    ***********************/
@@ -1413,10 +1425,28 @@
     const table = document.getElementById('scheduleTable');
     if (!table) return;
 
+    // 0교시 필요 시 위에 추가
+    const needsZero = courseEntries.some(e => Number(e.timeStart) === 0 || Number(e.timeEnd) === 0);
+    if (needsZero && !hasZeroPeriod(table)) {
+      prependZeroPeriodRow(table);
+      previewSession.zeroAdded = true;
+    }
+
+    // 아래로 확장
+    let neededMax = 9;
+    courseEntries.forEach(e => { neededMax = Math.max(neededMax, Number(e.timeEnd)); });
+    const beforeMax = getCurrentMaxPeriod(table);
+    if (neededMax > beforeMax) {
+      ensureTableMaxPeriod(table, neededMax);
+      previewSession.extendedTo = neededMax;
+    }
+
+    // 미리보기 채우기
     courseEntries.forEach(entry => {
       const dayIndex = entry.scheduleDay - 1;
       for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
-        const cell = table.rows[p + 1].cells[dayIndex + 1];
+        const cell = getCell(table, dayIndex, p);
+        if (!cell) continue;
         if (!cell.getAttribute('data-course-id')) {
           cell.style.backgroundColor = '#d0ebff';
           cell.innerHTML = `${entry.courseName}<br>(${entry.classroom})`;
@@ -1429,22 +1459,62 @@
   function removePreviewFromSchedule() {
     const table = document.getElementById('scheduleTable');
     if (!table) return;
+
+    // 미리보기 셀 지우기
     const cells = table.querySelectorAll('td[data-preview="true"]');
     cells.forEach(cell => {
       cell.innerHTML = '';
       cell.style.backgroundColor = '';
       cell.removeAttribute('data-preview');
     });
+
+    // 아래쪽 확장 원복: 영구 배치된 수업의 최댓 교시를 기준으로 수축
+    if (previewSession.extendedTo != null) {
+      const permanentMax = getPermanentMaxPeriod(table); // 최소 9 유지
+      shrinkTableTo(table, permanentMax);
+      previewSession.extendedTo = null;
+    }
+
+    // 0교시 원복: 미리보기로만 추가했고, 0교시에 영구 배치가 없다면 제거
+    if (previewSession.zeroAdded) {
+      if (hasZeroPeriod(table) && isZeroRowEmpty(table)) {
+        const zeroTr = table.querySelector('td[data-period="0"]')?.parentElement;
+        if (zeroTr) zeroTr.remove();
+      }
+      previewSession.zeroAdded = false;
+    }
   }
+
+
+  // 문자열 "10", "10교시" 등도 안전하게 숫자로
+  function toPeriodNumber(v, fallback = null) {
+    if (v == null) return fallback;
+    if (typeof v === 'number' && Number.isFinite(v)) return v;
+    const m = String(v).match(/\d+/);
+    if (!m) return fallback;
+    const n = parseInt(m[0], 10);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
+
+
 
   function isCoursePermanentlyAdded(courseEntries) {
     const table = document.getElementById('scheduleTable');
+    if (!table || !courseEntries?.length) return false;
+
     const courseId = courseEntries[0].identifyNumberOfCourse;
 
-    for (let entry of courseEntries) {
-      const dayIndex = entry.scheduleDay - 1;
-      for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
-        const cell = table.rows[p + 1].cells[dayIndex + 1];
+    for (const entry of courseEntries) {
+      const dayIndex = toPeriodNumber(entry.scheduleDay, 0) - 1;
+      const start = toPeriodNumber(entry.timeStart ?? entry.periodStart, null);
+      const end   = toPeriodNumber(entry.timeEnd   ?? entry.periodEnd ?? entry.timeStart, null);
+
+      if (dayIndex < 0 || start == null || end == null) continue;
+
+      for (let p = start; p <= end; p++) {
+        const cell = getCell(table, dayIndex, p); // ← 안전 접근
+        if (!cell) continue;
         if (cell.getAttribute('data-course-id') === courseId) {
           return true;
         }
@@ -1461,12 +1531,13 @@
     const courseName = entries[0].courseName;
     const classroom = entries[0].classroom;
 
-    // 이미 등록되어 있으면 토글 삭제
+    // 토글 삭제
     if (isCoursePermanentlyAdded(entries)) {
       entries.forEach(entry => {
         const dayIndex = entry.scheduleDay - 1;
         for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
-          const cell = table.rows[p + 1].cells[dayIndex + 1];
+          const cell = getCell(table, dayIndex, p);
+          if (!cell) continue;
           if (cell.getAttribute('data-course-id') === courseId) {
             cell.innerHTML = '';
             cell.style.backgroundColor = '';
@@ -1476,14 +1547,24 @@
           }
         }
       });
+      normalizeTableAfterMutation(table);
       return;
     }
 
-    // 시간 충돌 체크
+    // 0교시 필요 여부 & 확장
+    const needsZero = entries.some(e => Number(e.timeStart) === 0 || Number(e.timeEnd) === 0);
+    if (needsZero) prependZeroPeriodRow(table);
+
+    let neededMax = 9;
+    entries.forEach(e => { neededMax = Math.max(neededMax, Number(e.timeEnd)); });
+    ensureTableMaxPeriod(table, neededMax);
+
+    // 충돌 체크
     for (let entry of entries) {
       const dayIndex = entry.scheduleDay - 1;
       for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
-        const cell = table.rows[p + 1].cells[dayIndex + 1];
+        const cell = getCell(table, dayIndex, p);
+        if (!cell) continue;
         const existingId = cell.getAttribute('data-course-id');
         if (existingId && existingId !== courseId) {
           alert("해당 시간에 이미 다른 수업이 있습니다!");
@@ -1497,17 +1578,22 @@
     entries.forEach(entry => {
       const dayIndex = entry.scheduleDay - 1;
       for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
-        const cell = table.rows[p + 1].cells[dayIndex + 1];
+        const cell = getCell(table, dayIndex, p);
+        if (!cell) continue;
         cell.innerHTML = `${courseName}<br>(${classroom})`;
         cell.style.backgroundColor = bg;
         cell.setAttribute('data-course-id', entry.identifyNumberOfCourse);
-        cell.setAttribute('data-class-id', entry.timeTableId); // ← addTC에 보낼 "수업 PK"
+        cell.setAttribute('data-class-id', entry.timeTableId);
         cell.removeAttribute('data-preview');
       }
     });
 
     attachCellEvents();
   }
+
+
+
+
 
   /***********************
    * 툴팁
@@ -1628,7 +1714,8 @@
   /***********************
    * 테이블 렌더
    ***********************/
-  function generateEmptyScheduleTable() {
+// ✅ 1~9교시만 생성 (대표/모달 공용)
+  function generateEmptyScheduleTable(maxPeriod = 9) {
     const days = ['월', '화', '수', '목', '금'];
     let html = '<table id="scheduleTable" style="width:100%; border-collapse: collapse;">';
 
@@ -1638,25 +1725,159 @@
     });
     html += '</tr>';
 
-    let startHour = 8;
-    let endHour = 9;
-    for (let period = 0; period <= 15; period++) {
-      const timeStr = startHour <= 12 ? `${startHour}시` : `${startHour - 12}시`;
-      const endtime = endHour <= 12 ? `${endHour}시` : `${endHour - 12}시`;
-      html += `<tr><td style="border: 1px solid #ddd; padding: 8px; background:#e3e3fd; font-weight:bold;">${period}교시<br>(${timeStr}~${endtime})</td>`;
+    // ★ 1교시부터 시작
+    for (let period = 1; period <= maxPeriod; period++) {
+      const startHour = 8 + period;
+      const endHour   = 9 + period;
+      const timeStr   = startHour <= 12 ? `${startHour}시` : `${startHour - 12}시`;
+      const endtime   = endHour   <= 12 ? `${endHour}시`   : `${endHour - 12}시`;
+
+      html += `<tr>
+      <td style="border: 1px solid #ddd; padding: 8px; background:#e3e3fd; font-weight:bold;">
+        ${period}교시<br>(${timeStr}~${endtime})
+      </td>`;
 
       days.forEach(() => {
         html += `<td style="border: 1px solid #ddd; padding: 8px;" data-period="${period}"></td>`;
       });
 
       html += '</tr>';
-      startHour++;
-      endHour++;
     }
 
     html += '</table>';
     return html;
   }
+
+
+
+  // 영구 배치된(= data-course-id 존재) 셀이 있는 최댓 교시를 기준으로 표를 정리
+  function normalizeTableAfterMutation(table) {
+    if (!table) return;
+
+    // 1) 아래쪽 꼬리 행 정리: 영구 수업의 최댓 교시까지만 유지 (최소 9교시)
+    const targetMax = getPermanentMaxPeriod(table); // 내부에서 Math.max(9, …) 처리
+    shrinkTableTo(table, targetMax);
+
+    // 2) 0교시 행 정리: 0교시에 영구 수업이 하나도 없으면 0교시 행 제거
+    if (hasZeroPeriod(table) && isZeroRowEmpty(table)) {
+      const zeroTr = table.querySelector('td[data-period="0"]')?.parentElement;
+      if (zeroTr) zeroTr.remove();
+    }
+  }
+
+
+  // 현재 테이블에 0교시 행이 있는가?
+  function hasZeroPeriod(table) {
+    return !!table.querySelector('td[data-period="0"]');
+  }
+
+  // 현재 테이블이 가진 최댓 교시 (data-period 스캔)
+  function getCurrentMaxPeriod(table) {
+    let max = 1;
+    table.querySelectorAll('td[data-period]').forEach(td => {
+      const p = Number(td.getAttribute('data-period'));
+      if (Number.isFinite(p)) max = Math.max(max, p);
+    });
+    return max;
+  }
+
+
+  // 영구 배치된(저장 대상) 셀이 존재하는 최댓 교시
+  function getPermanentMaxPeriod(table) {
+    let max = 1;
+    table.querySelectorAll('td[data-period]').forEach(td => {
+      if (td.getAttribute('data-course-id')) {
+        const p = Number(td.getAttribute('data-period'));
+        if (Number.isFinite(p)) max = Math.max(max, p);
+      }
+    });
+    return Math.max(9, max); // 기본 1~9는 유지
+  }
+
+  // 0교시 행 비어있는지(영구 배치 여부 기준)
+  function isZeroRowEmpty(table) {
+    const row = table.querySelector('td[data-period="0"]')?.parentElement;
+    if (!row) return true;
+    // 요일 칸들만 검사(0번째는 라벨)
+    for (let i = 1; i < row.cells.length; i++) {
+      if (row.cells[i].getAttribute('data-course-id')) return false;
+    }
+    return true;
+  }
+
+  function makeTimeLabelTd(period) {
+    const td = document.createElement('td');
+    td.style.cssText = 'border:1px solid #ddd; padding:8px; background:#e3e3fd; font-weight:bold;';
+    const startHour = 8 + period;
+    const endHour   = 9 + period;
+    const timeStr   = startHour <= 12 ? `${startHour}시` : `${startHour - 12}시`;
+    const endtime   = endHour   <= 12 ? `${endHour}시`   : `${endHour - 12}시`;
+    td.innerHTML = `${period}교시<br>(${timeStr}~${endtime})`;
+    return td;
+  }
+
+
+  // 아래쪽에 교시 행 추가
+  function appendPeriodRow(table, period) {
+    const tr = document.createElement('tr');
+    tr.appendChild(makeTimeLabelTd(period));
+    for (let i = 0; i < 5; i++) {
+      const td = document.createElement('td');
+      td.style.cssText = 'border:1px solid #ddd; padding:8px;';
+      td.setAttribute('data-period', String(period));
+      tr.appendChild(td);
+    }
+    (table.tBodies[0] || table).appendChild(tr);
+  }
+
+
+  // 헤더 바로 아래에 0교시 추가
+  function prependZeroPeriodRow(table) {
+    if (hasZeroPeriod(table)) return;
+    const tr = document.createElement('tr');
+    tr.appendChild(makeTimeLabelTd(0));
+    for (let i = 0; i < 5; i++) {
+      const td = document.createElement('td');
+      td.style.cssText = 'border:1px solid #ddd; padding:8px;';
+      td.setAttribute('data-period', '0');
+      tr.appendChild(td);
+    }
+    const tbody = table.tBodies[0] || table;
+    const headerNextRow = table.rows[1] || null;
+    tbody.insertBefore(tr, headerNextRow);
+  }
+
+
+  function ensureTableMaxPeriod(table, neededMax) {
+    let curMax = getCurrentMaxPeriod(table); // data-period 기준
+    if (neededMax > curMax) {
+      for (let p = curMax + 1; p <= neededMax; p++) {
+        appendPeriodRow(table, p);
+      }
+    }
+  }
+
+
+
+  // 아래에서 행 줄이기 (targetMax까지 남기고 제거)
+  function shrinkTableTo(table, targetMax) {
+    let curMax = getCurrentMaxPeriod(table);
+    while (curMax > targetMax) {
+      // 마지막 period 행 삭제
+      const lastTd = table.querySelector(`td[data-period="${curMax}"]`);
+      const tr = lastTd ? lastTd.parentElement : null;
+      if (!tr) break;
+      tr.remove();
+      curMax--;
+    }
+  }
+
+  function getCell(table, dayIdx, period) {
+    const tr = table.querySelector(`td[data-period="${period}"]`)?.parentElement;
+    if (!tr) return null;
+    return tr.cells[dayIdx + 1] || null;
+  }
+
 
   // ✅ 파일에 이 버전 하나만 유지하세요 (중복 선언 제거!)
   function isTruthyTag(tag) {
@@ -1682,9 +1903,7 @@
             )
     ) || [];
   }
-
-  /* ---------- 헬퍼들 ---------- */
-
+/*
   // 응답 맵에서 첫 번째 배열 값을 찾아 반환
   function findFirstArrayInMap(obj) {
     if (!obj || typeof obj !== 'object') return [];
@@ -1693,6 +1912,7 @@
     }
     return [];
   }
+ */
 
   // "20252" -> "2025년 2학기"
   function toSemesterName(termCode) {
@@ -1716,9 +1936,6 @@
     }
   }
 
-
-  // 페이지 진입 시 자동 실행
-  // window.addEventListener('DOMContentLoaded', loadRepresentativeScheduleOnInit);
 
   async function hydrateSemestersFromServer() {
     const token = localStorage.getItem('jwtToken');
@@ -1870,47 +2087,87 @@
       alert("대표 시간표 로딩 중 오류 발생: " + err.message);
     }
   }
+
+
+
   function renderRepresentativeSchedule(scheduleData) {
     console.log("대표시간표 데이터:", scheduleData);
+    if (typeof window.colorMap === 'undefined') window.colorMap = {};
+    if (typeof window.usedColors === 'undefined') window.usedColors = [];
+
     const container = document.getElementById("representativeScheduleContainer");
-    container.innerHTML = generateEmptyScheduleTable()
+    container.innerHTML = generateEmptyScheduleTable(9)
             .replace('id="scheduleTable"', 'id="repScheduleTable"');
 
     const table = container.querySelector("#repScheduleTable");
     if (!table) return;
 
-    const DAYS = ['월','화','수','목','금'];
+    // 필요시 0교시 추가
+    const needsZero = Array.isArray(scheduleData) && scheduleData.some(it =>
+            Number(it.time_start) === 0 || Number(it.time_end) === 0
+    );
+    if (needsZero) prependZeroPeriodRow(table);
 
+    // 아래로 확장
+    const toInt = (v) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    };
+
+// 대표 시간표에서
+    const neededMax = Array.isArray(scheduleData) && scheduleData.length
+            ? scheduleData.reduce((max, it) => {
+              // 모든 가능 키 커버
+              const end = toInt(it.time_end ?? it.timeEnd ?? it.periodEnd ?? it.time_start ?? it.timeStart ?? it.period);
+              return end != null ? Math.max(max, end) : max;
+            }, 9)
+            : 9;
+
+    ensureTableMaxPeriod(table, neededMax);
+
+    // 채우기
     scheduleData.forEach(item => {
-      const subject   = item.courseName || "";
-      console.log("subject: ", subject);
-      const professor = item.professorName || "";
-      console.log("professeor: ", professor);
-      const classroom = item.classroom || "";
-      console.log("classroom: ", classroom);
-
-      const dayIdx = item.scheduleDay - 1;
-      console.log("dayIdx: ", dayIdx);
+      const subject    = item.courseName || "";
+      const professor  = item.professorName || "";
+      const classroom  = item.classroom || "";
+      const courseCode = item.identify_number_of_course || item.courseCode || "";
+      const dayIdx     = (Number(item.day) || 0) - 1;
       if (dayIdx < 0 || dayIdx > 4) return;
 
-      const pStart = Number(item.timeStart);
-      console.log("timeStart: ", pStart);
-      const pEnd   = Number(item.timeEnd);
-      console.log("timeEnd: ", pEnd);
+      const pStart = Number(item.time_start);
+      const pEnd   = Number(item.time_end);
+      if (!Number.isFinite(pStart) || !Number.isFinite(pEnd)) return;
+
+      const key = courseCode || subject;
+      if (!window.colorMap[key]) window.colorMap[key] = getRandomColorNoDuplicate();
+      const bgColor = window.colorMap[key];
 
       for (let p = pStart; p <= pEnd; p++) {
-        const row = table.rows[p + 1]; // 0행 = 요일 헤더
-        if (!row) continue;
-
-        const cell = row.cells[dayIdx + 1];
+        const cell = getCell(table, dayIdx, p);
         if (!cell) continue;
-
         cell.innerHTML = `${subject}<br>${professor}<br>${classroom}`;
-        cell.style.backgroundColor = "#e0f7fa";
+        cell.style.backgroundColor = bgColor;
         cell.style.border = "1px solid #90caf9";
+
+        const courseInfo = {
+          courseName: subject,
+          professorName: professor,
+          classroom: classroom,
+          majorOrCulture: item.majorOrCulture ?? item.isMajor ?? null,
+          credit: item.credit ?? "-",
+          scheduleDay: Number(item.day),
+          timeStart: pStart,
+          timeEnd: pEnd,
+          identifyNumberOfCourse: courseCode || "-"
+        };
+        cell.onmouseenter = () => showCourseTooltip(cell, courseInfo);
+        cell.onmouseleave = () => hideCourseTooltip();
       }
     });
   }
+
+
+
 
 
   // ✅ 시간표 ID (부모)
@@ -2026,13 +2283,6 @@
             rows.map(getCourseId).filter(v => v != null && String(v).trim() !== '')
     ));
     console.log('[rep] 추출된 courseIds:', courseIds);
-/*
-    if (scheduleIds.length === 0) {
-      document.getElementById('representativeScheduleContainer').innerHTML =
-              `<p style="color:#888;">대표 시간표에 저장된 수업이 없습니다.</p>`;
-      return;
-    }
-*/
     // 4) /getTS2TE 호출 → 렌더
     await loadRepresentativeSchedule(courseIds);
   }

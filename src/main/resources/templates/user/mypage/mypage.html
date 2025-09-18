@@ -738,34 +738,19 @@
         <div class="sidebar">
             <!-- BOX1 -->
             <div class="box box1">
-                <div class="section">
-                    <h2 class="card-title"><span class="icon">👤</span> 내 정보</h2>
-                    <dl class="desc-list">
-                        <div>
-                            <dt>이름</dt>
-                            <dd><span id="userName"></span></dd>
-                        </div>
-                        <div>
-                            <dt>이메일</dt>
-                            <dd><span id="studentId"></span></dd>
-                        </div>
-                        <div>
-                            <dt>학과</dt>
-                            <dd><span id="userMajor">컴퓨터과학과</span></dd>
-                        </div>
-                    </dl>
-                    <div class="section">
-                        <div class="section-header">
-                            <h3>🔒 회원 설정</h3>
-                            <div class="actions">
-                                <button onclick="modifinguserinfo()">비밀번호 변경</button>
-                                <button class="red" onclick="deleteAccount()">
-                                    회원탈퇴
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <h2 class="card-title"><span class="icon">📅</span> 시간표</h2>
+                <p class="subtext">시간표를 만나보세요!</p>
+
+                <!-- 드롭다운만으로 바로 학기 추가 -->
+                <div style="margin-top: 1px">
+                    <select id="semesterSelectInline" style="min-width: 220px">
+                        <option value="">학기를 선택해 추가</option>
+                        <!-- JS에서 옵션 채워짐 -->
+                    </select>
                 </div>
+
+                <ul id="semesterList" style="margin-top: 12px"></ul>
+                <!-- 시간표 모달 -->
             </div>
 
             <div
@@ -849,98 +834,59 @@
             </div>
 
             <div class="box box3">
-                <h2 class="card-title"><span class="icon">📅</span> 시간표</h2>
-                <p class="subtext">시간표를 만나보세요!</p>
-
-                <!-- 드롭다운만으로 바로 학기 추가 -->
-                <div style="margin-top: 1px">
-                    <select id="semesterSelectInline" style="min-width: 220px">
-                        <option value="">학기를 선택해 추가</option>
-                        <!-- JS에서 옵션 채워짐 -->
-                    </select>
+                <div class="section">
+                    <h2 class="card-title"><span class="icon">👤</span> 내 정보</h2>
+                    <dl class="desc-list">
+                        <div>
+                            <dt>이름</dt>
+                            <dd><span id="userName"></span></dd>
+                        </div>
+                        <div>
+                            <dt>이메일</dt>
+                            <dd><span id="studentId"></span></dd>
+                        </div>
+                        <div>
+                            <dt>학과</dt>
+                            <dd><span id="userMajor">컴퓨터과학과</span></dd>
+                        </div>
+                    </dl>
+                    <div class="section">
+                        <div class="section-header">
+                            <h3>🔒 회원 설정</h3>
+                            <div class="actions">
+                                <button onclick="modifinguserinfo()">비밀번호 변경</button>
+                                <button class="red" onclick="deleteAccount()">
+                                    회원탈퇴
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <ul id="semesterList" style="margin-top: 12px"></ul>
-                <!-- 시간표 모달 -->
             </div>
             <div id="scheduleModal" class="modal-overlay hidden">
                 <div class="modal-wrapper">
                     <div
                             class="modal"
-                            style="
-              display: flex;
-              width: 90vw;
-              max-width: 1000px;
-              max-height: 800px;
-              overflow: hidden;
-              padding: 30px;
-              gap: 20px;
-            "
-                    >
+                            style=" display: flex; width: 90vw; max-width: 1000px; max-height: 800px; overflow: hidden; padding: 30px; gap: 20px;">
                         <!-- 왼쪽: 시간표 영역 -->
                         <div style="flex: 2; overflow-y: auto">
                             <div style="text-align: right">
-                                <button
-                                        id="closeScheduleModal"
-                                        style="
-                    background: #ef4444;
-                    color: white;
-                    border: none;
-                    border-radius: 5px;
-                    padding: 6px 12px;
-                    cursor: pointer;
-                  "
-                                >
+                                <button id="closeScheduleModal" style="background: #ef4444; color: white; border: none; border-radius: 5px;padding: 6px 12px;cursor: pointer;">
                                     닫기
                                 </button>
-                                <button
-                                        id="saveSchedule"
-                                        style="
-                    background: #4466ef;
-                    color: white;
-                    border: none;
-                    border-radius: 5px;
-                    padding: 6px 12px;
-                    cursor: pointer;
-                  "
-                                >
+                                <button id="saveSchedule" style=" background: #4466ef; color: white; border: none; border-radius: 5px; padding: 6px 12px;  cursor: pointer;">
                                     저장
                                 </button>
                             </div>
-                            <h2
-                                    style="text-align: center; margin-bottom: 15px"
-                                    id="modalSemesterTitle"
-                            ></h2>
+                            <h2 style="text-align: center; margin-bottom: 15px" id="modalSemesterTitle"></h2>
                             <div id="scheduleTableContainer">
                                 <!-- 동적 시간표 -->
                             </div>
                         </div>
-
-                        <!-- 오른쪽: 수업 정보 리스트 영역 -->
-                        <!-- 오른쪽 수업 정보 리스트 + 검색창 묶기 -->
-                        <div
-                                style="
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                border-left: 1px solid #ddd;
-                padding-left: 10px;
-              "
-                        >
+                        <div style=" flex: 1; display: flex; flex-direction: column;border-left: 1px solid #ddd;padding-left: 10px; ">
                             <!-- 🔍 검색창 -->
-                            <input
-                                    type="text"
-                                    id="searchInput"
-                                    placeholder="과목명 검색"
-                                    style="
-                  width: 100%;
-                  margin-bottom: 10px;
-                  padding: 8px;
-                  border: 1px solid #ccc;
-                  border-radius: 6px;
-                "
-                                    oninput="renderCourseList(currentCourseList)"
-                            />
+                            <input type="text" id="searchInput" placeholder="과목명 검색" style=" width: 100%; margin-bottom: 10px; padding: 8px;border: 1px solid #ccc; border-radius: 6px; "
+                                    oninput="renderCourseList(currentCourseList)"/>
 
                             <!-- 📚 수업 리스트 -->
                             <div id="classInfoList" style="flex: 1; overflow-y: auto">

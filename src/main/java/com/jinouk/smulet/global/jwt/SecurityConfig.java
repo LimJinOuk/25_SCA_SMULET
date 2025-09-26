@@ -62,7 +62,11 @@ public class SecurityConfig {
                                 "/tableId_List",
                                 "/detail",
                                 "/representative_Timetable",
-                                "/getTS2TE"
+                                "/getTS2TE",
+                                "/getbsm",
+                                "/get설계",
+                                "/get전심",
+                                "/get전선"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )

@@ -30,6 +30,8 @@ public class sqlcontroller {
     private final getTimeTableService tservice;
     private final loginrepository loginrepository;
     private final getCourseTS2TE TS2TE;
+    private final getbsmservice getbsmservice;
+    private final get전심전선 get전심전선;
 
     @GetMapping("/course{userId}")
     public List<getTimeTableDTO> getcoursesByUserID(@RequestParam(required = false) Integer userId )
@@ -117,5 +119,29 @@ public class sqlcontroller {
     @PostMapping("/getTS2TE")
     public ResponseEntity<List<ScheduleCourseRow>> getTimesByIds(@RequestBody getTS2TEDTO request) {
         return ResponseEntity.ok(TS2TE.getTimesByIds(request.getGetScheduleIds()));
+    }
+
+    @PostMapping("/getbsm")
+    public ResponseEntity<?> getbsm()
+    {
+        return  ResponseEntity.ok(getbsmservice.getbsm());
+    }
+
+    @PostMapping("/get설계")
+    public ResponseEntity<?> get설계()
+    {
+        return  ResponseEntity.ok(getbsmservice.get설계());
+    }
+
+    @PostMapping("/get전심")
+    public ResponseEntity<?> get전심()
+    {
+        return  ResponseEntity.ok(get전심전선.get전심());
+    }
+
+    @PostMapping("/get전선")
+    public ResponseEntity<?> get전선()
+    {
+        return  ResponseEntity.ok(get전심전선.get전선());
     }
 }

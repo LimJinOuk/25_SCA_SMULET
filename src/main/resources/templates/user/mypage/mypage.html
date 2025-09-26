@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -9,9 +8,6 @@
             rel="stylesheet"
     />
     <style>
-        /* =========================
-     기본 설정
-    ========================= */
         body {
             margin: 0;
             padding: 0;
@@ -132,14 +128,6 @@
         }
         .section h3 {
             margin-top: 24px; /* “비밀번호 변경” 제목 위로 24px 띄움 */
-        }
-
-        .nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
         }
         .section {
             margin-bottom: 10px;
@@ -401,34 +389,6 @@
             align-items: center;
             justify-content: center;
         }
-        #scheduleTable td {
-            width: 80px;
-            max-width: 100px;
-            height: 50px;
-            min-width: 80px;
-            vertical-align: middle;
-        }
-        /* 4) 모달 내부 작은 폼 */
-        #add-icon-modal .modal {
-            background: #fff;
-            padding: 24px;
-            border-radius: 8px;
-            width: 300px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        #add-icon-modal .modal h2 {
-            margin: 0;
-            font-size: 1.2rem;
-            color: #111827;
-        }
-        #add-icon-modal .modal label {
-            display: flex;
-            flex-direction: column;
-            font-size: 0.9rem;
-        }
-
         .course-tooltip {
             animation: fadeIn 0.12s;
         }
@@ -481,47 +441,6 @@
             font-weight: 700;
             color: #007bff;
         }
-
-        #semesterLis:root {
-            --preview-bg: #d0ebff;
-            --preview-dur: 220ms;
-            --preview-ease: ease;
-        }
-        /* 미리보기 스타일 */
-        td.preview-cell {
-            background-color: var(--preview-bg);
-            transition: background-color var(--preview-dur) var(--preview-ease),
-            transform var(--preview-dur) var(--preview-ease),
-            opacity var(--preview-dur) var(--preview-ease),
-            box-shadow var(--preview-dur) var(--preview-ease);
-            position: relative;
-            opacity: 1;
-            transform: scale(1);
-            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-        }
-
-        /* 등장 애니메이션 (enter) */
-        td.preview-enter {
-            opacity: 0;
-            transform: scale(0.98);
-            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-        }
-        td.preview-enter.preview-enter-active {
-            opacity: 1;
-            transform: scale(1);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
-        }
-
-        /* 퇴장 애니메이션 (leave) */
-        td.preview-leave {
-            opacity: 1;
-            transform: scale(1);
-        }
-        td.preview-leave.preview-leave-active {
-            opacity: 0;
-            transform: scale(0.98);
-        }
-
         /* 영구 배치가 들어올 때 살짝 하이라이트 */
         td.commit-flash {
             animation: commitFlash var(--preview-dur) var(--preview-ease) 1;
@@ -546,7 +465,7 @@
             inset: 0;
             padding: 8px 10px;
             display: block;               /* 글자 레이아웃을 셀과 동일하게 */
-            background: linear-gradient(180deg, var(--preview-color, #a5d8ff) 0%, #ffffff 100%);
+            background: var(--preview-color, #a5d8ff);
             box-shadow: inset 0 0 0 2px var(--preview-color, #a5d8ff);
             border-radius: 6px;
             z-index: 5;
@@ -621,7 +540,8 @@
             background:linear-gradient(180deg,#fff 0%,#fff 60%,#fcfcfc 100%);
         }
         .row .cell:last-child{ border-right:none; }
-        .cell.busy{
+        .cell.busy,
+        .course-block.busy {
             /* JS에서 이 변수만 넣어주면 됩니다 */
             --c: var(--course-color, #a5d8ff);
 
@@ -696,13 +616,77 @@
             text-overflow: ellipsis;
             opacity: 0.9;
         }
+        /* ====== Grid-row span 기반 시간표 바디 ====== */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 120px repeat(5, 1fr); /* 시간열 + 월~금 */
+            grid-auto-rows: 60px;                        /* 교시 높이 */
+            grid-auto-flow: row dense;/* 위치 고정 보조 */
+            position: relative;                          /* 코스 블록 배치 기준 */
+            background: #fff;
+            border-top: 1px solid var(--line);
+            border-left: 1px solid var(--line);
+        }
 
+        /* 왼쪽 시간 표시 셀 */
+        .time-cell {
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            font-weight:700;
+            font-size:13px;
+            background:#fbfbfb;
+            border-bottom: 1px solid var(--line);
+            border-right: 1px solid var(--line);
+        }
+        .time-cell span { color: var(--muted); font-weight:600; }
 
+        /* 빈 자리(격자선 용) */
+        .cell-placeholder {
+            border-right:1px solid var(--line);
+            border-bottom:1px solid var(--line);
+            position: relative;
+        }
 
+        /* 실제 ‘하나로 합쳐진’ 과목 박스 */
+        .course-block {
+            border-radius: 10px;
+            border: 2px solid rgba(0,0,0,.12);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 3px 10px rgba(0,0,0,.08);
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 10px;
+            text-align: center;
+            overflow: hidden;
+        }
 
+        /* 블록 내부 텍스트(기존 템플릿과 톤 맞춤) */
+        .course-block .slot{ line-height:1.3; }
+        .course-block .slot-title{
+            font-size:13px; font-weight:800;
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        }
+        .course-block .slot-room{ margin-top:2px; font-size:12px; font-weight:600; opacity:.9; color: var(--muted); }
+        /* 미리보기 merged block (연강 1박스) */
+        .preview-block {
+            border-radius: 10px;
+            border: 2px dashed rgba(0,0,0,.18);
+            background: var(--preview-color, rgba(99,179,237,0.25));
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 10px;
+            text-align: center;
+            pointer-events: none;     /* 클릭 막기 */
+            z-index: 9;
+        }
     </style>
 </head>
-<body onload="loaduserinfo()">
+<body>
 <header>
     <h1><a href="/">SMULET</a></h1>
     <nav>
@@ -886,7 +870,7 @@
                         <div style=" flex: 1; display: flex; flex-direction: column;border-left: 1px solid #ddd;padding-left: 10px; ">
                             <!-- 🔍 검색창 -->
                             <input type="text" id="searchInput" placeholder="과목명 검색" style=" width: 100%; margin-bottom: 10px; padding: 8px;border: 1px solid #ccc; border-radius: 6px; "
-                                    oninput="renderCourseList(currentCourseList)"/>
+                                   oninput="renderCourseList(currentCourseList)"/>
 
                             <!-- 📚 수업 리스트 -->
                             <div id="classInfoList" style="flex: 1; overflow-y: auto">
@@ -1016,7 +1000,8 @@
         zeroAdded: false, // 미리보기 중 0교시를 추가했는가
         extendedTo: null, // 미리보기로 확장한 최댓 교시(숫자)
     };
-    const PERIOD_SELECTOR = '.cell[data-period]';
+
+    const PERIOD_SELECTOR = '.cell[data-period], .cell-placeholder[data-period]';
 
     /***********************
      * 공통 유틸
@@ -1449,50 +1434,6 @@
             });
     }
 
-    /***********************
-     * 학기 추가/리스트/모달
-     ***********************/
-    function showAddSemester() {
-        const addList = document.getElementById('addSemesterList');
-        const select = document.getElementById('semesterSelect');
-
-        select.innerHTML = '';
-        semesterOptions.forEach((sem) => {
-            if (!selectedSemesters.includes(sem)) {
-                const option = document.createElement('option');
-                option.value = sem;
-                option.textContent = sem;
-                select.appendChild(option);
-            }
-        });
-
-        addList.classList.toggle('hidden');
-    }
-
-    async function addSemester() {
-        const select = document.getElementById('semesterSelect');
-        const selected = select.value;
-        if (!selected) return;
-
-        const semesterCode = toSemesterCode(selected);
-
-        try {
-            // 1) 서버에 빈 시간표 생성
-            const tid = await createTimetableOnServer(semesterCode);
-
-            // 2) 로컬 상태 업데이트
-            timetableIdsBySemester[semesterCode] = tid;
-            if (!selectedSemesters.includes(selected))
-                selectedSemesters.push(selected);
-
-            renderSemesterList();
-            document.getElementById('addSemesterList').classList.add('hidden');
-        } catch (err) {
-            console.error(err);
-            alert(`시간표 생성 중 오류: ${err.message}`);
-        }
-    }
-
     function renderSemesterList() {
         const list = document.getElementById('semesterList');
         list.innerHTML = '';
@@ -1592,7 +1533,28 @@
         };
 
         title.textContent = semester;
-        container.innerHTML = generateEmptyScheduleTable();
+        // ✅ 교체 (모달 열 때 표 생성)
+        container.innerHTML = generateModalGridSpanTable();
+
+
+        const modalGrid = document.getElementById('modalGridSpanBody');
+
+        if (modalGrid) {
+            modalGrid.style.display = 'grid';            // 혹시 모를 상위 스타일 무력화
+            modalGrid.style.gridAutoFlow = 'row dense';  // 위→아래, 빈칸 메우기
+            modalGrid.style.alignContent = 'start';      // 컨텐츠를 상단부터 채우기
+            modalGrid.style.justifyContent = 'stretch';  // 가로는 꽉 채우기
+            modalGrid.style.gridAutoRows = '52px';       // 각 행 고정 높이(원하는 값으로)
+        }
+        if (modalGrid && !modalGrid.__previewClearBound) {
+            modalGrid.addEventListener('click', () => {
+                // 🔹 빈 공간/셀/블록 어디든 클릭하면 프리뷰만 지움(영구 블록은 유지)
+                removePreviewFromSchedule();
+            });
+            modalGrid.__previewClearBound = true; // 중복 바인딩 방지 플래그
+        }
+
+
         listContainer.innerHTML = '<p>수업 정보를 불러오는 중입니다...</p>';
         modal.classList.remove('hidden');
         document.body.classList.add('modal-open');
@@ -1677,62 +1639,73 @@
 
     // 모달 시간표 렌더링
 
-    function renderScheduleFromTS2TE(scheduleData) {
-        const table = document.getElementById('scheduleTable');
-        if (!table || !Array.isArray(scheduleData)) return;
+    function renderScheduleFromTS2TE(scheduleData){
+        const grid = document.getElementById('modalGridSpanBody');
+        if(!grid || !Array.isArray(scheduleData)) return;
 
-        const needsZero = scheduleData.some(
-            (it) => toPeriodNumber(it.timeStart, null) === 0 ||
-                toPeriodNumber(it.timeEnd,   null) === 0
-        );
-        if (needsZero && !hasZeroPeriod(table)) prependZeroPeriodRow(table);
-
-        let neededMax = 9;
-        scheduleData.forEach((it) => {
+        // 필요한 만큼 행 확장
+        let needMax = 9;
+        scheduleData.forEach(it => {
             const end = toPeriodNumber(it.time_end ?? it.timeEnd ?? it.periodEnd, null);
-            if (end != null) neededMax = Math.max(neededMax, end);
+            if (end != null) needMax = Math.max(needMax, end);
         });
-        ensureTableMaxPeriod(table, neededMax);
+        ensureModalGridSpanMax(needMax);
 
-        scheduleData.forEach((item) => {
+        scheduleData.forEach(item => {
             const subject    = item.courseName || '';
             const professor  = item.professorName || '';
             const classroom  = item.classroom || '';
-            const courseCode = item.identify_number_of_course || item.courseCode || '';
+            const courseCode = item.identify_number_of_course ?? item.identifyNumberOfCourse ?? item.courseCode ?? subject;
 
-            const coursePk =
-                item.courseId ?? item.course_id ?? item.timeTableId ?? item.time_table_id ??
-                item.id ?? item.coursePK ?? null;
-
-            const dayIdx = toPeriodNumber(item.day, 0) - 1;
-            if (dayIdx < 0 || dayIdx > 4) return;
-
+            const dayIdx = toPeriodNumber(item.day, 0) - 1; // 0..4
             const pStart = toPeriodNumber(item.time_start ?? item.timeStart ?? item.periodStart, null);
-            const pEnd   = toPeriodNumber(item.time_end   ?? item.timeEnd   ?? item.periodEnd   ?? item.time_start, null);
-            if (pStart == null || pEnd == null) return;
+            const pEnd   = toPeriodNumber(item.time_end   ?? item.timeEnd   ?? item.periodEnd   ?? pStart, null);
+            if (dayIdx < 0 || pStart == null || pEnd == null) return;
 
-            const key = courseCode || subject;
-            const bg  = ColorManager.get(key);
+            const color = ColorManager.get(courseCode);
+            const block = document.createElement('div');
+            block.className = 'course-block busy';
+            block.style.gridColumn = String(dayIdx + 2);
 
+
+            const grid = document.getElementById('modalGridSpanBody');
+            const startRow = gridRowForPeriod(grid, pStart);
+            const endRow   = gridRowForPeriod(grid, pEnd) + 1;
+            block.style.gridRow = `${startRow} / ${endRow}`;
+
+
+
+            block.style.setProperty('--course-color', color);
+            block.dataset.courseId = courseCode;
+
+            const coursePk = item.courseId ?? item.course_id ?? item.id ?? item.coursePK ?? null;
+            if (coursePk != null) block.dataset.coursePk = String(coursePk);
+
+            block.innerHTML = renderSlotHTML(subject, classroom, professor);
+
+            // 툴팁
+            block.onmouseenter = () => showCourseTooltip(block, {
+                courseName: subject, professorName: professor, classroom,
+                credit: item.credit ?? '-', majorOrCulture: item.majorOrCulture ?? null,
+                scheduleDay: dayIdx + 1, timeStart: pStart, timeEnd: pEnd,
+                identifyNumberOfCourse: courseCode
+            });
+            block.onmouseleave = hideCourseTooltip;
+
+            grid.appendChild(block);
+
+            // 저장/충돌 체크를 위해 placeholder에 점유마킹
             for (let p = pStart; p <= pEnd; p++) {
-                const cell = getCell(table, dayIdx, p);
-                if (!cell) continue;
-
-                cell.innerHTML = renderSlotHTML(subject, classroom, professor);
-
-                // ▼ gradient 스타일: CSS 변수 + busy 클래스
-                cell.style.setProperty('--course-color', bg);
-                cell.classList.add('busy');
-                cell.style.removeProperty('background');
-                cell.style.removeProperty('backgroundImage');
-
-                cell.setAttribute('data-course-id', courseCode);
-                if (coursePk != null) cell.setAttribute('data-course-pk', String(coursePk));
-                cell.removeAttribute('data-preview');
+                const ph = grid.querySelector(`.cell-placeholder[data-day="${dayIdx}"][data-period="${p}"]`);
+                if (ph) {
+                    ph.setAttribute('data-course-id', courseCode);
+                    if (coursePk != null) ph.setAttribute('data-course-pk', String(coursePk));
+                    ph.style.borderBottom = 'none'; // 블록 아래 가로줄 감춤
+                }
             }
         });
 
-        attachCellEvents();
+        attachCellEvents(); // 블록에도 툴팁 연결
     }
 
 
@@ -1852,10 +1825,15 @@
     const FIXED_PREVIEW_COLOR = 'rgba(99, 179, 237, 0.25)'; // <- 네가 원하는 색으로 변경
 
     function previewCourseOnSchedule(courseEntries) {
+        // ⬇ 그리드 기반 모달이면 그쪽 전용 프리뷰 사용
+        if (document.getElementById('modalGridSpanBody')) {
+            return previewCourseOnGrid(courseEntries);
+        }
+
+        // ↓↓↓ 여기부터는 네가 이미 갖고 있던 "테이블 방식" 미리보기 로직 (그대로 유지) ↓↓↓
         const table = document.getElementById('scheduleTable');
         if (!table) return;
 
-        // (0교시/확장 로직 기존 그대로...)
         const needsZero = courseEntries.some(
             (e) => Number(e.timeStart) === 0 || Number(e.timeEnd) === 0
         );
@@ -1874,68 +1852,64 @@
             previewSession.extendedTo = neededMax;
         }
 
-        // ★ 미리보기 채우기 (글자/색을 실제와 동일 템플릿 + 고정색으로)
         courseEntries.forEach((entry) => {
             const dayIndex = entry.scheduleDay - 1;
             for (let p = entry.timeStart; p <= entry.timeEnd; p++) {
                 const cell = getCell(table, dayIndex, p);
                 if (!cell) continue;
-
                 let overlay = cell.querySelector('.preview-overlay');
                 if (!overlay) {
                     overlay = document.createElement('div');
                     overlay.className = 'preview-overlay';
                     cell.appendChild(overlay);
                 }
-
-                // 글자: 실제 셀과 동일 템플릿 사용
-                overlay.innerHTML = renderSlotHTML(
-                    entry.courseName,
-                    entry.classroom,
-                    entry.professorName || ''
-                );
-
-                // 색: 네가 지정한 고정 색 사용
+                overlay.innerHTML = renderSlotHTML(entry.courseName, entry.classroom, entry.professorName || '');
                 overlay.style.setProperty('--preview-color', FIXED_PREVIEW_COLOR);
-
-                // 부드럽게 나타남
                 requestAnimationFrame(() => overlay.classList.add('show'));
-
-                // 정리용 플래그
                 cell.setAttribute('data-preview', 'true');
             }
         });
     }
 
 
+
+
+    /** 미리보기 해제 (그리드용 포함) — 교체 */
     function removePreviewFromSchedule() {
+        const grid = document.getElementById('modalGridSpanBody');
+        if (grid) {
+            // 그리드인 경우: 프리뷰 블록만 제거
+            grid.querySelectorAll('.preview-block').forEach(b => b.remove());
+
+            // 미리보기 때문에 추가했던 0교시 행 정리
+            if (previewSession.zeroAdded) {
+                removeZeroPeriodGridIfEmpty(grid);
+                previewSession.zeroAdded = false;
+            }
+            // 아래 확장 원복은 격자선 구조상 자동으로 문제 없음(빈 줄도 placeholder라 유지 OK)
+            return;
+        }
+
+        // ↓↓↓ (테이블 버전 기존 로직 유지) ↓↓↓
         const table = document.getElementById('scheduleTable');
         if (!table) return;
 
-        // 미리보기 오버레이만 부드럽게 제거
         table.querySelectorAll('.preview-overlay').forEach((ov) => {
             ov.classList.remove('show');
-            ov.addEventListener('transitionend', () => ov.remove(), {
-                once: true,
-            });
+            ov.addEventListener('transitionend', () => ov.remove(), { once: true });
         });
         table.querySelectorAll('td[data-preview="true"]').forEach((td) => {
             td.removeAttribute('data-preview');
         });
 
-        // 아래쪽 확장 원복
         if (previewSession.extendedTo != null) {
             const permanentMax = getPermanentMaxPeriod(table);
             shrinkTableTo(table, permanentMax);
             previewSession.extendedTo = null;
         }
-
-        // 0교시 원복
         if (previewSession.zeroAdded) {
             if (hasZeroPeriod(table) && isZeroRowEmpty(table)) {
-                const zeroTr = table.querySelector(
-                    'td[data-period="0"]'
-                )?.parentElement;
+                const zeroTr = table.querySelector('td[data-period="0"]')?.parentElement;
                 if (zeroTr) zeroTr.remove();
             }
             previewSession.zeroAdded = false;
@@ -1983,6 +1957,8 @@
     }
 
     function addCourseToScheduleTable(entries) {
+        const grid = document.getElementById('modalGridSpanBody');
+        if (grid) return addCourseToScheduleTableGrid(entries);
         const table = document.getElementById('scheduleTable');
         if (!table || !Array.isArray(entries) || entries.length === 0) return;
 
@@ -2148,29 +2124,144 @@
 
         attachCellEvents();
     }
+    function addCourseToScheduleTableGrid(entries){
+        const grid = document.getElementById('modalGridSpanBody');
+        if (!grid || !entries?.length) return;
+
+        removePreviewFromSchedule();
+
+        const courseName = entries[0].courseName;
+        const classroom  = entries[0].classroom;
+        const professor  = entries[0].professorName || '';
+        const courseCode = entries[0].identifyNumberOfCourse;
+        const coursePk   = entries[0].courseId ?? entries[0].course_id ?? entries[0].id ?? entries[0].coursePK ?? null;
+
+        // 이미 배치되어 있으면 → 블록/마킹 제거
+// 이미 배치되어 있으면 → 블록/마킹 제거
+        const existing = grid.querySelectorAll(`.course-block[data-course-id="${courseCode}"]`);
+        if (existing.length){
+            existing.forEach(b => b.remove());
+            grid.querySelectorAll(`.cell-placeholder[data-course-id="${courseCode}"]`).forEach(ph=>{
+                ph.removeAttribute('data-course-id');
+                ph.removeAttribute('data-course-pk');
+                ph.style.borderBottom = '';
+            });
+            ColorManager.free(courseCode || courseName);
+
+            // 🔻 추가: 0교시가 비었다면 행 제거
+            removeZeroPeriodGridIfEmpty(grid);
+            return;
+        }
 
 
-    // 기존 attachCellEvents() 교체
+        // 충돌 검사
+        for (const e of entries){
+            const d = toPeriodNumber(e.scheduleDay,0) - 1;
+            const s = toPeriodNumber(e.timeStart ?? e.periodStart, null);
+            const t = toPeriodNumber(e.timeEnd   ?? e.periodEnd   ?? e.timeStart, null);
+            if (d<0 || s==null || t==null) continue;
+            for (let p=s; p<=t; p++){
+                const ph = grid.querySelector(`.cell-placeholder[data-day="${d}"][data-period="${p}"]`);
+                const ex = ph?.getAttribute('data-course-id');
+                if (ex && ex !== courseCode){ alert('해당 시간에 이미 다른 수업이 있습니다!'); return; }
+            }
+        }
+
+        // 행 확장
+        let needMax = 9;
+        entries.forEach(e=>{
+            const end = toPeriodNumber(e.timeEnd ?? e.periodEnd ?? e.timeStart, null);
+            if (end != null) needMax = Math.max(needMax, end);
+        });
+        ensureModalGridSpanMax(needMax);
+
+        // 요일별 구간 합치기 → 블록 배치
+        const byDay = {};
+        entries.forEach(e=>{
+            const d = toPeriodNumber(e.scheduleDay,0) - 1;
+            const s = toPeriodNumber(e.timeStart ?? e.periodStart, null);
+            const t = toPeriodNumber(e.timeEnd   ?? e.periodEnd   ?? e.timeStart, null);
+            if (d<0 || s==null || t==null) return;
+            (byDay[d] ||= []).push([s,t]);
+        });
+
+        const color = ColorManager.get(courseCode || courseName);
+
+        Object.entries(byDay).forEach(([dStr,ranges])=>{
+            const d = Number(dStr);
+            ranges.sort((a,b)=>a[0]-b[0]);
+            let cur=null, merged=[];
+            for (const [s,t] of ranges){
+                if (!cur) cur=[s,t];
+                else if (s <= cur[1]+1) cur[1] = Math.max(cur[1], t); // 붙어있으면 병합
+                else { merged.push(cur); cur=[s,t]; }
+            }
+            if (cur) merged.push(cur);
+
+            merged.forEach(([s,t])=>{
+                const block = document.createElement('div');
+                block.className = 'course-block busy';
+                block.style.gridColumn = String(d+2);
+
+                // ✅ 교체: 교시→grid-row 변환
+                const startRow = gridRowForPeriod(grid, s);
+                const endRow   = gridRowForPeriod(grid, t) + 1;
+                block.style.gridRow = `${startRow} / ${endRow}`;
+
+                block.style.setProperty('--course-color', color);
+                block.dataset.courseId = courseCode;
+                if (coursePk != null) block.dataset.coursePk = String(coursePk);
+                block.innerHTML = renderSlotHTML(courseName, classroom, professor);
+                block.onmouseenter = () => showCourseTooltip(block, {
+                    courseName, professorName: professor, classroom,
+                    scheduleDay: d+1, timeStart: s, timeEnd: t,
+                    identifyNumberOfCourse: courseCode
+                });
+                block.onmouseleave = hideCourseTooltip;
+                grid.appendChild(block);
+
+                // 점유 마킹 (저장/충돌 체크용)
+                for (let p=s; p<=t; p++){
+                    const ph = grid.querySelector(`.cell-placeholder[data-day="${d}"][data-period="${p}"]`);
+                    if (ph){
+                        ph.setAttribute('data-course-id', courseCode);
+                        if (coursePk != null) ph.setAttribute('data-course-pk', String(coursePk));
+                        ph.style.borderBottom = 'none';
+                    }
+                }
+            });
+        });
+    }
+
+
+    // ✅ 교체
     function attachCellEvents() {
         const root = document.getElementById('scheduleTable');
         if (!root) return;
-        const allCells = root.querySelectorAll('.cell[data-period]'); // ⬅ td → .cell
 
-        allCells.forEach((cell) => {
-            cell.onmouseover = function () {
-                const courseId = cell.getAttribute('data-course-id');
-                if (courseId) {
-                    const courseInfo = currentCourseList.find(
-                        (c) => c.identifyNumberOfCourse === courseId
-                    );
-                    if (courseInfo) showCourseTooltip(cell, courseInfo);
-                }
-            };
-            cell.onmouseout = function () {
-                hideCourseTooltip();
-            };
+        // placeholder / cell (점유마킹 돼 있으면 툴팁)
+        root.querySelectorAll('.cell[data-period], .cell-placeholder[data-period]')
+            .forEach(cell => {
+                cell.onmouseover = () => {
+                    const courseId = cell.getAttribute('data-course-id');
+                    if (!courseId) return;
+                    const info = currentCourseList.find(c => c.identifyNumberOfCourse === courseId);
+                    if (info) showCourseTooltip(cell, info);
+                };
+                cell.onmouseout = hideCourseTooltip;
+            });
+
+        // 실제 합쳐진 블록
+        root.querySelectorAll('.course-block').forEach(block => {
+            const courseId = block.getAttribute('data-course-id');
+            const info = currentCourseList.find(c => c.identifyNumberOfCourse === courseId);
+            if (info){
+                block.onmouseenter = () => showCourseTooltip(block, info);
+                block.onmouseleave = hideCourseTooltip;
+            }
         });
     }
+
 
 
     function showCourseTooltip(cell, courseInfo) {
@@ -2213,39 +2304,33 @@
         if (prev) prev.remove();
     }
 
-    // 기존 getSelectedClassIds()의 셀 선택자만 교체
+    // ✅ 교체
     function getSelectedClassIds() {
-        const cells = document.querySelectorAll('#scheduleTable .cell[data-course-id]');
+        const root = document.getElementById('scheduleTable') || document;
         const idSet = new Set();
 
-        // 1) data-course-pk 우선 (문자열 "0"/null/빈문자 방지)
-        cells.forEach((cell) => {
-            const pkAttr = cell.getAttribute('data-course-pk');
-            const pk = Number(pkAttr);
-            if (Number.isInteger(pk) && pk > 0) {
-                idSet.add(pk);
-            }
+        // 1) 블록/셀에 달린 data-course-pk 우선
+        root.querySelectorAll('.course-block[data-course-pk], .cell[data-course-pk], .cell-placeholder[data-course-pk]')
+            .forEach(el => {
+                const pk = Number(el.getAttribute('data-course-pk'));
+                if (Number.isInteger(pk) && pk > 0) idSet.add(pk);
+            });
+
+        if (idSet.size) return Array.from(idSet);
+
+        // 2) 코드 기반 fallback (블록/placeholder/셀 모두)
+        const codes = new Set();
+        root.querySelectorAll('[data-course-id]').forEach(el => {
+            const c = el.getAttribute('data-course-id');
+            if (c) codes.add(c);
         });
 
-        // 2) 없으면 코드→PK 매핑 (위에서 timeTableId 포함하도록 이미 수정)
-        if (idSet.size === 0) {
-            const codes = new Set();
-            cells.forEach((cell) => {
-                const code = cell.getAttribute('data-course-id');
-                if (code) codes.add(code);
-            });
-
-            currentCourseList.forEach((e) => {
-                const pk =
-                    e.courseId ?? e.course_id ?? e.timeTableId ?? e.time_table_id ?? e.id ?? e.coursePK ?? e.pk ?? null;
-                const code =
-                    e.identifyNumberOfCourse ?? e.identify_number_of_course ?? e.courseCode ?? null;
-                const n = Number(pk);
-                if (code && codes.has(code) && Number.isInteger(n) && n > 0) {
-                    idSet.add(n);
-                }
-            });
-        }
+        currentCourseList.forEach(e => {
+            const pk = e.courseId ?? e.course_id ?? e.timeTableId ?? e.time_table_id ?? e.id ?? e.coursePK ?? e.pk ?? null;
+            const code = e.identifyNumberOfCourse ?? e.identify_number_of_course ?? e.courseCode ?? null;
+            const n = Number(pk);
+            if (code && codes.has(code) && Number.isInteger(n) && n > 0) idSet.add(n);
+        });
 
         return Array.from(idSet);
     }
@@ -2325,35 +2410,6 @@
         }
     }
 
-
-    // ✅ 대표 시간표와 동일 구조(div grid)로 모달 시간표 생성
-    function generateEmptyScheduleTable(maxPeriod = 9) {
-        const days = ['월', '화', '수', '목', '금'];
-        const timeLabels = ['9~10시','10~11시','11~12시','12~1시','1~2시','2~3시','3~4시','4~5시','5~6시'];
-
-        let html = `
-    <div class="schedule-card" id="scheduleTable">
-      <div class="schedule-header">
-        <div class="time-col"></div>
-        ${days.map(d => `<div>${d}</div>`).join('')}
-      </div>
-      <div class="schedule-body">
-  `;
-
-        for (let p = 1; p <= maxPeriod; p++) {
-            html += `
-      <div class="row">
-        <div class="time-col">${p}교시<br/><span>${timeLabels[p-1] || ''}</span></div>
-        ${days.map((_, i) => `<div class="cell" data-day="${i}" data-period="${p}"></div>`).join('')}
-      </div>
-    `;
-        }
-
-        html += `</div></div>`;
-        return html;
-    }
-
-
     // 영구 배치된(= data-course-id 존재) 셀이 있는 최댓 교시를 기준으로 표를 정리
     function normalizeTableAfterMutation(table) {
         if (!table) return;
@@ -2408,81 +2464,26 @@
         return true;
     }
 
-    function makeTimeLabelTd(period) {
-        const td = document.createElement('td');
-        td.style.cssText =
-            'border:1px solid #ddd; padding:8px; background:#e3e3fd; font-weight:bold;';
-        const startHour = 8 + period;
-        const endHour = 9 + period;
-        const timeStr =
-            startHour <= 12 ? `${startHour}시` : `${startHour - 12}시`;
-        const endtime = endHour <= 12 ? `${endHour}시` : `${endHour - 12}시`;
-        td.innerHTML = `${period}교시<br>(${timeStr}~${endtime})`;
-        return td;
-    }
-
-    // 아래쪽에 교시 행 추가 (대표 그리드와 동일한 마크업)
-    function appendPeriodRow(container, period) {
-        const body = (container || document).querySelector('.schedule-body');
-        if (!body) return;
-
-        const row = document.createElement('div');
-        row.className = 'row';
-        row.innerHTML = `
-    <div class="time-col">${period}교시<br/><span></span></div>
-    <div class="cell" data-day="0" data-period="${period}"></div>
-    <div class="cell" data-day="1" data-period="${period}"></div>
-    <div class="cell" data-day="2" data-period="${period}"></div>
-    <div class="cell" data-day="3" data-period="${period}"></div>
-    <div class="cell" data-day="4" data-period="${period}"></div>
-  `;
-        body.appendChild(row);
-    }
-    // 헤더 바로 아래 0교시 행 삽입
-    function prependZeroPeriodRow(container) {
-        if (hasZeroPeriod(container)) return;
-        const body = (container || document).querySelector('.schedule-body');
-        if (!body) return;
-
-        const row = document.createElement('div');
-        row.className = 'row';
-        row.innerHTML = `
-    <div class="time-col">0교시<br/><span></span></div>
-    <div class="cell" data-day="0" data-period="0"></div>
-    <div class="cell" data-day="1" data-period="0"></div>
-    <div class="cell" data-day="2" data-period="0"></div>
-    <div class="cell" data-day="3" data-period="0"></div>
-    <div class="cell" data-day="4" data-period="0"></div>
-  `;
-        body.insertBefore(row, body.firstChild);
-    }
 
     // 필요한 교시까지 확장
+    // ✅ 교체
     function ensureTableMaxPeriod(container, neededMax) {
-        const root = (container || document).querySelector('#scheduleTable') || container || document;
-        let curMax = getCurrentMaxPeriod(root);
-        if (neededMax > curMax) {
-            for (let p = curMax + 1; p <= neededMax; p++) appendPeriodRow(root, p);
+        const root = (container || document);
+        if (root.querySelector('#modalGridSpanBody')) {
+            ensureModalGridSpanMax(neededMax);  // ← 모달 grid면 이쪽
+            return;
         }
+        // ← 기존 행 테이블 확장 로직 그대로 유지
+        const tbl = root.querySelector('#scheduleTable') || container || document;
+        let curMax = getCurrentMaxPeriod(tbl);
     }
 
-    // targetMax까지만 남기고 줄이기
-    function shrinkTableTo(container, targetMax) {
-        const root = (container || document).querySelector('#scheduleTable') || container || document;
-        let curMax = getCurrentMaxPeriod(root);
-        while (curMax > targetMax) {
-            const last = root.querySelector(`.cell[data-period="${curMax}"]`);
-            const row = last ? last.closest('.row') : null;
-            if (!row) break;
-            row.remove();
-            curMax--;
-        }
-    }
-
-    // dayIdx(0~4), period(정수) → 해당 .cell
     function getCell(container, dayIdx, period) {
         const root = (container && container.querySelector) ? container : document;
-        return root.querySelector(`.cell[data-day="${dayIdx}"][data-period="${period}"]`);
+        return root.querySelector(
+            `.cell[data-day="${dayIdx}"][data-period="${period}"],` +
+            `.cell-placeholder[data-day="${dayIdx}"][data-period="${period}"]`
+        );
     }
     // ✅ 파일에 이 버전 하나만 유지하세요 (중복 선언 제거!)
     function isTruthyTag(tag) {
@@ -2686,12 +2687,12 @@
         }
     }
 
-    function renderRepresentativeSchedule(scheduleData) {
+    function renderRepresentativeSchedule(scheduleData){
         const container = document.getElementById('representativeScheduleContainer');
-        if (!container) return;
+        if(!container) return;
 
-        // 0) 그리드 카드 뼈대가 비어있다면 만들어둔다 (안전장치)
-        if (!document.getElementById('repGridBody')) {
+        // 헤더는 그대로 두고, 바디만 grid-row span 버전으로 생성
+        if(!document.getElementById('repGridBody')){
             container.innerHTML = `
       <div class="schedule-card" id="repGridCard">
         <div class="schedule-header">
@@ -2702,115 +2703,30 @@
       </div>`;
         }
 
-        // 1) 기본 1~9교시 뼈대 생성
-        buildRepGrid(9);
+        // 1) 초기 9교시로 그리드 생성
+        buildRepGridSpan(9);
 
-        // (선택) 0교시가 있으면 0교시 행을 상단에 추가
-        const hasZero = Array.isArray(scheduleData) && scheduleData.some(
-            it => Number(it.time_start ?? it.timeStart ?? it.periodStart) === 0 ||
-                Number(it.time_end   ?? it.timeEnd   ?? it.periodEnd)   === 0
-        );
-        if (hasZero) ensureZeroRepRow(); // 아래 내부 헬퍼
-
-        // 2) 데이터의 최댓 교시로 행 확장 (10교시 이상 자동 추가)
-        let neededMax = 9;
-        scheduleData?.forEach(it => {
-            const end = Number(it.time_end ?? it.timeEnd ?? it.periodEnd ?? it.time_start ?? it.timeStart);
-            if (Number.isFinite(end)) neededMax = Math.max(neededMax, end);
-        });
-        ensureRepGridMaxPeriods(neededMax);
-
-        // 3) 과목별 색상 고정 맵
-        if (!window.colorMap) window.colorMap = {};
-
-        // 4) 셀 채우기
-        scheduleData?.forEach(item => {
-            const subject   = item.courseName || '';
-            const professor = item.professorName || '';
-            const classroom = item.classroom || '';
-            const courseCode = item.identify_number_of_course
-                ?? item.courseCode
-                ?? item.identifyNumberOfCourse
-                ?? subject; // 식별자 없으면 과목명으로 묶음
-
-            // 요일: 1~5 → 0~4 인덱스로 변환
-            const dayIdx = (Number(item.day) || 0) - 1;
-            if (dayIdx < 0 || dayIdx > 4) return;
-
-            // 교시 범위 숫자화
-            const pStart = toInt(item.time_start ?? item.timeStart ?? item.periodStart);
-            const pEnd   = toInt(item.time_end   ?? item.timeEnd   ?? item.periodEnd   ?? pStart);
-            if (pStart == null || pEnd == null) return;
-
-            const bg = ColorManager.get(courseCode);
-
-
-            for (let p = pStart; p <= pEnd; p++) {
-                const cell = repCell(dayIdx, p);
-                if (!cell) continue;
-
-                cell.classList.add('busy');
-                cell.style.background = bg;            // ✅
-                cell.style.backgroundImage = 'none';   // ✅
-
-                cell.style.setProperty('--course-color', bg);
-                cell.style.removeProperty('background');
-                cell.style.removeProperty('backgroundImage');
-
-                cell.setAttribute('data-course-id', courseCode);
-                cell.innerHTML = renderSlotHTML(subject, classroom, professor);
-
-
-                // (선택) 툴팁 연결
-                const tipData = {
-                    courseName: subject,
-                    professorName: professor,
-                    classroom,
-                    majorOrCulture: item.majorOrCulture ?? item.isMajor ?? null,
-                    credit: item.credit ?? '-',
-                    scheduleDay: Number(item.day),
-                    timeStart: pStart,
-                    timeEnd: pEnd,
-                    identifyNumberOfCourse: courseCode || '-',
-                };
-                cell.onmouseenter = () => showCourseTooltip(cell, tipData);
-                cell.onmouseleave = () => hideCourseTooltip();
-            }
-        });
-
-        // ===== 내부 헬퍼 =====
-        function toInt(v) {
-            const n = Number(v);
-            return Number.isFinite(n) ? n : null;
+        const repGrid = document.getElementById('repGridSpanBody');
+        if (repGrid) {
+            repGrid.style.display = 'grid';
+            repGrid.style.gridAutoFlow = 'row dense';
+            repGrid.style.alignContent = 'start';
+            repGrid.style.justifyContent = 'stretch';
+            repGrid.style.gridAutoRows = '52px';
         }
 
-        // 0교시 행이 필요한 경우 상단에 0교시 row를 추가
-        function ensureZeroRepRow() {
-            const body = document.getElementById('repGridBody');
-            if (!body) return;
+        // 2) 필요한 만큼 아래로 확장
+        let needMax = 9;
+        scheduleData?.forEach(it=>{
+            const e = Number(it.time_end ?? it.timeEnd ?? it.periodEnd ?? it.time_start ?? it.timeStart);
+            if(Number.isFinite(e)) needMax = Math.max(needMax, e);
+        });
+        ensureRepGridSpanMax(needMax);
 
-            // 이미 0교시가 있으면 패스
-            const hasZeroRow = !!body.querySelector('.row .time-col') &&
-                Array.from(body.children).some(row => {
-                    const label = row.querySelector('.time-col')?.textContent || '';
-                    return /(^|\D)0\s*교시/.test(label);
-                });
-            if (hasZeroRow) return;
-
-            // 0교시 행 생성
-            const zeroRow = document.createElement('div');
-            zeroRow.className = 'row';
-            zeroRow.innerHTML = `
-      <div class="time-col">0교시<br/><span></span></div>
-      <div class="cell" data-day="0" data-period="0"></div>
-      <div class="cell" data-day="1" data-period="0"></div>
-      <div class="cell" data-day="2" data-period="0"></div>
-      <div class="cell" data-day="3" data-period="0"></div>
-      <div class="cell" data-day="4" data-period="0"></div>
-    `;
-            body.insertBefore(zeroRow, body.firstChild);
-        }
+        // 3) 블록 배치
+        scheduleData?.forEach(placeCourseBlockRep);
     }
+
 
 
     // ✅ 시간표 ID (부모)
@@ -2934,67 +2850,6 @@
         // 4) /getTS2TE 호출 → 렌더
         await loadRepresentativeSchedule(courseIds);
     }
-    function buildRepGrid(periodCount=9){
-        const body = document.getElementById('repGridBody');
-        if(!body) return;
-        body.innerHTML = '';
-
-        const timeLabels = ['9~10시','10~11시','11~12시','12~1시','1~2시','2~3시','3~4시','4~5시','5~6시'];
-        for(let p=1;p<=periodCount;p++){
-            const row = document.createElement('div');
-            row.className = 'row';
-            row.innerHTML = `
-      <div class="time-col">${p}교시<br/><span>${timeLabels[p-1]||''}</span></div>
-      <div class="cell" data-day="0" data-period="${p}"></div>
-      <div class="cell" data-day="1" data-period="${p}"></div>
-      <div class="cell" data-day="2" data-period="${p}"></div>
-      <div class="cell" data-day="3" data-period="${p}"></div>
-      <div class="cell" data-day="4" data-period="${p}"></div>
-    `;
-            body.appendChild(row);
-        }
-    }
-
-
-
-    // 현재 대표 그리드의 '최대 교시'를 data-period 기준으로 계산 (0교시 제외)
-    function getRepCurrentMaxPeriod() {
-        let maxP = 1;
-        document.querySelectorAll('#repGridBody .cell[data-period]').forEach((c) => {
-            const p = Number(c.getAttribute('data-period'));
-            if (Number.isFinite(p)) maxP = Math.max(maxP, p);
-        });
-        return maxP;
-    }
-
-    // 필요 시 10교시 이상 행을 안전하게 추가 (0교시가 있어도 정확함)
-    function ensureRepGridMaxPeriods(needed) {
-        const body = document.getElementById('repGridBody');
-        if (!body) return;
-
-        const curMax = getRepCurrentMaxPeriod(); // ex) 0~9교시가 있어도 9를 돌려줌
-        if (needed <= curMax) return;
-
-        for (let p = curMax + 1; p <= needed; p++) {
-            const row = document.createElement('div');
-            row.className = 'row';
-            row.innerHTML = `
-      <div class="time-col">${p}교시<br/><span></span></div>
-      <div class="cell" data-day="0" data-period="${p}"></div>
-      <div class="cell" data-day="1" data-period="${p}"></div>
-      <div class="cell" data-day="2" data-period="${p}"></div>
-      <div class="cell" data-day="3" data-period="${p}"></div>
-      <div class="cell" data-day="4" data-period="${p}"></div>
-    `;
-            body.appendChild(row);
-        }
-    }
-
-    function repCell(dayIdx, period){
-        return document.querySelector(
-            `#repGridCard .cell[data-day="${dayIdx}"][data-period="${period}"]`
-        );
-    }
     function renderSlotHTML(subject, classroom, professor) {
         const sub = subject ?? "";
         const room = classroom ? `<div class="slot-room">${classroom}</div>` : "";
@@ -3005,6 +2860,366 @@
     </div>
   `;
     }
+    /** 대표 시간표용: grid-row span 가능한 바디를 그린다 */
+    function buildRepGridSpan(periodCount = 9) {
+        const body = document.getElementById('repGridBody');
+        if (!body) return;
+        body.innerHTML = '';
+
+        // 하나의 grid 컨테이너로 행 전체를 구성
+        const grid = document.createElement('div');
+        grid.className = 'schedule-grid';
+        grid.id = 'repGridSpanBody'; // 식별용
+
+        // 각 교시 행 생성: 1열은 시간 라벨, 2~6열은 월~금 placeholder
+        const labels = ['9~10시','10~11시','11~12시','12~1시','1~2시','2~3시','3~4시','4~5시','5~6시'];
+        for (let p = 1; p <= periodCount; p++) {
+            // 시간 셀
+            const t = document.createElement('div');
+            t.className = 'time-cell';
+            t.style.gridColumn = '1';
+            t.style.gridRow = String(p);
+            t.innerHTML = `${p}교시<br/><span>${labels[p-1] || ''}</span>`;
+            grid.appendChild(t);
+
+            // 월~금 빈칸(격자선용)
+            for (let day = 0; day < 5; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell-placeholder';
+                cell.dataset.day = String(day);
+                cell.dataset.period = String(p);
+                cell.style.gridColumn = String(day + 2); // 2..6
+                cell.style.gridRow = String(p);
+                grid.appendChild(cell);
+            }
+        }
+
+        body.appendChild(grid);
+    }
+
+    /** 필요할 때 교시(행) 늘리기 */
+    function ensureRepGridSpanMax(periodMax){
+        const grid = document.getElementById('repGridSpanBody');
+        if(!grid) return;
+        const curRows = grid.querySelectorAll('[data-period]').length ?
+            Math.max(...Array.from(grid.querySelectorAll('[data-period]')).map(e=>Number(e.dataset.period)||1))
+            : 0;
+        if(periodMax <= curRows) return;
+        const labels = ['9~10시','10~11시','11~12시','12~1시','1~2시','2~3시','3~4시','4~5시','5~6시'];
+        for(let p=curRows+1; p<=periodMax; p++){
+            const t = document.createElement('div');
+            t.className = 'time-cell';
+            t.style.gridColumn = '1';
+            t.style.gridRow = String(p);
+            t.innerHTML = `${p}교시<br/><span>${labels[p-1] || ''}</span>`;
+            grid.appendChild(t);
+            for(let day=0; day<5; day++){
+                const cell = document.createElement('div');
+                cell.className = 'cell-placeholder';
+                cell.dataset.day = String(day);
+                cell.dataset.period = String(p);
+                cell.style.gridColumn = String(day + 2);
+                cell.style.gridRow = String(p);
+                grid.appendChild(cell);
+            }
+        }
+    }
+
+    /** grid-row span을 사용하는 코스 블록 하나 추가 */
+    function placeCourseBlockRep(item){
+        const grid = document.getElementById('repGridSpanBody');
+        if(!grid) return;
+
+        const subject    = item.courseName || '';
+        const professor  = item.professorName || '';
+        const classroom  = item.classroom || '';
+        const courseCode = item.identify_number_of_course ?? item.courseCode ?? item.identifyNumberOfCourse ?? subject;
+
+        const dayIdx = (Number(item.day) || 0) - 1; // 0..4
+        if (dayIdx < 0 || dayIdx > 4) return;
+
+        const pStart = Number(item.time_start ?? item.timeStart ?? item.periodStart);
+        const pEnd   = Number(item.time_end   ?? item.timeEnd   ?? item.periodEnd ?? pStart);
+        if (!Number.isFinite(pStart) || !Number.isFinite(pEnd)) return;
+
+        // 과목 색
+        const bg = ColorManager.get(courseCode);
+
+        // 블록 생성
+        const block = document.createElement('div');
+        block.className = 'course-block';
+        block.style.gridColumn = String(dayIdx + 2);      // 2..6
+
+
+        const repGrid = document.getElementById('repGridSpanBody');
+        const sRow = gridRowForPeriod(repGrid, pStart);
+        const eRow = gridRowForPeriod(repGrid, pEnd) + 1;
+        block.style.gridRow = `${sRow} / ${eRow}`;
+
+
+        block.style.setProperty('--course-color', bg);
+        block.classList.add('busy');
+        block.dataset.courseId = courseCode; // 추후 활용 가능
+
+        block.innerHTML = renderSlotHTML(subject, classroom, professor);
+
+        // (선택) 툴팁
+        const tipData = {
+            courseName: subject, professorName: professor, classroom,
+            majorOrCulture: item.majorOrCulture ?? item.isMajor ?? null,
+            credit: item.credit ?? '-', scheduleDay: Number(item.day),
+            timeStart: pStart, timeEnd: pEnd, identifyNumberOfCourse: courseCode
+        };
+        block.onmouseenter = () => showCourseTooltip(block, tipData);
+        block.onmouseleave = () => hideCourseTooltip();
+
+        grid.appendChild(block);
+        // === 블록 범위에 해당하는 placeholder의 가로줄 제거 ===
+        for (let r = pStart; r <= pEnd; r++) {
+            // 요일-교시 위치의 placeholder 찾기
+            const ph = grid.querySelector(`.cell-placeholder[data-day="${dayIdx}"][data-period="${r}"]`);
+            if (ph) {
+                ph.style.borderBottom = 'none'; // ✅ 줄 없앰
+            }
+        }
+    }
+    // ✅ 추가: 모달용 grid-row span 테이블
+    function generateModalGridSpanTable(maxPeriod = 9) {
+        const days = ['월','화','수','목','금'];
+        const labels = ['9~10시','10~11시','11~12시','12~1시','1~2시','2~3시','3~4시','4~5시','5~6시'];
+
+        let grid = `
+  <div class="schedule-card" id="scheduleTable">
+    <div class="schedule-header">
+      <div class="time-col"></div>
+      ${days.map(d => `<div>${d}</div>`).join('')}
+    </div>
+    <div class="schedule-body">
+      <div class="schedule-grid" id="modalGridSpanBody">
+  `;
+
+        for (let p = 1; p <= maxPeriod; p++) {
+            // 시간 라벨
+            grid += `
+      <div class="time-cell" style="grid-column:1;grid-row:${p}">
+        ${p}교시<br/><span>${labels[p-1] || ''}</span>
+      </div>`;
+            // 월~금 placeholder
+            for (let day = 0; day < 5; day++) {
+                grid += `
+        <div class="cell-placeholder"
+             data-day="${day}" data-period="${p}"
+             style="grid-column:${day+2};grid-row:${p}"></div>`;
+            }
+        }
+
+        grid += `</div></div></div>`;
+        return grid;
+    }
+    // ✅ 추가: 모달 grid용 행 확장
+    function ensureModalGridSpanMax(periodMax){
+        const grid = document.getElementById('modalGridSpanBody');
+        if(!grid) return;
+        const curMax = Array.from(grid.querySelectorAll('.cell-placeholder'))
+            .reduce((m,el)=>Math.max(m, Number(el.dataset.period)||1), 0);
+        if (periodMax <= curMax) return;
+
+        const labels = ['9~10시','10~11시','11~12시','12~1시','1~2시','2~3시','3~4시','4~5시','5~6시'];
+        for (let p = curMax + 1; p <= periodMax; p++) {
+            const t = document.createElement('div');
+            t.className = 'time-cell';
+            t.style.gridColumn = '1';
+            t.style.gridRow    = String(p);
+            t.innerHTML = `${p}교시<br/><span>${labels[p-1] || ''}</span>`;
+            grid.appendChild(t);
+            for (let day = 0; day < 5; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell-placeholder';
+                cell.dataset.day = String(day);
+                cell.dataset.period = String(p);
+                cell.style.gridColumn = String(day + 2);
+                cell.style.gridRow    = String(p);
+                grid.appendChild(cell);
+            }
+        }
+    }
+    function hasZeroPeriodGrid(grid) {
+        return !!grid.querySelector('.cell-placeholder[data-period="0"]');
+    }
+
+    function prependZeroPeriodGrid(grid) {
+        if (!grid) return;
+        if (hasZeroPeriodGrid(grid)) return;
+
+        // 1) 기존 요소들의 grid-row를 +1
+        Array.from(grid.children).forEach(el => {
+            const row = (el.style.gridRow || '').trim();
+            if (!row) return;
+            if (row.includes('/')) {
+                const [s, e] = row.split('/').map(v => parseInt(v.trim(), 10));
+                if (Number.isFinite(s) && Number.isFinite(e)) {
+                    el.style.gridRow = `${s + 1} / ${e + 1}`;
+                }
+            } else {
+                const n = parseInt(row, 10);
+                if (Number.isFinite(n)) el.style.gridRow = String(n + 1);
+            }
+        });
+
+        // 2) 새 0교시 time-cell + 월~금 placeholder 생성 (grid-row: 1)
+        const frag = document.createDocumentFragment();
+
+        const t = document.createElement('div');
+        t.className = 'time-cell';
+        t.style.gridColumn = '1';
+        t.style.gridRow = '1';
+        t.innerHTML = `0교시<br/><span>8~9시</span>`;
+        frag.appendChild(t);
+
+        for (let day = 0; day < 5; day++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell-placeholder';
+            cell.dataset.day = String(day);
+            cell.dataset.period = '0';
+            cell.style.gridColumn = String(day + 2);
+            cell.style.gridRow = '1';
+            frag.appendChild(cell);
+        }
+
+        // ✅ 실제로 그리드의 맨 앞에 삽입 (append가 아니라 prepend!)
+        grid.prepend(frag);
+
+        relabelTimeCells(grid);
+    }
+
+
+    /** grid 안에서 0교시가 '영구 배치'로 비어 있으면 0교시 행을 제거하고 나머지를 -1 올린다 */
+    function removeZeroPeriodGridIfEmpty(grid) {
+        if (!grid || !hasZeroPeriodGrid(grid)) return;
+
+        // 0교시 placeholder 중 data-course-id가 하나라도 있으면 유지
+        const used = Array.from(grid.querySelectorAll('.cell-placeholder[data-period="0"]'))
+            .some(ph => ph.getAttribute('data-course-id'));
+        if (used) return;
+
+        // 모두 제거(0교시 타임셀 + placeholder)
+        Array.from(grid.querySelectorAll('.time-cell, .cell-placeholder')).forEach(el => {
+            if (el.dataset && el.dataset.period === '0') el.remove();
+        });
+        // 미리보기 블록이 남아있을 수 있으니 제거
+        grid.querySelectorAll('.preview-block').forEach(el => el.remove());
+
+        // 나머지 요소 grid-row -1 (time-cell, placeholder, course-block 포함)
+        Array.from(grid.children).forEach(el => {
+            const row = (el.style.gridRow || '').trim();
+            if (!row) return;
+            if (row.includes('/')) {
+                const [s, e] = row.split('/').map(v => parseInt(v.trim(), 10));
+                if (Number.isFinite(s) && Number.isFinite(e)) {
+                    el.style.gridRow = `${s - 1} / ${e - 1}`;
+                }
+            } else {
+                const n = parseInt(row, 10);
+                if (Number.isFinite(n)) el.style.gridRow = String(n - 1);
+            }
+        });
+        relabelTimeCells(grid);
+    }
+
+    /** period(정수)를 현재 그리드에서 실제 grid-row로 매핑 */
+    function gridRowForPeriod(grid, period) {
+        return hasZeroPeriodGrid(grid) ? (period + 1) : period;
+    }
+    // 기존: previewCourseOnSchedule(...) 안에서 테이블 방식만 처리
+    // 교체: 그리드가 있으면 이 함수로 분기
+    function previewCourseOnGrid(entries) {
+        const grid = document.getElementById('modalGridSpanBody');
+        if (!grid || !entries?.length) return;
+
+        grid.querySelectorAll('.preview-block').forEach(b => b.remove());
+
+        // 0교시 필요한지 검사 → 최상단에 '실제' 삽입
+        const needsZero = entries.some(e => Number(e.timeStart) === 0 || Number(e.timeEnd) === 0);
+        if (needsZero) prependZeroPeriodGrid(grid);
+
+        // 아래로 확장
+        let needMax = 9;
+        entries.forEach(e => {
+            const end = Number(e.timeEnd ?? e.periodEnd ?? e.timeStart);
+            if (Number.isFinite(end)) needMax = Math.max(needMax, end);
+        });
+        ensureModalGridSpanMax(needMax);
+
+        // 요일별로 시간 구간 merge (연강 1박스)
+        const byDay = {};
+        entries.forEach(e => {
+            const d = N(e.scheduleDay, 0) - 1;
+            const s = N(e.timeStart ?? e.periodStart, null);
+            const t = N(e.timeEnd   ?? e.periodEnd   ?? e.timeStart, null);
+            if (!(d >= 0 && d < 5) || !Number.isFinite(s) || !Number.isFinite(t)) return;
+            (byDay[d] ||= []).push([s, t]);
+        });
+
+        Object.entries(byDay).forEach(([dStr, ranges]) => {
+            const d = Number(dStr);
+            ranges.sort((a,b) => a[0]-b[0]);
+
+            // 인접(또는 겹침) 구간 병합
+            const merged = [];
+            let cur = null;
+            for (const [s,t] of ranges) {
+                if (!cur) cur = [s,t];
+                else if (s <= cur[1] + 1) cur[1] = Math.max(cur[1], t);
+                else { merged.push(cur); cur = [s,t]; }
+            }
+            if (cur) merged.push(cur);
+
+            // 병합된 구간마다 1개의 프리뷰 블록 생성
+            merged.forEach(([s,t]) => {
+                const block = document.createElement('div');
+                block.className = 'course-block preview-block';
+                block.style.gridColumn = String(d + 2);
+                const startRow = gridRowForPeriod(grid, s);
+                const endRow   = gridRowForPeriod(grid, t) + 1;
+                block.style.gridRow = `${startRow} / ${endRow}`;
+                // 간단 텍스트(첫 엔트리 기준 과목/강의실)
+                const base = entries[0];
+                block.innerHTML = renderSlotHTML(base.courseName, base.classroom, base.professorName || '');
+                grid.appendChild(block);
+            });
+        });
+
+        // 프리뷰 세션 상태
+        previewSession.zeroAdded ||= needsZero;
+    }
+    // ✅ 항상 숫자로 강제
+    function N(v, fb=null){ const n = Number(v); return Number.isFinite(n) ? n : fb; }
+
+    // ✅ 현재 grid 상태(0교시 유무)에 맞춰 time-cell 라벨 재계산
+    function relabelTimeCells(grid){
+        if(!grid) return;
+        const labels = {
+            0: '8~9시',
+            1: '9~10시', 2: '10~11시', 3: '11~12시', 4: '12~1시',
+            5: '1~2시', 6: '2~3시', 7: '3~4시', 8: '4~5시', 9: '5~6시'
+        };
+        grid.querySelectorAll('.time-cell').forEach(tc=>{
+            const rowCss = tc.style.gridRow || '';
+            // "start / end" 혹은 "row" 형태 모두 대응
+            let row = null;
+            if(rowCss.includes('/')) row = N(rowCss.split('/')[0], 1);
+            else row = N(rowCss, 1);
+
+            // gridRow -> period
+            // 0교시가 있으면 row 1 => period 0, 그 외 period = row-1
+            const period = hasZeroPeriodGrid(grid) ? (row - 1) : row;
+            const title = period === 0 ? '0교시' : `${period}교시`;
+            const sub = labels[period] || '';
+
+            tc.innerHTML = `${title}<br/><span>${sub}</span>`;
+        });
+    }
+
 </script>
 </body>
 </html>

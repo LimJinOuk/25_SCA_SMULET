@@ -12,8 +12,10 @@ public interface timetableCourseRepository extends JpaRepository<timetableCourse
     @Modifying
     @Transactional
     @Query(
-            value = "INSERT INTO smulet.timetableCourse (timetable_id, course_id) VALUES (:timetableId, :courseId)",
-            nativeQuery = true
+            value = """
+            INSERT IGNORE INTO smulet.timetableCourse (timetable_id, course_id) 
+            VALUES (:timetableId, :courseId)
+            """, nativeQuery = true
     )
     public int settimetableCourse(@Param("timetableId") int timetableId, @Param("courseId") int courseId);
 }

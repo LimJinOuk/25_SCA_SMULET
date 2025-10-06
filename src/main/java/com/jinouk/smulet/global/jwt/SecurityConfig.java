@@ -44,7 +44,7 @@ public class SecurityConfig {
                                 "/techtree/**",
                                 "/course",
                                 "/getTC",
-                                "/deleteTC"
+                                "/deleteTimetable"
                         ).permitAll()
                         .requestMatchers(
                                 "/member/delete",

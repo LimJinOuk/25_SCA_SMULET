@@ -72,7 +72,7 @@ public class sqlcontroller {
         }
     }
 
-    @PostMapping("/deleteTC")
+    @PostMapping("/deleteTimetable")
     public ResponseEntity<?> deleteTimetable(@RequestBody int timetableId) {
         Map<String, String> map = new HashMap<>();
         int affected = deletetimetable.deleteByIdNative(timetableId);

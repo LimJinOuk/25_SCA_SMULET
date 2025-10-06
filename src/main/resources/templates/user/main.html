@@ -69,40 +69,68 @@
 
 
         /* ─── 아이콘 리스트 ─── */
-        .links {
+        /*아이콘 행*/
+        /*.links {
             display: flex;
-            flex-wrap: nowrap;       /* 한 줄 스크롤 */
-            overflow-x: auto;
-            justify-content: center;
+            flex-wrap: nowrap;       !* 한 줄 스크롤 *!
+            overflow-x: auto; !*넘치면 스크롤*!
+            justify-content: center; !*가운데 정렬*!
             align-items: center;
-            gap: 20px;
+            gap: 20px; !*아이콘 간격*!
             padding: 0 20px;
             margin: 40px auto;
             width: 100%;
+            overflow: hidden; !* 스크롤 대신 내부에서 축소해 한 줄 유지 *!
+        }*/
+        .links {
+            display: flex;
+            flex-direction: row; /*가로방향*/
+            flex-wrap: nowrap;                /* 줄바꿈 금지 */
+            align-items: center;
+            justify-content: center;   /* 가로폭에 맞춰 균등 배치 */
+            width: 100%;
+            padding: 0 20px;
+            margin: 40px auto;
+            gap: 20px;
+            overflow: hidden;                 /* 스크롤 대신 내부에서 축소해 한 줄 유지 */
         }
+        /* 추가: 사용자 추가 아이콘 영역을 가로 한 줄로 */
+        #custom-icons{
+            display: flex;
+            flex-direction: row;   /* 가로 */
+            flex-wrap: nowrap;     /* 줄바꿈 금지 */
+            align-items: center;
+            gap: 20px;             /* 기존 아이콘과 같은 간격 */
+        }
+        /* 각 아이콘 컨테이너*/
         .logo-container {
+            flex: 0 0 auto; /*한 줄에 비율 맞춰 자동 크기 조정*/
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100px;
+            width: 100px; /* 동일 크기 */
             position: relative;
         }
+
+        /* 아이콘 박스 */
         .logo-box {
-            width: 100px;
-            height: 100px;
+            width: 100px; /*flex 비율에 맞춰 자동으로 줄어듦*/
+            aspect-ratio: 1/1;         /* height 대신 사용 */
             background-color: rgba(0,0,0,0.2);
             border-radius: 25px;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: block;
+            /*align-items: center;
+            justify-content: center;*/
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            /*transition: transform 0.2s ease, box-shadow 0.2s ease;*/
+            transition: transform .2s, box-shadow .2s;
         }
         .logo-box img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            /* object-fit: cover; */
+            object-fit: contain;
             display: block;
         }
         .logo-caption {
@@ -112,6 +140,7 @@
             text-align: center;
             width: 100%;
             color: #d1d5db;
+            white-space: nowrap; /* 캡션 줄바꿈 방지 */
         }
         .logo-box:hover {
             transform: scale(1.07);
@@ -138,6 +167,19 @@
             display: block;
         }
 
+        /* + 추가 타일 내부 중앙정렬 */
+        #add-icon-btn .logo-box {
+            display: flex;                 /* 블록 → 플렉스 */
+            align-items: center;           /* 세로 중앙 */
+            justify-content: center;       /* 가로 중앙 */
+        }
+
+        /* svg 크기 통일(선택) */
+        #add-icon-btn .logo-box svg {
+            width: 70%;
+            height: 70%;
+            display: block;                /* 인라인 여백 제거 */
+        }
         main {
             flex: 1;
             height: 100px; /* 원하는 고정값 */

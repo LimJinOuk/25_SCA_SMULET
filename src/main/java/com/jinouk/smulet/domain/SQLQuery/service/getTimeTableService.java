@@ -84,8 +84,9 @@ public class getTimeTableService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저의 시간표가 아닙니다."));
 
         if(target.isTag()) {
+            target.setTag(false);
             result.put("Status", "Success");
-            result.put("message", "이미 대표 시간표입니다.");
+            result.put("message", "대표 시간표가 해제되었습니다.");
             return result;
         }
 

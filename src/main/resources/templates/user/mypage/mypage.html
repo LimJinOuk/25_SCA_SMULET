@@ -1412,6 +1412,7 @@
 
             const cb = document.createElement('input');
             cb.type = 'checkbox';
+            cb.dataset.term = termCode; // 체크박스 해제
             cb.checked = (termCode === representativeTermCode);
             cb.onchange = (e) => onToggleRepresentative(termCode, e.target.checked);
 
@@ -2211,7 +2212,7 @@
         const token = localStorage.getItem('jwtToken');
         if (!confirm('이 학기의 시간표를 삭제할까요?')) return;
         try{
-            const res = await fetch('/deleteTC', {
+            const res = await fetch('/deleteTimetable ', {
                 method:'POST',
                 headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
                 body: JSON.stringify(timetableId),
@@ -2231,22 +2232,57 @@
         }
     }
 
-    async function onToggleRepresentative(termCode, checked){
+    async function onToggleRepresentative(termCode, checked) {
         const token = localStorage.getItem('jwtToken');
 
-
+        // 해당 학기의 timetableId 찾기
         const tid = timetableIdsBySemester?.[termCode] ?? (await fetchLatestTimetableIdFromUserInfo(termCode));
-        if (!tid){ alert('timetableId를 찾지 못했습니다.'); renderSemesterList(); return; }
+        if (!tid) {
+            alert('timetableId를 찾지 못했습니다.');
+            renderSemesterList();
+            return;
+        }
 
-        const fd = new FormData(); fd.append('timetableId', String(tid));
-        const res = await fetch('/representative_Timetable', { method:'POST', headers:{ Authorization:`Bearer ${token}` }, body: fd });
-        if (!res.ok){ alert('대표 설정 실패'); renderSemesterList(); return; }
+        try {
+            const fd = new FormData();
+            fd.append('timetableId', String(tid));
+            fd.append('active', String(!!checked));
 
-        representativeTermCode = termCode;
-        await hydrateSemestersFromServer();
-        await renderRepresentativeFromServer();
-        renderSemesterList();
+            const res = await fetch('/representative_Timetable', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+                body: fd,
+            });
+
+            if (!res.ok) {
+                const msg = await res.text();
+                throw new Error(msg || '대표 설정 실패');
+            }
+
+            // ✅ 성공 후 UI 반영
+            if (checked) {
+                representativeTermCode = termCode; // 대표 지정
+                alert('대표 시간표로 설정되었습니다.');
+            } else {
+                representativeTermCode = null; // 대표 해제
+                alert('대표 시간표가 해제되었습니다.');
+            }
+
+            // ✅ 리스트/대표뷰 모두 갱신 (UI 체크박스 상태도 갱신됨)
+            await hydrateSemestersFromServer();
+            await renderRepresentativeFromServer();
+            renderSemesterList();
+
+        } catch (err) {
+            alert('대표 설정 중 오류: ' + err.message);
+
+            // ❗ 에러 시 체크박스 상태를 원래대로 되돌리기
+            const cb = document.querySelector(`.rep-label input[type="checkbox"][data-term="${termCode}"]`);
+            if (cb) cb.checked = !checked;
+        }
     }
+
+
 
     async function loadRepresentativeSchedule(getScheduleIds){
         const token = localStorage.getItem('jwtToken');
@@ -2287,7 +2323,7 @@
         const hasZero = Array.isArray(scheduleData) && scheduleData.some(it =>
             Number(it.time_start ?? it.timeStart ?? it.periodStart) === 0 ||
             Number(it.time_end   ?? it.timeEnd   ?? it.periodEnd)   === 0
-            );
+        );
         if (hasZero && repGrid) prependZeroPeriodGrid(repGrid);
 
 

@@ -11,6 +11,13 @@ public interface timetableCourseRepository extends JpaRepository<timetableCourse
 
     @Modifying
     @Transactional
+    @Query(value =
+            "DELETE FROM smulet.timetableCourse WHERE timetable_id = :timetableId",
+            nativeQuery = true)
+    public int deleteByTimetableId(@Param("timetableId") int timetableId);
+
+    @Modifying
+    @Transactional
     @Query(
             value = """
             INSERT IGNORE INTO smulet.timetableCourse (timetable_id, course_id) 

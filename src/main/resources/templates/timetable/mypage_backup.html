@@ -2013,8 +2013,8 @@
     if (!confirm('이 학기의 시간표를 삭제할까요?')) return;
 
     try {
-      // 서버 규약에 맞춰 호출 (지금은 /deleteTC 예시 그대로 사용)
-      const res = await fetch('/deleteTC', {
+      // 서버 규약에 맞춰 호출 (지금은 /deleteTimetable 예시 그대로 사용)
+      const res = await fetch('/deleteTimetable', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -2090,53 +2090,53 @@
         return ids;
     }
 
-
-    async function onClickSaveSchedule(){
-        try{
-            if (!currentTimetableId){
+    async function onClickSaveSchedule() {
+        try {
+            if (!currentTimetableId) {
                 currentTimetableId = timetableIdsBySemester[currentSemesterCode] ?? null;
             }
             if (!currentTimetableId) throw new Error('timetableId가 없습니다.');
 
             const selectedCodes = collectSelectedCourseCodes();
-            if (!selectedCodes.length){
+            if (!selectedCodes.length) {
                 alert('저장할 수업이 없습니다.');
                 return;
             }
-            const allCourseIds = mapCodesToCourseIds(selectedCodes);
-            if (!allCourseIds.length){
-                alert('저장 가능한 과목을 찾지 못했습니다.');
-                return;
-            }
 
-            const existing = await fetchExistingCourseIdsByTimetable(currentTimetableId); // Set<number>
-            const unionIds = Array.from(new Set([...(existing ?? new Set()), ...allCourseIds]));
-            if (!unionIds.length){
-                alert('보낼 과목이 없습니다.');
+            const allCourseIds = mapCodesToCourseIds(selectedCodes);
+            if (!allCourseIds.length) {
+                alert('화면의 과목들에서 courseId를 찾지 못했습니다.');
                 return;
             }
 
             const token = localStorage.getItem('jwtToken');
-            const payload = { timetableId: Number(currentTimetableId), courseIds: unionIds };
+            const payload = {
+                timetableId: Number(currentTimetableId),
+                courseIds: allCourseIds,
+            };
+
             const res = await fetch('/addTC', {
-                method:'POST',
-                headers:{ 'Content-Type':'application/json', ...(token ? { Authorization:`Bearer ${token}` } : {}) },
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
                 body: JSON.stringify(payload),
             });
-            if (!res.ok){
+
+            if (!res.ok) {
                 const txt = await res.text();
                 throw new Error(`저장 실패: ${txt || ('HTTP ' + res.status)}`);
             }
 
-            alert('저장 완료');
+            alert('저장 완료!');
             await renderRepresentativeFromServer();
             await hydrateSemestersFromServer();
-        } catch(err){
+        } catch (err) {
             console.error('[addTC] Exception:', err);
             alert(`저장 중 오류: ${err.message}`);
         }
     }
-
 
 
 

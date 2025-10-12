@@ -122,26 +122,26 @@ public class sqlcontroller {
     }
 
     @PostMapping("/getbsm")
-    public ResponseEntity<?> getbsm()
-    {
-        return  ResponseEntity.ok(getbsmservice.getbsm());
-    }
+    public ResponseEntity<?> getbsm(@RequestBody int userId) {
+        System.out.println("bsm"+ getbsmservice.getbsm(userId));
+        return  ResponseEntity.ok(getbsmservice.getbsm(userId));}
 
     @PostMapping("/get설계")
-    public ResponseEntity<?> get설계()
-    {
-        return  ResponseEntity.ok(getbsmservice.get설계());
-    }
+    public ResponseEntity<?> get설계(@RequestBody int userId) {
+        System.out.println("설계"+ getbsmservice.get설계(userId));
+        return  ResponseEntity.ok(getbsmservice.get설계(userId));}
 
     @PostMapping("/get전심")
-    public ResponseEntity<?> get전심()
+    public ResponseEntity<?> get전심(@RequestBody int userId)
     {
-        return  ResponseEntity.ok(get전심전선.get전심());
+        System.out.println("전심"+ get전심전선.get전심(userId));
+        return  ResponseEntity.ok(get전심전선.get전심(userId));
     }
 
     @PostMapping("/get전선")
-    public ResponseEntity<?> get전선()
+    public ResponseEntity<?> get전선(@RequestBody int userId)
     {
-        return  ResponseEntity.ok(get전심전선.get전선());
+        System.out.println("전선"+ get전심전선.get전선(userId));
+        return  ResponseEntity.ok(get전심전선.get전선(userId));
     }
 }

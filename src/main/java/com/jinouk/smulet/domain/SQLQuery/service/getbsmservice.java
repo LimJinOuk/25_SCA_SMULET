@@ -12,11 +12,11 @@ import java.util.List;
 public class getbsmservice {
     private final getbsm bsm;
 
-    public List<String> getbsm(){
-       return bsm.findBsmOrDesignEqualsZero();
+    public int getbsm(int userId){
+       return bsm.findBsmZeroListByUserId(userId);
     }
 
-    public List<String> get설계(){
-        return bsm.findBsmOrDesignEqualsOne();
+    public int get설계(int userId){
+        return bsm.findBsmOneListByUserId(userId);
     }
 }

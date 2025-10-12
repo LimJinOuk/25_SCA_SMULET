@@ -11,11 +11,11 @@ import java.util.List;
 public class get전심전선 {
     private final get전심전선repo 전심전선;
 
-    public List<String> get전심(){
-        return 전심전선.findBsmOrDesignEqualsZero();
+    public int get전심(int userId){
+        return 전심전선.countDesignZeroUniqueCourseByUser(userId);
     }
 
-    public List<String> get전선(){
-        return 전심전선.findBsmOrDesignEqualsOne();
+    public int get전선(int userId){
+        return 전심전선.countDesignOneUniqueCourseByUser(userId);
     }
 }

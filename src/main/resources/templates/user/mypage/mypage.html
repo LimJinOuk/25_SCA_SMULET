@@ -988,7 +988,6 @@
     let currentTimetableId = null;
 
     const previewSession = { zeroAdded: false };
-    document.addEventListener("DOMContentLoaded", loadCredits);
     document.addEventListener('DOMContentLoaded', async function () {
         const loginLink = document.getElementById('loginLink');
         const logoutLink = document.getElementById('logoutLink');
@@ -1020,11 +1019,9 @@
         if (token) {
             // 1) userInfo 먼저 확보(→ UserId 세팅 보장)
             await loaduserinfo().catch(console.error);
-            // 2) 학기 리스트 복원
             await hydrateSemestersFromServer();
-
-            // DOMContentLoaded 내부에서, token 처리 뒤에 추가:
             await renderRepresentativeFromServer();
+            await loadCredits();               // ★ 이제 호출 (UserId 보장)
         }
     });
 
@@ -2648,6 +2645,7 @@
     }
     // 공통 fetch 함수
     async function fetchCreditData(endpoint) {
+
         try {
             const token = localStorage.getItem("jwtToken");
             const response = await fetch(endpoint, {
@@ -2656,6 +2654,7 @@
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`, // 🔥 JWT 토큰 추가
                 },
+                body: JSON.stringify(UserId),
             });
 
             if (!response.ok) {

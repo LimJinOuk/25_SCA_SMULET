@@ -992,9 +992,12 @@
         const loginLink = document.getElementById('loginLink');
         const logoutLink = document.getElementById('logoutLink');
         const registerLink = document.querySelector('nav a[href="/Register"]');
-        const token = localStorage.getItem('jwtToken');
 
-        if (token) {
+              // 부팅 시 refresh 시도(쿠키에 refresh가 있으면 새 access를 메모리에 채움)
+        try { await TokenManager.refresh(); } catch {}
+        const isLoggedIn = !!TokenManager.get();
+
+        if (isLoggedIn) {
             loginLink.style.display = 'none';
             logoutLink.style.display = 'inline';
             registerLink.style.display = 'none';
@@ -1006,17 +1009,16 @@
 
         logoutLink.addEventListener('click', function (e) {
             e.preventDefault();
-            localStorage.removeItem('jwtToken');
+            TokenManager.set(null);
             alert('로그아웃 되었습니다.');
             window.location.href = '/';
         });
         // 드롭다운 채우기 & 체인지 바인딩
         populateSemesterSelectInline();
         document
-            .getElementById('semesterSelectInline')
-            ?.addEventListener('change', onSemesterSelectInlineChange);
+            .getElementById('semesterSelectInline')?.addEventListener('change', onSemesterSelectInlineChange);
 
-        if (token) {
+        if (isLoggedIn) {
             // 1) userInfo 먼저 확보(→ UserId 세팅 보장)
             await loaduserinfo().catch(console.error);
             await hydrateSemestersFromServer();
@@ -1027,7 +1029,6 @@
 
 
     function deleteAccount() {
-        const token = localStorage.getItem('jwtToken');
         if (
             !confirm(
                 '정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.'
@@ -1035,11 +1036,10 @@
         )
             return;
 
-        fetch('/member/delete', {
+        apiFetch('/member/delete', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
             },
         })
             .then((res) => {
@@ -1063,7 +1063,6 @@
         const modalOverlay = document.getElementById('modalOverlay');
         const closeBtn = document.getElementById('close-btn');
         const confirmBtn = document.getElementById('confirm');
-        const token = localStorage.getItem('jwtToken');
 
         modalOverlay.classList.remove('hidden');
         document.body.classList.add('modal-open');
@@ -1076,11 +1075,10 @@
         confirmBtn.onclick = () => {
             const pw = document.getElementById('pw').value;
 
-            fetch('/check_pw_button', {
+            apiFetch('/check_pw_button', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({ pw }),
             })
@@ -1109,18 +1107,16 @@
     document.getElementById('changePwBtn').onclick = function () {
         const newPw = document.getElementById('newPassword').value;
         const confirmPw = document.getElementById('confirmPassword').value;
-        const token = localStorage.getItem('jwtToken');
 
         if (!newPw || !confirmPw || newPw !== confirmPw) {
             alert('비밀번호를 정확히 입력해주세요.');
             return;
         }
 
-        fetch('/PWupdate_button', {
+        apiFetch('/PWupdate_button', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ pw: newPw }),
         })
@@ -1161,9 +1157,8 @@
     function goToTechTree() {
         const select = document.getElementById('techTreeSelect');
         const year = select.value;
-        const token = localStorage.getItem('jwtToken');
 
-        if (!token) {
+        if (!TokenManager.get()){
             alert('로그인 토큰이 없습니다.');
             return;
         }
@@ -1172,9 +1167,8 @@
             return;
         }
 
-        fetch(`/tech_tree?year=${year}`, {
+        apiFetch(`/tech_tree?year=${year}`, {
             method: 'GET',
-            headers: { Authorization: `Bearer ${token}` },
         })
             .then((res) => {
                 if (res.ok) return res.text();
@@ -1204,11 +1198,10 @@
     async function fetchLatestTimetableIdFromUserInfo(semesterCode,{tries=6,baseDelay=300}={}) {
         if (!semesterCode) throw new Error('semesterCode가 필요합니다.');
         const termNum = Number(semesterCode);
-        const token = localStorage.getItem('jwtToken');
-        const headers = { Authorization: `Bearer ${token}`, 'Cache-Control': 'no-cache' };
+        const headers = { 'Cache-Control': 'no-cache' };
 
         for (let i=0;i<tries;i++){
-            const res = await fetch(`/userinfo?_=${Date.now()}`, { headers, cache:'no-store', credentials:'include' });
+            const res = await apiFetch(`/userinfo?_=${Date.now()}`, { headers, cache:'no-store', credentials:'include' });
             if (res.ok){
                 const u = await res.json();
                 if (Array.isArray(u?.timetables)) {
@@ -1228,17 +1221,16 @@
     }
 
     async function createTimetableOnServer(semesterCode){
-        let token = localStorage.getItem('jwtToken');
+        /*
         if (!token){
             alert('로그인이 필요합니다.');
             window.location.href = '/login_page';
             throw new Error('JWT 없음');
-        }
+        }*/
         const fd = new FormData();
         fd.append('semester', semesterCode);
-        const res = await fetch('/addTimetable', {
+        const res = await apiFetch('/addTimetable', {
             method:'POST',
-            headers:{ Authorization: `Bearer ${token}` },
             body: fd,
             credentials:'include',
         });
@@ -1261,16 +1253,16 @@
         const loginLink = document.getElementById('loginLink');
         const logoutLink = document.getElementById('logoutLink');
         const registerLink = document.querySelector('nav a[href="/Register"]');
-        const token = localStorage.getItem('jwtToken');
 
-        if (token){ loginLink.style.display='none'; logoutLink.style.display='inline'; registerLink.style.display='none'; }
+        if (TokenManager.get()){ loginLink.style.display='none'; logoutLink.style.display='inline'; registerLink.style.display='none'; }
         else { loginLink.style.display='inline'; logoutLink.style.display='none'; registerLink.style.display='inline'; }
 
         logoutLink?.addEventListener('click', (e)=>{
             e.preventDefault();
-            localStorage.removeItem('jwtToken');
+            TokenManager.set(null);            // 메모리 토큰 정리
+            // 필요시 서버 쿠키 정리 API가 있으면 호출: apiFetch('/logout', { method:'POST' });
             alert('로그아웃 되었습니다.');
-            window.location.href = '/';
+            location.href = '/';
         });
 
         populateSemesterSelectInline();
@@ -1327,8 +1319,7 @@
      * 사용자/계정 관련
      ***********************/
     function loaduserinfo(){
-        const token = localStorage.getItem('jwtToken');
-        return fetch('/userinfo', { method:'GET', headers:{ Authorization:`Bearer ${token}` } })
+        apiFetch('/userinfo', { method:'GET',})
             .then(res=>{ if(!res.ok) throw new Error('사용자 정보 불러오기 실패'); return res.json(); })
             .then(data=>{
                 document.getElementById('userName').textContent = data.name;
@@ -1348,7 +1339,6 @@
         // ▼ 파일 상단 전역에 한 줄 추가
     let _moreOpen = false;  // 더보기 펼침 상태 (초기: 접힘 → 대표만 보임)
 
-    /** 대표 학기만 기본 표기, 더보기로 나머지 토글 */
     function renderSemesterList() {
         const list = document.getElementById('semesterList');
         if (!list) return;
@@ -1510,8 +1500,6 @@
             }
         }, { once: true });
 
-        // ❌ 여기 있었던 동기화 try{} 블록은 삭제!
-        // (열 때가 아니라, 닫을 때 동기화해야 함)
 
         title.textContent = semester;
         container.innerHTML = generateModalGridSpanTable(); // 그리드 생성
@@ -1533,12 +1521,10 @@
         modal.classList.remove('hidden');
         document.body.classList.add('modal-open');
 
-        const token = localStorage.getItem('jwtToken');
-
         // 1) 현재 시간표 → 슬롯으로 렌더
-        fetch('/getTC', {
+        apiFetch('/getTC', {
             method:'POST',
-            headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+            headers:{ 'Content-Type':'application/json',},
             body: JSON.stringify(UserId),
         })
             .then(res=>{ if(!res.ok) throw new Error('시간표 조회 실패'); return res.json(); })
@@ -1551,9 +1537,9 @@
                     filtered.map(getCourseId).filter(v=>v!=null && String(v).trim()!=='')
                 ));
                 if (courseIds.length === 0) return;
-                const slotRes = await fetch('/getTS2TE', {
+                const slotRes = await apiFetch('/getTS2TE', {
                     method:'POST',
-                    headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+                    headers:{ 'Content-Type':'application/json',},
                     body: JSON.stringify({ getScheduleIds: courseIds }),
                 });
                 if (!slotRes.ok) throw new Error('슬롯 조회 실패');
@@ -1563,7 +1549,7 @@
             .catch(err=>console.error('getTC/슬롯 로드 오류:', err));
 
         // 2) 수업 목록
-        fetch('/a', { headers: { Authorization:`Bearer ${token}` } })
+        apiFetch('/a')
             .then(res=>res.json())
             .then(data=>{
                 currentCourseList = data;
@@ -2061,10 +2047,9 @@
 
     // ⬇️ 이미 이 시간표에 저장된 courseId(숫자 PK)들을 받아오기
     async function fetchExistingCourseIdsByTimetable(timetableId){
-        const token = localStorage.getItem('jwtToken');
-        const res = await fetch('/getTC', {
+        const res = await apiFetch('/getTC', {
             method:'POST',
-            headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+            headers:{ 'Content-Type':'application/json', },
             body: JSON.stringify(UserId),
         });
         if (!res.ok) throw new Error('기존 과목 조회 실패');
@@ -2106,17 +2091,15 @@
                 return;
             }
 
-            const token = localStorage.getItem('jwtToken');
             const payload = {
                 timetableId: Number(currentTimetableId),
                 courseIds: allCourseIds,
             };
 
-            const res = await fetch('/addTC', {
+            const res = await apiFetch('/addTC', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
                 },
                 body: JSON.stringify(payload),
             });
@@ -2169,9 +2152,8 @@
     }
 
     async function hydrateSemestersFromServer(){
-        const token = localStorage.getItem('jwtToken');
         try{
-            const res = await fetch('/tableId_List', { method:'GET', headers:{ Authorization:`Bearer ${token}` }, credentials:'include' });
+            const res = await apiFetch('/tableId_List', { method:'GET',credentials:'include' });
             if (!res.ok) throw new Error(`시간표 목록 조회 실패 (HTTP ${res.status})`);
             const data = await res.json();
             const list = pickTimetableArray(data);
@@ -2202,12 +2184,11 @@
         if (!Number.isInteger(timetableId)){
             alert('유효한 timetableId가 필요합니다.'); return;
         }
-        const token = localStorage.getItem('jwtToken');
         if (!confirm('이 학기의 시간표를 삭제할까요?')) return;
         try{
-            const res = await fetch('/deleteTimetable ', {
+            const res = await apiFetch('/deleteTimetable', {
                 method:'POST',
-                headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+                headers:{ 'Content-Type':'application/json',},
                 body: JSON.stringify(timetableId),
             });
             const txt = await res.text();
@@ -2226,7 +2207,6 @@
     }
 
     async function onToggleRepresentative(termCode, checked) {
-        const token = localStorage.getItem('jwtToken');
 
         // 해당 학기의 timetableId 찾기
         const tid = timetableIdsBySemester?.[termCode] ?? (await fetchLatestTimetableIdFromUserInfo(termCode));
@@ -2241,9 +2221,8 @@
             fd.append('timetableId', String(tid));
             fd.append('active', String(!!checked));
 
-            const res = await fetch('/representative_Timetable', {
+            const res = await apiFetch('/representative_Timetable', {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
                 body: fd,
             });
 
@@ -2278,12 +2257,10 @@
 
 
     async function loadRepresentativeSchedule(getScheduleIds){
-        const token = localStorage.getItem('jwtToken');
-        if (!token){ alert('로그인이 필요합니다.'); return; }
         try{
-            const res = await fetch('/getTS2TE', {
+            const res = await apiFetch('/getTS2TE', {
                 method:'POST',
-                headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+                headers:{ 'Content-Type':'application/json',},
                 body: JSON.stringify({ getScheduleIds }),
             });
             if (!res.ok) throw new Error('대표 시간표 조회 실패');
@@ -2601,11 +2578,10 @@
      * 대표 시간표 데이터 로드
      ***********************/
     async function renderRepresentativeFromServer(){
-        const token = localStorage.getItem('jwtToken');
-        if (!token) return;
-        if (!UserId){ try{ await loaduserinfo(); } catch{} }
+        try { await TokenManager.refresh(); } catch {}
+        if (!UserId){ try { await loaduserinfo(); } catch {} }
 
-        const res = await fetch('/tableId_List', { method:'GET', headers:{ Authorization:`Bearer ${token}` }, credentials:'include' });
+        const res = await apiFetch('/tableId_List', { method:'GET', credentials:'include' });
         if (!res.ok) return;
         const data = await res.json();
         const list = pickTimetableArray(data);
@@ -2620,9 +2596,9 @@
         representativeTermCode = termCode;
         document.getElementById('representativeTitle').textContent = `📌 대표 시간표 - ${toSemesterName(termCode)}`;
 
-        const byUid = await fetch('/getTC', {
+        const byUid = await apiFetch('/getTC', {
             method:'POST',
-            headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+            headers:{ 'Content-Type':'application/json', },
             body: JSON.stringify(UserId),
         });
         if (!byUid.ok){
@@ -2645,14 +2621,11 @@
     }
     // 공통 fetch 함수
     async function fetchCreditData(endpoint) {
-
         try {
-            const token = localStorage.getItem("jwtToken");
-            const response = await fetch(endpoint, {
+            const response = await apiFetch(endpoint, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`, // 🔥 JWT 토큰 추가
                 },
                 body: JSON.stringify(UserId),
             });
@@ -2722,6 +2695,62 @@
             });
         });
         return Array.from(result);
+    }
+    /************ AccessToken 메모리 보관 + 자동 리프레시 ************/
+    const TokenManager = (() => {
+        let accessToken = null;
+        let refreshingPromise = null;
+
+        const set = (t) => { accessToken = t || null; };
+        const get = () => accessToken;
+
+        const refresh = async () => {
+            if (refreshingPromise) return refreshingPromise;
+            refreshingPromise = (async () => {
+                const res = await fetch('/refreshT', {
+                    method: 'POST',
+                    credentials: 'include', // ★ HttpOnly refreshToken 쿠키 전송
+                });
+                if (!res.ok) { set(null); throw new Error('Refresh failed'); }
+
+                // 서버가 이미 Access-Control-Expose-Headers: Authorization 설정함
+                const auth = res.headers.get('Authorization'); // "Bearer xxx"
+                if (!auth || !auth.startsWith('Bearer ')) {
+                    set(null);
+                    throw new Error('No Authorization header');
+                }
+                const token = auth.slice('Bearer '.length);
+                set(token);
+                return token;
+            })();
+            try { return await refreshingPromise; }
+            finally { refreshingPromise = null; }
+        };
+
+        return { get, set, refresh };
+    })();
+
+    /************ 모든 API 호출용 공통 fetch (401시 1회 자동 재시도) ************/
+    async function apiFetch(input, init = {}) {
+        const headers = new Headers(init.headers || {});
+        const token = TokenManager.get();
+        if (token) headers.set('Authorization', `Bearer ${token}`);
+
+        // 기본적으로 쿠키 동봉(서버가 쿠키 사용하는 엔드포인트 많음)
+        let res = await fetch(input, { ...init, headers, credentials: 'include' });
+
+        if (res.status === 401) {
+            try {
+                const newToken = await TokenManager.refresh();
+                const retryHeaders = new Headers(init.headers || {});
+                retryHeaders.set('Authorization', `Bearer ${newToken}`);
+                res = await fetch(input, { ...init, headers: retryHeaders, credentials: 'include' });
+            } catch (e) {
+                TokenManager.set(null);
+                throw e;
+            }
+        }
+        return res;
     }
 </script>
 </body>

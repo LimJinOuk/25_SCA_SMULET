@@ -993,20 +993,19 @@
         const logoutLink = document.getElementById('logoutLink');
         const registerLink = document.querySelector('nav a[href="/Register"]');
 
-              // 부팅 시 refresh 시도(쿠키에 refresh가 있으면 새 access를 메모리에 채움)
+        // 부팅 시 refresh 시도(쿠키에 refresh가 있으면 새 access를 메모리에 채움)
         try { await TokenManager.refresh(); } catch {}
         const isLoggedIn = !!TokenManager.get();
 
         if (isLoggedIn) {
-            loginLink.style.display = 'none';
-            logoutLink.style.display = 'inline';
-            registerLink.style.display = 'none';
+            loginLink && (loginLink.style.display = 'none');
+            logoutLink && (logoutLink.style.display = 'inline');
+            if (registerLink) registerLink.style.display = 'none';
         } else {
-            loginLink.style.display = 'inline';
-            logoutLink.style.display = 'none';
-            registerLink.style.display = 'inline';
+            loginLink && (loginLink.style.display = 'inline');
+            logoutLink && (logoutLink.style.display = 'none');
+            if (registerLink) registerLink.style.display = 'inline';
         }
-
         logoutLink.addEventListener('click', function (e) {
             e.preventDefault();
             TokenManager.set(null);
@@ -1221,12 +1220,6 @@
     }
 
     async function createTimetableOnServer(semesterCode){
-        /*
-        if (!token){
-            alert('로그인이 필요합니다.');
-            window.location.href = '/login_page';
-            throw new Error('JWT 없음');
-        }*/
         const fd = new FormData();
         fd.append('semester', semesterCode);
         const res = await apiFetch('/addTimetable', {
@@ -1249,18 +1242,21 @@
     /***********************
      * 초기 바인딩
      ***********************/
-    document.addEventListener('DOMContentLoaded', async function(){
-        const loginLink = document.getElementById('loginLink');
-        const logoutLink = document.getElementById('logoutLink');
+    document.addEventListener('DOMContentLoaded', async () => {
+        try { await TokenManager.refresh(); } catch {}
+        const isLoggedIn = !!TokenManager.get();
+
+        const loginLink    = document.getElementById('loginLink');
+        const logoutLink   = document.getElementById('logoutLink');
         const registerLink = document.querySelector('nav a[href="/Register"]');
 
-        if (TokenManager.get()){ loginLink.style.display='none'; logoutLink.style.display='inline'; registerLink.style.display='none'; }
-        else { loginLink.style.display='inline'; logoutLink.style.display='none'; registerLink.style.display='inline'; }
+        loginLink.style.display  = isLoggedIn ? 'none'  : 'inline';
+        logoutLink.style.display = isLoggedIn ? 'inline': 'none';
+        registerLink.style.display = isLoggedIn ? 'none':'inline';
 
-        logoutLink?.addEventListener('click', (e)=>{
+        logoutLink?.addEventListener('click', (e) => {
             e.preventDefault();
-            TokenManager.set(null);            // 메모리 토큰 정리
-            // 필요시 서버 쿠키 정리 API가 있으면 호출: apiFetch('/logout', { method:'POST' });
+            TokenManager.set(null);
             alert('로그아웃 되었습니다.');
             location.href = '/';
         });
@@ -1268,12 +1264,14 @@
         populateSemesterSelectInline();
         document.getElementById('semesterSelectInline')?.addEventListener('change', onSemesterSelectInlineChange);
 
-        if (token){
-            await loaduserinfo().catch(console.error);
+        if (isLoggedIn) {
+            await loaduserinfo();
             await hydrateSemestersFromServer();
             await renderRepresentativeFromServer();
+            await loadCredits();
         }
     });
+
 
     /** 드롭다운 옵션 갱신 */
     function populateSemesterSelectInline(){
@@ -1318,7 +1316,7 @@
     /***********************
      * 사용자/계정 관련
      ***********************/
-    function loaduserinfo(){
+    async function loaduserinfo(){
         apiFetch('/userinfo', { method:'GET',})
             .then(res=>{ if(!res.ok) throw new Error('사용자 정보 불러오기 실패'); return res.json(); })
             .then(data=>{

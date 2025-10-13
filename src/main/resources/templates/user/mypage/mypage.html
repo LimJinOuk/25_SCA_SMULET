@@ -97,7 +97,7 @@
         }
         /* 박스 간 간격 통일 \*/
         .sidebar .box + .box {
-            margin-top: 16px;
+            margin-top: 5px;
         }
         /* 박스 타이틀을 card 헤더처럼 쓰고 싶을 때 */
         .box .card-title {
@@ -1985,14 +1985,17 @@
         tooltip.style.fontSize='0.98rem';
         tooltip.style.pointerEvents='none';
         tooltip.innerHTML = `
-    <b>${courseInfo.courseName}</b>
+    <b>${courseInfo.courseName}(${
+            courseInfo.identifyNumberOfCourse
+                ? courseInfo.identifyNumberOfCourse.split('-')[1]|| '-'
+                : '-'
+        })</b>
     <br>교수: ${courseInfo.professorName || '-'}
+    <br>이메일:
     <br>강의실: ${courseInfo.classroom}
-    <br>구분: ${courseInfo.majorOrCulture ? '전공' : '교양'}
+    <br>구분: ${courseInfo.majorOrCulture ? '교양' : '전공'}
     <br>학점: ${courseInfo.credit}
-    <br>요일: ${['월','화','수','목','금'][courseInfo.scheduleDay - 1] || courseInfo.scheduleDay}
-    <br>교시: ${courseInfo.timeStart} ~ ${courseInfo.timeEnd}
-    <br>과목코드: ${courseInfo.identifyNumberOfCourse}
+    <br>학수번호: ${courseInfo.identifyNumberOfCourse}
   `;
         document.body.appendChild(tooltip);
 

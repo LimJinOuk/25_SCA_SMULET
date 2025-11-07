@@ -1,13 +1,13 @@
 package com.jinouk.smulet.domain.SQLQuery.repository;
 
-import com.jinouk.smulet.domain.SQLQuery.entity.schedule_of_course;
+import com.jinouk.smulet.domain.SQLQuery.entity.scheduleOfCourse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface getTS2TE extends JpaRepository<schedule_of_course, Integer> {
+public interface getTS2TE extends JpaRepository<scheduleOfCourse, Integer> {
 
     @Query(value = """
     SELECT

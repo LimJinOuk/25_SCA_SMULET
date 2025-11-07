@@ -83,7 +83,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:3000", "http://127.0.0.1:3000")); // ✅ 프론트 포트
+        config.setAllowedOrigins(List.of("http://localhost:3000", "http://127.0.0.1:3000" , "https://www.smulet.co.kr" , "http://www.smulet.co.kr" , "https://smulet.co.kr" , "http://smulet.co.kr")); // ✅ 프론트 포트
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true); // 쿠키 포함 여부 (HttpOnly 쿠키 사용 시 필요)

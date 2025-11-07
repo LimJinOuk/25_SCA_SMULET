@@ -97,7 +97,7 @@ public class homecontroller {
                 .secure(false) // HTTPS만 사용할 경우 true TODO : 이거 배포시 꼭 true로 바꾸기
                 .path("/")
                 .maxAge( 24 * 60 * 60)
-                .sameSite("None")
+                .sameSite("Strict")
                 .build();
 
         headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());

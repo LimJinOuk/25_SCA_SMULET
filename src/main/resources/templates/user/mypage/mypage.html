@@ -8,6 +8,18 @@
             rel="stylesheet"
     />
     <style>
+        /* ========== Tokens ========== */
+        :root {
+            --line: #e2e8f0;
+            --muted: #6b7280;
+            --brand: #2563eb;
+            --brand-weak: #e6efff;
+            --danger: #ef4444;
+            --shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+            --preview-color: rgba(99, 179, 237, 0.25); /* 프리뷰 박스 배경 */
+        }
+
+        /* ========== Base ========== */
         body {
             margin: 0;
             padding: 0;
@@ -17,6 +29,7 @@
             display: flex;
             flex-direction: column;
         }
+
         header {
             padding: 20px;
             box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
@@ -26,10 +39,11 @@
             align-items: center;
             border-bottom: 1px solid #e2e8f0;
         }
+
         h1 {
             font-size: 2.3rem;
             font-weight: bold;
-            color: #2563eb;
+            color: var(--brand);
             margin: 0;
         }
         h1 a {
@@ -48,520 +62,300 @@
             color: #3b82f6;
             font-size: 1.1rem;
         }
-        main {
-            flex: 1;
-            padding: 20px 0;
-        }
+
+        main { flex: 1; padding: 20px 0; }
+
+        /* ========== Layout (Grid) ========== */
         .container {
             display: grid;
-            grid-template-columns: 2fr 1fr; /* 좌:대표(넓게) / 우:사이드 */
+            grid-template-columns: 2fr 1fr; /* 좌: 대표(넓게) / 우: 사이드 */
             gap: 16px;
             max-width: 1200px;
             width: 100%;
             margin: 0 auto;
             padding: 20px 16px;
         }
-
-        /* 우측 패널은 세로 스택 */
         .sidebar {
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
-
-        /* 반응형 전환 */
         @media (max-width: 900px) {
-            .container {
-                grid-template-columns: 1fr; /* 한 줄 */
-            }
+            .container { grid-template-columns: 1fr; }
         }
+
+        /* ========== Cards / Boxes ========== */
         .box {
-            flex: unset;   /* 자동 높이 */
             background: #fff;
-            border: 1px solid #e2e8f0; /* card 라인 */
+            border: 1px solid var(--line);
             border-radius: 14px;
             padding: 16px 18px;
-            box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+            box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
             min-height: 160px;
             box-sizing: border-box;
-            transition: all 0.3s ease;
+            transition: transform .3s ease, box-shadow .3s ease;
         }
-        .box3{
-            min-height: 220px;
-        }
+        .box3 { min-height: 220px; }
         .box:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
         }
-        /* 박스 간 간격 통일 \*/
-        .sidebar .box + .box {
-            margin-top: 5px;
-        }
-        /* 박스 타이틀을 card 헤더처럼 쓰고 싶을 때 */
+        .sidebar .box + .box { margin-top: 5px; }
+
         .box .card-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; align-items: center; gap: 10px;
             margin: 0 0 12px;
-            font-size: 16px;
-            font-weight: 800;
+            font-size: 16px; font-weight: 800;
         }
         .box .card-title .icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            background: #e6efff; /* brand-weak 느낌 */
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 8px; background: var(--brand-weak);
             font-size: 16px;
         }
 
-        /* 텍스트 공통 */
-        h2,
-        h3 {
-            margin: 0 0 10px;
-            font-size: 1.1rem;
-            color: #111827;
-        }
-        .section h3 {
-            margin-top: 24px; /* “비밀번호 변경” 제목 위로 24px 띄움 */
-        }
-        .section {
-            margin-bottom: 10px;
-        }
-        .section button {
-            display: inline-block;
-            width: 120px;
-            margin-top: 8px;
-            text-align: center;
-        }
-        /* 회원 설정: 제목과 버튼을 같은 줄에 */
+        /* ========== Typography / Sections ========== */
+        h2, h3 { margin: 0 0 10px; font-size: 1.1rem; color: #111827; }
+        .section { margin-bottom: 10px; }
+        .info p { margin: 3px 0; font-size: .9rem; color: #374151; }
+
+        /* 제목-액션 가로 정렬 */
         .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 0px; /* 기존 h3 위 여백 대체 */
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
         }
-        .section-header h3 {
-            margin: 0; /* 기본 마진 제거 */
-            line-height: 1; /* 높이를 조금 줄여 위로 붙게 */
-            transform: translateY(-3px); /* 위로 3px 이동 (원하면 -2~ -5로 조절) */
-        }
-
-        /* 버튼 묶음 (우측) */
-        .section-header .actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        /* 기존 .section button { width:120px } 같은 규칙을 무력화 */
-        .section-header .actions button {
-            width: auto;
-            margin-top: 0;
-            padding: 8px 12px; /* 컴팩트 */
-        }
-
-        /* 화면 좁을 때는 자연스럽게 줄바꿈 */
+        .section-header h3 { margin: 0; line-height: 1; transform: translateY(-3px); }
+        .section-header .actions { display: flex; gap: 8px; }
+        .section-header .actions button { width: auto; margin-top: 0; padding: 8px 12px; }
         @media (max-width: 560px) {
-            .section-header {
-                flex-wrap: wrap;
-            }
-            .section-header .actions {
-                width: 100%;
-                justify-content: flex-start;
-            }
+            .section-header { flex-wrap: wrap; }
+            .section-header .actions { width: 100%; justify-content: flex-start; }
         }
 
-        .info p {
-            margin: 3px 0;
-            font-size: 0.9rem;
-            color: #374151;
-        }
+        /* ========== Buttons ========== */
         button {
-            background-color: #2563eb;
-            color: white;
+            background-color: var(--brand);
+            color: #fff;
             border: none;
             padding: 10px 16px;
             border-radius: 10px;
-            font-size: 0.9rem;
+            font-size: .9rem;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: background-color .25s ease, transform .25s ease;
         }
-        button:hover {
-            background-color: #1e40af;
-            transform: scale(1.03);
-        }
-        button.red {
-            background-color: #ef4444;
-        }
-        button.red:hover {
-            background-color: #dc2626;
-        }
-        .representative-container {
-            width: 100%;
-            display: block; /* 중앙정렬 플렉스 제거 */
-            margin-top: 0;
-        }
+        button:hover { background-color: #1e40af; transform: scale(1.03); }
+        button.red { background-color: var(--danger); }
+        button.red:hover { background-color: #dc2626; }
+
+        /* ========== Representative Schedule Container ========== */
+        .representative-container { width: 100%; }
         .representative-box {
-            width: auto; /* 70% 제한 해제 */
-            max-width: none; /* 1000px 제한 해제(필요 시 복원 가능) \*/
-            background-color: white;
+            background-color: #fff;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            padding: 30px;
-            box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(0,0,0,.05);
+            padding: 30px; box-sizing: border-box;
         }
+        /* 대표 시간표 폭 지정 & 중앙 정렬 */
+        #repGridCard { width: 750px; margin: 0 auto; }
 
-        /* 대표 시간표만 가로 폭 줄이기 */
-        #repGridCard {
-            width: 750px;   /* 원하는 크기 */
-            margin: 0 auto; /* 가운데 정렬 */
-        }
-
-        /* 대표 시간표만 세로 높이 늘리기 */
-        #repGridCard .row {
-            height: 100px;   /* 교시 높이 */
-        }
-        #repGridCard .cell { min-height: 0; } /* 충돌 방지 */
-
-
+        /* ========== Footer ========== */
         footer {
             background-color: rgba(30, 30, 30, 0.98);
             color: rgba(200, 200, 200, 0.7);
-            font-size: 0.9rem;
+            font-size: .9rem;
             padding: 2rem 1rem;
             text-align: center;
             border-top: 1px solid #444;
             margin-top: auto;
         }
-        footer a {
-            text-decoration: none;
-            color: rgba(200, 200, 200, 0.7);
-            margin: 0 10px;
-        }
-        footer a:hover {
-            text-decoration: underline;
-        }
+        footer a { text-decoration: none; color: rgba(200, 200, 200, 0.7); margin: 0 10px; }
+        footer a:hover { text-decoration: underline; }
+
+        /* ========== Select (Custom) ========== */
         select {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-color: white;
+            appearance: none; -webkit-appearance: none; -moz-appearance: none;
+            background-color: #fff;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
             padding: 10px 14px;
-            font-size: 1rem;
-            color: #111827;
+            font-size: 1rem; color: #111827;
             font-family: 'Montserrat', sans-serif;
             cursor: pointer;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: border-color .2s ease, box-shadow .2s ease;
             background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
             background-repeat: no-repeat;
             background-position: right 12px center;
             background-size: 16px 16px;
-            padding-right: 40px; /* 화살표 공간 확보 */
+            padding-right: 40px;
         }
-        select:hover {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-        }
-        select:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
-        }
+        select:hover { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(37,99,235,.2); }
+        select:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(37,99,235,.3); }
+
+        /* ========== Modal ========== */
         .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            position: fixed; inset: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: flex; justify-content: center; align-items: center;
             z-index: 1000;
         }
-        .modal-wrapper {
-            display: contents;
-        }
+        .modal-wrapper { display: contents; }
         .modal {
-            background: #fff;
-            border-radius: 12px;
+            background: #fff; border-radius: 12px;
             padding: 24px 32px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+            max-width: 400px; width: 90%;
+            box-shadow: 0 6px 24px rgba(0,0,0,.2);
             text-align: center;
-            display: flex;
-            flex-direction: row;
-            gap: 16px;
+            display: flex; flex-direction: row; gap: 16px;
         }
-
         .modal-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 8px;
+            display: flex; justify-content: center; gap: 12px; margin-top: 8px;
         }
         .modal-buttons button {
-            flex: 1;
-            max-width: 120px;
-            padding: 0.6rem 0;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            transition: transform 0.15s, box-shadow 0.15s;
+            flex: 1; max-width: 120px;
+            padding: .6rem 0; border-radius: 8px; font-size: .95rem;
+            transition: transform .15s, box-shadow .15s, opacity .15s;
         }
         .modal-buttons #confirm,
-        .modal-buttons #changePwBtn {
-            background-color: #2563eb;
-            color: #fff;
-        }
+        .modal-buttons #changePwBtn { background-color: var(--brand); color: #fff; }
         .modal-buttons #close-btn,
-        .modal-buttons #cancelChange {
-            background-color: #e0e0e0;
-            color: #333;
-        }
-        .modal-buttons button:hover {
-            transform: translateY(-1px);
-            opacity: 0.9;
-        }
-        .modal-buttons button:active {
-            transform: translateY(1px);
-        }
-
+        .modal-buttons #cancelChange { background-color: #e0e0e0; color: #333; }
+        .modal-buttons button:hover { transform: translateY(-1px); opacity: .9; }
+        .modal-buttons button:active { transform: translateY(1px); }
         .modal input[type='password'] {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 1rem;
+            width: 100%; padding: .75rem 1rem;
+            border: 1px solid #ccc; border-radius: 8px; font-size: 1rem;
             box-sizing: border-box;
         }
+        .hidden { display: none; }
+        body.modal-open { overflow: hidden; }
 
-        .hidden {
-            display: none;
-        }
-        body.modal-open {
-            overflow: hidden;
-        }
-        #semesterList {
-            list-style: none;
-            padding-left: 0;
-            margin: 12px 0 0 0;
-        }
+        /* ========== Semester List ========== */
+        #semesterList { list-style: none; padding-left: 0; margin: 12px 0 0 0; }
         #semesterList li {
             margin: 5px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
         }
         #semesterList .semester-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 10px 14px;
-            background: #fff;
-            transition: background-color 0.15s ease, box-shadow 0.15s ease,
-            border-color 0.15s ease;
-            cursor: pointer;
-            width: 80%;
+            display: flex; align-items: center; justify-content: space-between; gap: 14px;
+            border: 1px solid #e5e7eb; border-radius: 10px;
+            padding: 10px 14px; background: #fff;
+            transition: background-color .15s ease, box-shadow .15s ease, border-color .15s ease;
+            cursor: pointer; width: 80%;
         }
         #semesterList .semester-item:hover {
-            background: #f9fafb;
-            border-color: #d1d5db;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            background: #f9fafb; border-color: #d1d5db; box-shadow: 0 4px 12px rgba(0,0,0,.04);
         }
-        #semesterList .semester-name {
-            color: #111827;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        #semesterList .semester-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        #semesterList .rep-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-        }
+        #semesterList .semester-name { color: #111827; text-decoration: none; font-weight: 600; }
+        #semesterList .semester-actions { display: flex; align-items: center; gap: 10px; }
+        #semesterList .rep-label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
         #semesterList .del-btn {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: transparent; border: none; cursor: pointer; padding: 4px;
+            display: flex; align-items: center; justify-content: center;
         }
-        .course-tooltip {
-            animation: fadeIn 0.12s;
+        /* 더보기 버튼 */
+        .hidden-semester { display: none !important; }
+        #showMoreBtn {
+            margin-top: 10px; width: 100%;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb; color: #111827;
+            border-radius: 10px; padding: 8px 12px; cursor: pointer; font-size: .92rem;
         }
+        #showMoreBtn:hover { background: #eceff3; }
+
+        /* ========== Course Tooltip ========== */
+        .course-tooltip { animation: fadeIn .12s; }
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
+
+        /* ========== Tech Tree Small Cards ========== */
         .details-container {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4등분 고정 */
-            gap: 10px;
-            margin-top: 10px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px; margin-top: 10px;
         }
         @media (max-width: 420px) {
-            .details-container {
-                grid-template-columns: repeat(2, 1fr);
-            } /* 모바일 2열 \*/
+            .details-container { grid-template-columns: repeat(2, 1fr); }
         }
         .detail {
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--line); border-radius: 10px; background-color: #fff;
+            height: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,.1);
+            transition: transform .2s ease-in-out, box-shadow .2s ease-in-out;
+        }
+        .detail:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,.15); cursor: pointer; }
+        .detail .label { font-size: 17px; font-weight: bold; margin-bottom: 4px; }
+        .detail .value { font-size: 20px; font-weight: 700; color: #007bff; }
+
+        .box .desc-list { margin: 8px 0 14px; }
+        .box .desc-list div { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+        .box .desc-list dt { width: 66px; color: var(--muted); font-weight: 700; }
+        .box .desc-list dd { margin: 0; }
+        .box2 .subtext, .box3 .subtext {
+            font-size: .85rem; line-height: 1.4; color: var(--muted); margin-top: 4px;
+        }
+
+        /* ========== Schedule (Grid-based) ========== */
+        .schedule-card {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: var(--shadow);
+        }
+        .schedule-header {
+            display: grid; grid-template-columns: 120px repeat(5, 1fr);
+            background: #f9fbff; border-bottom: 1px solid var(--line);
+        }
+        .schedule-header > div { padding: 12px; font-weight: 700; text-align: center; }
+        .schedule-body { display: flex; flex-direction: column; }
+
+        /* Grid 본체 */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 120px repeat(5, 1fr); /* 시간열 + 월~금 */
+            grid-auto-rows: 80px;                        /* 교시 높이 (모달/대표에서 JS로 조정 가능) */
+            grid-auto-flow: row dense;
+            position: relative;
+            background: #fff;
+            border-top: 1px solid var(--line);
+            border-left: 1px solid var(--line);
+        }
+
+        /* 왼쪽 시간 셀 */
+        .time-cell {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px;
+            background: #fbfbfb;
+            border-bottom: 1px solid var(--line);
+            border-right: 1px solid var(--line);
+        }
+        .time-cell span { color: var(--muted); font-weight: 600; }
+
+        /* 빈 자리(격자) */
+        .cell-placeholder {
+            border-right: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            position: relative;
+        }
+
+        /* 과목 블록 (공통) */
+        .course-block {
             border-radius: 10px;
-            background-color: #fff;
-            height: 70px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-        .detail:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-            cursor: pointer;
-            transition: all 0.5s ease;
-        }
-        .detail .label {
-            font-size: 17px;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-        .detail .value {
-            font-size: 20px;
-            font-weight: 700;
-            color: #007bff;
-        }
-        /* 영구 배치가 들어올 때 살짝 하이라이트 */
-        td.commit-flash {
-            animation: commitFlash var(--preview-dur) var(--preview-ease) 1;
-        }
-        @keyframes commitFlash {
-            0% {
-                box-shadow: 0 0 0 rgba(37, 99, 235, 0);
-            }
-            50% {
-                box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.15);
-            }
-            100% {
-                box-shadow: 0 0 0 rgba(37, 99, 235, 0);
-            }
+            border: 2px solid rgba(0,0,0,.12);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 3px 10px rgba(0,0,0,.08);
+            color: #0f172a;
+            display: flex; align-items: center; justify-content: center;
+            padding: 8px 10px; text-align: center;
+            overflow: hidden;
         }
 
-        #scheduleTable .cell[data-period] { position: relative; }
-
-
-        .preview-overlay {
-            position: absolute;
-            inset: 0;
-            padding: 8px 10px;
-            display: block;               /* 글자 레이아웃을 셀과 동일하게 */
-            background: var(--preview-color, #a5d8ff);
-            box-shadow: inset 0 0 0 2px var(--preview-color, #a5d8ff);
-            border-radius: 6px;
-            z-index: 5;
-            pointer-events: none;
-            opacity: 0;
-            transform: scale(0.98);
-            transition: opacity 0.18s ease, transform 0.18s ease;
-        }
-
-        /* 등장 애니메이션 유지 */
-        .preview-overlay.show {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .box .desc-list {
-            margin: 8px 0 14px;
-        }
-        .box .desc-list div {
-            display: flex;
-            gap: 10px;
-            padding: 6px 0;
-            border-bottom: 1px dashed #e2e8f0;
-        }
-        .box .desc-list dt {
-            width: 66px;
-            color: #6b7280;
-            font-weight: 700;
-        }
-        .box .desc-list dd {
-            margin: 0;
-        }
-        /* 테크트리 카드 안의 '모든 테크트리를 만나보세요!'만 작게 */
-        .box2 .subtext,
-        .box3 .subtext {
-            font-size: 0.85rem; /* 필요하면 0.8\~0.95rem 사이로 조절 */
-            line-height: 1.4;
-            color: #6b7280; /* (선택) 살짝 톤 다운 */
-            margin-top: 4px; /* (선택) 위 여백 약간 줄임 \*/
-        }
-        :root{
-            --line:#e2e8f0;
-            --muted:#6b7280;
-            --brand:#2563eb;
-            --brand-weak:#e6efff;
-            --danger:#ef4444;
-            --shadow:0 6px 18px rgba(2,6,23,.06);
-            --preview-color: #a5d8ff; /* ← 원하는 미리보기 고정색으로 변경 */
-        }
-        .schedule-card{
-            border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#fff;
-            box-shadow:var(--shadow);
-        }
-        .schedule-header{
-            display:grid; grid-template-columns:120px repeat(5,1fr);
-            background:#f9fbff; border-bottom:1px solid var(--line);
-        }
-        .schedule-header>div{ padding:12px; font-weight:700; text-align:center; }
-        .schedule-body{ display:flex; flex-direction:column; }
-        .row{
-            display:grid; grid-template-columns:120px repeat(5,1fr);
-            border-bottom:1px solid var(--line);
-        }
-        .row:last-child{ border-bottom:none; }
-        .time-col{
-            padding:12px; background:#fbfbfb; border-right:1px solid var(--line);
-            font-weight:700; font-size:13px; text-align:center;
-        }
-        .time-col span{ display:block; color:var(--muted); font-weight:600; }
-        .cell{
-            min-height:60px; border-right:1px solid var(--line);
-            background:linear-gradient(180deg,#fff 0%,#fff 60%,#fcfcfc 100%);
-        }
-        .row .cell:last-child{ border-right:none; }
-        .cell.busy,
+        /* 바쁜 상태(실제 배치) 시 배경 • 테두리 컬러 적용 */
         .course-block.busy {
-            /* JS에서 이 변수만 넣어주면 됩니다 */
             --c: var(--course-color, #a5d8ff);
-
-            /* 테두리는 같은 색상 계열로 더 또렷하게 */
             --stroke: color-mix(in oklab, var(--c) 85%, black);
-
-            /* 중앙→바깥으로 갈수록 '흰색에 가까운 틴트'가 이어지도록,
-               끝까지 원색 100%로 가지 않고 70~75% 틴트까지만 사용 */
             background:
                     radial-gradient(
                             circle at 50% 45%,
@@ -571,147 +365,39 @@
                             color-mix(in oklab, #ffffff 82%, var(--c)) 68%,
                             color-mix(in oklab, #ffffff 75%, var(--c)) 100%
                     );
-
             border: 2px solid var(--stroke);
-            border-radius: 10px;
-
-            /* 살짝 입체감 */
-            box-shadow:
-                    inset 0 1px 0 rgba(255,255,255,0.7),
-                    0 3px 10px rgba(0,0,0,0.08);
-
-            /* 가운데가 밝으니 진한 텍스트가 가독성 좋음 */
-            color: #0f172a;
         }
 
-        @media (max-width:560px){
-            .schedule-header,.row{ grid-template-columns:80px repeat(5,1fr); }
-            .time-col{ font-size:12px; }
+        /* 블록 내부 텍스트 */
+        .course-block .slot { line-height: 1.3; }
+        .course-block .slot-title {
+            font-size: 13px; font-weight: 800;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        /* === 시간표 셀 안 텍스트 공통 === */
-        /* 과목 블록 전체 */
-        .cell {
-            position: relative;
-            padding: 8px 10px;           /* 셀 안쪽 여백 조금 넉넉하게 */
-            overflow: hidden;            /* 넘치면 잘라냄 */
-            box-sizing: border-box;
+        .course-block .slot-room {
+            margin-top: 2px; font-size: 12px; font-weight: 600;
+            opacity: .9; color: var(--muted);
         }
 
-        .cell .slot {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;     /* 세로 중앙 정렬 → 위로 붙이고 싶으면 flex-start */
-            height: 100%;
-            line-height: 1.3;            /* 줄 간격 약간 넓힘 */
-            text-align: center;          /* 가로 정렬: center / left / right */
-        }
-
-        /* 과목명 */
-        .cell .slot-title {
-            font-size: 14px;             /* 기본 0.95rem → 13px */
-            font-weight: 800;            /* 더 두껍게 */
-            color: #0f172a;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* 강의실/교수 */
-        .cell .slot-room {
-            margin-top: 2px;
-            font-size: 13px;             /* 기존보다 조금 작게 */
-            font-weight: 600;
-            color: var(--muted, #6b7280); /* var(--muted) 우선, 없으면 회색 */
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            opacity: 0.9;
-        }
-        /* ====== Grid-row span 기반 시간표 바디 ====== */
-        .schedule-grid {
-            display: grid;
-            grid-template-columns: 120px repeat(5, 1fr); /* 시간열 + 월~금 */
-            grid-auto-rows: 80px;                        /* 교시 높이 */
-            grid-auto-flow: row dense;/* 위치 고정 보조 */
-            position: relative;                          /* 코스 블록 배치 기준 */
-            background: #fff;
-            border-top: 1px solid var(--line);
-            border-left: 1px solid var(--line);
-        }
-
-        /* 왼쪽 시간 표시 셀 */
-        .time-cell {
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            justify-content:center;
-            font-weight:700;
-            font-size:14px;
-            background:#fbfbfb;
-            border-bottom: 1px solid var(--line);
-            border-right: 1px solid var(--line);
-        }
-        .time-cell span { color: var(--muted); font-weight:600; }
-
-        /* 빈 자리(격자선 용) */
-        .cell-placeholder {
-            border-right:1px solid var(--line);
-            border-bottom:1px solid var(--line);
-            position: relative;
-        }
-
-        /* 실제 ‘하나로 합쳐진’ 과목 박스 */
-        .course-block {
-            border-radius: 10px;
-            border: 2px solid rgba(0,0,0,.12);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 3px 10px rgba(0,0,0,.08);
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 10px;
-            text-align: center;
-            overflow: hidden;
-        }
-
-        /* 블록 내부 텍스트(기존 템플릿과 톤 맞춤) */
-        .course-block .slot{ line-height:1.3; }
-        .course-block .slot-title{
-            font-size:13px; font-weight:800;
-            white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-        }
-        .course-block .slot-room{ margin-top:2px; font-size:12px; font-weight:600; opacity:.9; color: var(--muted); }
-        /* 미리보기 merged block (연강 1박스) */
+        /* 프리뷰(미리보기) 블록 */
         .preview-block {
             border-radius: 10px;
             border: 2px dashed rgba(0,0,0,.18);
-            background: var(--preview-color, rgba(99,179,237,0.25));
+            background: var(--preview-color);
             color: #0f172a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 10px;
-            text-align: center;
-            pointer-events: none;     /* 클릭 막기 */
+            display: flex; align-items: center; justify-content: center;
+            padding: 8px 10px; text-align: center;
+            pointer-events: none;
             z-index: 9;
         }
 
-        /* 기본 숨김 (더보기 전) */
-        .hidden-semester { display: none !important; }
-
-        /* 더보기 버튼의 회색 톤 */
-        #showMoreBtn {
-            margin-top: 10px;
-            width: 100%;
-            background: #f3f4f6;
-            border: 1px solid #e5e7eb;
-            color: #111827;
-            border-radius: 10px;
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 0.92rem;
+        /* Responsive trims */
+        @media (max-width: 560px) {
+            .schedule-header,
+            .schedule-grid { grid-template-columns: 80px repeat(5, 1fr); }
+            .time-cell { font-size: 12px; }
         }
-        #showMoreBtn:hover { background: #eceff3; }
+
     </style>
 </head>
 <body>
@@ -879,7 +565,7 @@
                 <div class="modal-wrapper">
                     <div
                             class="modal"
-                            style=" display: flex; width: 90vw; max-width: 1000px; height: 600px; overflow: hidden; padding: 30px; gap: 20px;">
+                            style=" display: flex; width: 90vw; max-width: 1000px; height: 650px; overflow: hidden; padding: 30px; gap: 20px;">
                         <!-- 왼쪽: 시간표 영역 -->
                         <div style="flex: 2;overflow-y: auto;">
                             <div style="text-align: right;">
@@ -986,45 +672,69 @@
     let timetableIdsBySemester = {};
     let currentSemesterCode = null;
     let currentTimetableId = null;
-
     const previewSession = { zeroAdded: false };
-    document.addEventListener('DOMContentLoaded', async function () {
-        const loginLink = document.getElementById('loginLink');
-        const logoutLink = document.getElementById('logoutLink');
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    function periodLabel(p) {
+        if (p === 0) return '8~9시';
+        const labels = [
+            '9~10시','10~11시','11~12시','12~1시','1~2시','2~3시','3~4시','4~5시','5~6시',
+            '6~7시','7~8시','8~9시','9~10시','10~11시','11~12시'
+        ];
+        return labels[p-1] || '';
+    }
+
+
+    async function init() {
+        try {
+            await TokenManager.refresh().catch(()=>{});
+
+            toggleAuthLinks(!!TokenManager.get());
+
+            bindGlobalEvents();
+
+            populateSemesterSelectInline();
+
+            if (TokenManager.get()) {
+                await bootstrapApp();
+            }
+        } catch (e) {
+            console.error('Init error:', e);
+        }
+    }
+    async function bootstrapApp() {
+        await loaduserinfo();
+        await hydrateSemestersFromServer();
+        await renderRepresentativeFromServer();
+        await loadCredits();
+    }
+
+    // 4) 헤더 링크 토글 유틸
+    function toggleAuthLinks(isLoggedIn){
+        const loginLink    = document.getElementById('loginLink');
+        const logoutLink   = document.getElementById('logoutLink');
         const registerLink = document.querySelector('nav a[href="/Register"]');
+        if (loginLink)     loginLink.style.display    = isLoggedIn ? 'none'  : 'inline';
+        if (logoutLink)    logoutLink.style.display   = isLoggedIn ? 'inline': 'none';
+        if (registerLink)  registerLink.style.display = isLoggedIn ? 'none'  : 'inline';
+    }
 
-        // 부팅 시 refresh 시도(쿠키에 refresh가 있으면 새 access를 메모리에 채움)
-        try { await TokenManager.refresh(); } catch {}
-        const isLoggedIn = !!TokenManager.get();
+    // 5) 전역 이벤트(단 한 번만)
+    function bindGlobalEvents(){
+        // 로그아웃
+        document.getElementById('logoutLink')?.addEventListener('click', onLogoutClick);
+        // 학기 선택
+        document.getElementById('semesterSelectInline')
+            ?.addEventListener('change', onSemesterSelectInlineChange);
+    }
 
-        if (isLoggedIn) {
-            loginLink && (loginLink.style.display = 'none');
-            logoutLink && (logoutLink.style.display = 'inline');
-            if (registerLink) registerLink.style.display = 'none';
-        } else {
-            loginLink && (loginLink.style.display = 'inline');
-            logoutLink && (logoutLink.style.display = 'none');
-            if (registerLink) registerLink.style.display = 'inline';
-        }
-        logoutLink.addEventListener('click', function (e) {
-            e.preventDefault();
-            TokenManager.set(null);
-            alert('로그아웃 되었습니다.');
-            window.location.href = '/';
-        });
-        // 드롭다운 채우기 & 체인지 바인딩
-        populateSemesterSelectInline();
-        document
-            .getElementById('semesterSelectInline')?.addEventListener('change', onSemesterSelectInlineChange);
-
-        if (isLoggedIn) {
-            // 1) userInfo 먼저 확보(→ UserId 세팅 보장)
-            await loaduserinfo().catch(console.error);
-            await hydrateSemestersFromServer();
-            await renderRepresentativeFromServer();
-            await loadCredits();               // ★ 이제 호출 (UserId 보장)
-        }
-    });
+    function onLogoutClick(e){
+        e.preventDefault();
+        TokenManager.set(null);
+        alert('로그아웃 되었습니다.');
+        window.location.href = '/';
+    }
 
 
     function deleteAccount() {
@@ -1239,40 +949,6 @@
         return tid;
     }
 
-    /***********************
-     * 초기 바인딩
-     ***********************/
-    document.addEventListener('DOMContentLoaded', async () => {
-        try { await TokenManager.refresh(); } catch {}
-        const isLoggedIn = !!TokenManager.get();
-
-        const loginLink    = document.getElementById('loginLink');
-        const logoutLink   = document.getElementById('logoutLink');
-        const registerLink = document.querySelector('nav a[href="/Register"]');
-
-        loginLink.style.display  = isLoggedIn ? 'none'  : 'inline';
-        logoutLink.style.display = isLoggedIn ? 'inline': 'none';
-        registerLink.style.display = isLoggedIn ? 'none':'inline';
-
-        logoutLink?.addEventListener('click', (e) => {
-            e.preventDefault();
-            TokenManager.set(null);
-            alert('로그아웃 되었습니다.');
-            location.href = '/';
-        });
-
-        populateSemesterSelectInline();
-        document.getElementById('semesterSelectInline')?.addEventListener('change', onSemesterSelectInlineChange);
-
-        if (isLoggedIn) {
-            await loaduserinfo();
-            await hydrateSemestersFromServer();
-            await renderRepresentativeFromServer();
-            await loadCredits();
-        }
-    });
-
-
     /** 드롭다운 옵션 갱신 */
     function populateSemesterSelectInline(){
         const select = document.getElementById('semesterSelectInline');
@@ -1354,14 +1030,13 @@
             else others.push(sem);
         });
 
-        // 한 줄 생성 유틸
         const makeRow = (sem, hidden) => {
             const termCode = toSemesterCode(sem);
             const tid = timetableIdsBySemester[termCode];
 
             const li = document.createElement('li');
             li.className = 'semester-item';
-            li.dataset.term = termCode;              // 토글용
+            li.dataset.term = termCode;
             if (hidden) li.classList.add('hidden-semester');
 
             // 내용
@@ -1572,17 +1247,19 @@
 
         // ✅ 0교시가 하나라도 있으면 먼저 0교시 행을 만든다
         const hasZero = scheduleData.some(it => {
-            const s = Number(it.time_start ?? it.timeStart ?? it.periodStart);
-            const e = Number(it.time_end   ?? it.timeEnd   ?? it.periodEnd ?? s);
+            const s = Number(it.timeStart);
+            const e = Number(it.timeEnd);
             return s === 0 || e === 0;
         });
         if (hasZero) prependZeroPeriodGrid(grid);
 
-        // ✅ 필요한 최대 교시 수만큼 아래로 확장
         let needMax = 9;
         scheduleData.forEach(it => {
-            const e = Number(it.time_end ?? it.timeEnd ?? it.periodEnd ?? it.time_start ?? it.timeStart);
-            if (Number.isFinite(e)) needMax = Math.max(needMax, e);
+            const e = toPeriodNumber(
+                it.timeEnd?? it.timeStart,
+                null
+                );
+            if (e != null) needMax = Math.max(needMax, e);
         });
         ensureModalGridSpanMax(needMax);
 
@@ -1753,11 +1430,10 @@
         const needsZero = entries.some(e => Number(e.timeStart)===0 || Number(e.timeEnd)===0);
         if (needsZero) prependZeroPeriodGrid(grid);
 
-        // 아래로 확장
         let needMax = 9;
         entries.forEach(e=>{
-            const end = Number(e.timeEnd ?? e.periodEnd ?? e.timeStart);
-            if (Number.isFinite(end)) needMax = Math.max(needMax, end);
+            const end = toPeriodNumber(e.timeEnd ?? e.periodEnd ?? e.timeStart, null);
+            if (end != null) needMax = Math.max(needMax, end);
         });
         ensureModalGridSpanMax(needMax);
 
@@ -1832,8 +1508,6 @@
 
         console.log('[pick]', { courseName, courseCode, coursePk });
 
-        // ✅ 동일 과목(+같은 PK면 PK도) 토글.
-        //    기존에 PK 없이 들어간 블록도 지울 수 있도록 not([data-course-pk])도 포함
         const selectorByCode = `.course-block[data-course-id="${courseCode}"]`;
         const existingExact = coursePk != null
             ? grid.querySelectorAll(`${selectorByCode}[data-course-pk="${coursePk}"], ${selectorByCode}:not([data-course-pk])`)
@@ -1939,10 +1613,6 @@
         });
     }
 
-
-    /***********************
-     * 툴팁 & 셀 이벤트
-     ***********************/
     function attachCellEvents(){
         const grid = document.getElementById('modalGridSpanBody');
         if (!grid) return;
@@ -2005,73 +1675,6 @@
     }
     function hideCourseTooltip(){ document.querySelector('.course-tooltip')?.remove(); }
 
-    /***********************
-     * 저장
-     ***********************/
-    function getSelectedClassIds(){
-        const root = document.getElementById('modalGridSpanBody') || document;
-        const idSet = new Set();
-
-        // 1) DOM에 data-course-pk가 있으면 그게 최우선
-        root.querySelectorAll('.course-block[data-course-pk], .cell-placeholder[data-course-pk]')
-            .forEach(el=>{
-                const pk = Number(el.getAttribute('data-course-pk'));
-                if (Number.isInteger(pk) && pk > 0) idSet.add(pk);
-            });
-        if (idSet.size) return Array.from(idSet);
-
-        // 2) 없으면 코드로 매핑
-        const codes = new Set();
-        root.querySelectorAll('[data-course-id]').forEach(el=>{
-            const c = el.getAttribute('data-course-id');
-            if (c) codes.add(c);
-        });
-        if (!codes.size) return [];
-
-        // ✅ 여기서 ‘코스 PK’만 탐색 (시간표/조인 테이블 id는 제외)
-        const pkKeys = [
-            'courseId' // 서버 실제 스키마에 맞춰 두되,
-        ];
-
-        currentCourseList.forEach(e=>{
-            const code = e.identifyNumberOfCourse ?? e.identify_number_of_course ?? e.courseCode ?? null;
-            if (!code || !codes.has(String(code))) return;
-            for (const k of pkKeys){
-                const n = Number(e?.[k]);
-                if (Number.isInteger(n) && n > 0){ idSet.add(n); break; }
-            }
-        });
-
-        return Array.from(idSet);
-    }
-
-
-    // ⬇️ 이미 이 시간표에 저장된 courseId(숫자 PK)들을 받아오기
-    async function fetchExistingCourseIdsByTimetable(timetableId){
-        const res = await apiFetch('/getTC', {
-            method:'POST',
-            headers:{ 'Content-Type':'application/json', },
-            body: JSON.stringify(UserId),
-        });
-        if (!res.ok) throw new Error('기존 과목 조회 실패');
-        const rows = await res.json();
-
-        const list = (rows||[]).filter(r=>{
-            const tid = Number(r.timeTableId ?? r.timetableId ?? r.time_table_id ?? r.timetable_id);
-            return Number.isFinite(tid) && tid === Number(timetableId);
-        });
-
-        // ✅ 코스 PK만 추출
-        const ids = new Set();
-        const pkKeys = ['courseId']; // 서버에 맞춰 조정
-        list.forEach(r=>{
-            for (const k of pkKeys){
-                const n = Number(r?.[k]);
-                if (Number.isInteger(n) && n > 0){ ids.add(n); break; }
-            }
-        });
-        return ids;
-    }
 
     async function onClickSaveSchedule() {
         try {
@@ -2119,11 +1722,6 @@
         }
     }
 
-
-
-    /***********************
-     * 대표 시간표 렌더
-     ***********************/
     function getTid(r){
         const v = r.timeTableId ?? r.timetableId ?? r.time_table_id ?? r.timetable_id ?? r.parentTimetableId ?? r.timeTableIdOfParent ?? r.tid;
         return v != null ? Number(v) : NaN;
@@ -2289,7 +1887,6 @@
         }
         buildRepGridSpan(9);
 
-        // ✅ 대표 시간표에도 0교시가 있으면 미리 0교시 행을 넣기
         const repGrid = document.getElementById('repGridSpanBody');
         const hasZero = Array.isArray(scheduleData) && scheduleData.some(it =>
             Number(it.time_start ?? it.timeStart ?? it.periodStart) === 0 ||
@@ -2309,8 +1906,11 @@
 
         let needMax = 9;
         scheduleData?.forEach(it=>{
-            const e = Number(it.time_end ?? it.timeEnd ?? it.periodEnd ?? it.time_start ?? it.timeStart);
-            if (Number.isFinite(e)) needMax = Math.max(needMax, e);
+            const e = toPeriodNumber(
+                it.timeEnd ?? it.timeStart,
+                null
+            );
+            if (e != null) needMax = Math.max(needMax, e);
         });
         ensureRepGridSpanMax(needMax);
         scheduleData?.forEach(placeCourseBlockRep);
@@ -2362,9 +1962,6 @@
         }
     }
 
-    /***********************
-     * 그리드 빌드/확장 공통
-     ***********************/
     function renderSlotHTML(subject, classroom, professor){
         const sub = subject ?? "";
         const room = classroom ? `<div class="slot-room">${classroom}</div>` : "";
@@ -2414,13 +2011,14 @@
             : 0;
         if (periodMax <= curRows) return;
 
-        const labels = ['9~10시','10~11시','11~12시','12~1시','1~2시','2~3시','3~4시','4~5시','5~6시'];
         for (let p=curRows+1; p<=periodMax; p++){
             const t = document.createElement('div');
             t.className='time-cell';
+            //t.style.gridColumn='1';
+            //t.style.gridRow=String(p);
             t.style.gridColumn='1';
-            t.style.gridRow=String(p);
-            t.innerHTML = `${p}교시<br/><span>${labels[p-1] || ''}</span>`;
+            t.style.gridRow=String(gridRowForPeriod(grid, p)); // ✅ 0교시 보정
+            t.innerHTML = `${p}교시<br/><span>${periodLabel(p)}</span>`;
             grid.appendChild(t);
             for (let day=0; day<5; day++){
                 const cell = document.createElement('div');
@@ -2428,7 +2026,8 @@
                 cell.dataset.day=String(day);
                 cell.dataset.period=String(p);
                 cell.style.gridColumn=String(day+2);
-                cell.style.gridRow=String(p);
+                //cell.style.gridRow=String(p);
+                cell.style.gridRow=String(gridRowForPeriod(grid, p));
                 grid.appendChild(cell);
             }
         }
@@ -2467,12 +2066,13 @@
             .reduce((m,el)=>Math.max(m, Number(el.dataset.period)||1), 0);
         if (periodMax <= curMax) return;
 
-        const labels = ['9~10시','10~11시','11~12시','12~1시','1~2시','2~3시','3~4시','4~5시','5~6시','6~7','7~8','8~9','9~10'];
         for (let p=curMax+1; p<=periodMax; p++){
             const t = document.createElement('div');
             t.className='time-cell';
-            t.style.gridColumn='1'; t.style.gridRow=String(p);
-            t.innerHTML = `${p}교시<br/><span>${labels[p-1] || ''}</span>`;
+            //t.style.gridColumn='1'; t.style.gridRow=String(p);
+            t.style.gridColumn='1';
+            t.style.gridRow=String(gridRowForPeriod(grid, p)); // ✅ 0교시 보정
+            t.innerHTML = `${p}교시<br/><span>${periodLabel(p)}</span>`;
             grid.appendChild(t);
             for (let day=0; day<5; day++){
                 const cell = document.createElement('div');
@@ -2480,7 +2080,8 @@
                 cell.dataset.day=String(day);
                 cell.dataset.period=String(p);
                 cell.style.gridColumn=String(day+2);
-                cell.style.gridRow=String(p);
+                //cell.style.gridRow=String(p);
+                cell.style.gridRow=String(gridRowForPeriod(grid, p));
                 grid.appendChild(cell);
             }
         }
@@ -2552,16 +2153,12 @@
 
     function relabelTimeCells(grid){
         if (!grid) return;
-        const labels = { 0:'8~9시', 1:'9~10시', 2:'10~11시', 3:'11~12시', 4:'12~1시', 5:'1~2시', 6:'2~3시', 7:'3~4시', 8:'4~5시', 9:'5~6시', 10:'6~7', 11:'7~8', 12: '8~9', 13:'9~10' };
         grid.querySelectorAll('.time-cell').forEach(tc=>{
             const rowCss = tc.style.gridRow || '';
-            let row=null;
-            if (rowCss.includes('/')) row = N(rowCss.split('/')[0], 1);
-            else row = N(rowCss, 1);
-            const period = hasZeroPeriodGrid(grid) ? (row - 1) : row;
+            let row = rowCss.includes('/') ? N(rowCss.split('/')[0], 1) : N(rowCss, 1);
+            const period = hasZeroPeriodGrid(grid) ? (row - 1) : row; // 0교시 보정
             const title = period===0 ? '0교시' : `${period}교시`;
-            const sub = labels[period] || '';
-            tc.innerHTML = `${title}<br/><span>${sub}</span>`;
+            tc.innerHTML = `${title}<br/><span>${periodLabel(period)}</span>`;
         });
     }
 
@@ -2575,9 +2172,6 @@
     }
     function N(v,fb=null){ const n = Number(v); return Number.isFinite(n) ? n : fb; }
 
-    /***********************
-     * 대표 시간표 데이터 로드
-     ***********************/
     async function renderRepresentativeFromServer(){
         try { await TokenManager.refresh(); } catch {}
         if (!UserId){ try { await loaduserinfo(); } catch {} }
@@ -2620,7 +2214,6 @@
         const courseIds = Array.from(new Set(rows.map(getCourseId).filter(v=>v!=null && String(v).trim()!=='')));
         await loadRepresentativeSchedule(courseIds);
     }
-    // 공통 fetch 함수
     async function fetchCreditData(endpoint) {
         try {
             const response = await apiFetch(endpoint, {
@@ -2647,8 +2240,6 @@
             return 0;
         }
     }
-
-    // 학점 불러오기 및 HTML 반영
     async function loadCredits() {
         const bsm = await fetchCreditData("/getbsm");
         const design = await fetchCreditData("/get설계");
@@ -2672,10 +2263,9 @@
         return Array.from(codes);
     }
     function pickCoursePk(row){
-        // 서버 구조에 맞게 우선순위 나열
         const cand = [
             row.courseId, row.course_id,
-            row.timeTableId, row.timetableId, // ← 지금 JSON은 이거만 있음
+            row.timeTableId, row.timetableId,
             row.id
         ];
         for (const v of cand){
@@ -2697,7 +2287,6 @@
         });
         return Array.from(result);
     }
-    /************ AccessToken 메모리 보관 + 자동 리프레시 ************/
     const TokenManager = (() => {
         let accessToken = null;
         let refreshingPromise = null;
@@ -2710,12 +2299,10 @@
             refreshingPromise = (async () => {
                 const res = await fetch('/refreshT', {
                     method: 'POST',
-                    credentials: 'include', // ★ HttpOnly refreshToken 쿠키 전송
+                    credentials: 'include',
                 });
                 if (!res.ok) { set(null); throw new Error('Refresh failed'); }
-
-                // 서버가 이미 Access-Control-Expose-Headers: Authorization 설정함
-                const auth = res.headers.get('Authorization'); // "Bearer xxx"
+                const auth = res.headers.get('Authorization');
                 if (!auth || !auth.startsWith('Bearer ')) {
                     set(null);
                     throw new Error('No Authorization header');
@@ -2731,13 +2318,11 @@
         return { get, set, refresh };
     })();
 
-    /************ 모든 API 호출용 공통 fetch (401시 1회 자동 재시도) ************/
     async function apiFetch(input, init = {}) {
         const headers = new Headers(init.headers || {});
         const token = TokenManager.get();
         if (token) headers.set('Authorization', `Bearer ${token}`);
 
-        // 기본적으로 쿠키 동봉(서버가 쿠키 사용하는 엔드포인트 많음)
         let res = await fetch(input, { ...init, headers, credentials: 'include' });
 
         if (res.status === 401) {

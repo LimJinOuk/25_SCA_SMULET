@@ -234,7 +234,7 @@
       })
               .then(response => {
                 if (!response.ok) {
-                  throw new Error('로그인 실패: 서버 응답 오류');
+                  throw new Error('아이디 혹은 비밀번호가 옳바르지 않습니다.');
                 }
                 const token = response.headers.get('Authorization');
                 return response.json().then(data=>({data, token}));

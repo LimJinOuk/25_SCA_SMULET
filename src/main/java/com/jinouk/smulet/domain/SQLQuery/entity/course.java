@@ -35,6 +35,15 @@ public class course
     @Column
     private String classroom;
 
+    @Column(name = "bsm또는설계")
+    private Integer bsmOrDesign;
+
+    @Column(name = "전심전선")
+    private Integer simOrSeon;
+
+    @Column(name = "년도")
+    private int year;
+
     @ManyToMany
     @JoinTable(
             name = "coursetoprofessor",

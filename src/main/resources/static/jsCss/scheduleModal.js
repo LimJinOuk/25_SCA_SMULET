@@ -150,29 +150,6 @@
     data.forEach(e=>{ const key = e.courseName; (map[key] ||= []).push(e); });
     return map;
 }
-    function showCourseTooltip(anchor, courseInfo){
-    hideCourseTooltip();
-    const tooltip = document.createElement('div');
-    tooltip.className='course-tooltip';
-    tooltip.style.position='absolute'; tooltip.style.zIndex=2000; tooltip.style.minWidth='180px'; tooltip.style.maxWidth='260px';
-    tooltip.style.background='#ffffffcc'; tooltip.style.border='1px solid #2563eb';
-    tooltip.style.borderRadius='10px'; tooltip.style.boxShadow='0 4px 18px rgba(30,80,210,0.13)';
-    tooltip.style.padding='14px 18px 14px 14px'; tooltip.style.fontSize='0.98rem'; tooltip.style.pointerEvents='none';
-    tooltip.innerHTML = `
-        <b>${courseInfo.courseName}(${courseInfo.identifyNumberOfCourse ? (courseInfo.identifyNumberOfCourse.split('-')[1]|| '-') : '-'})</b>
-        <br>교수: ${courseInfo.professorName || '-'}
-        <br>이메일:
-        <br>강의실: ${courseInfo.classroom || ''}
-        <br>구분: ${courseInfo.majorOrCulture ? '교양' : '전공'}
-        <br>학점: ${courseInfo.credit ?? '-'}
-        <br>학수번호: ${courseInfo.identifyNumberOfCourse || ''}
-      `;
-    document.body.appendChild(tooltip);
-    const rect = anchor.getBoundingClientRect();
-    tooltip.style.left = rect.right + 8 + 'px';
-    tooltip.style.top  = rect.top + window.scrollY + 'px';
-}
-    function hideCourseTooltip(){ document.querySelector('.course-tooltip')?.remove(); }
 
     /***********************
     * 수업 리스트 & 프리뷰/추가
@@ -312,114 +289,137 @@
 }
 
     function addCourseToScheduleTableGrid(entries){
-    const grid = document.getElementById('modalGridSpanBody');
-    if (!grid || !entries?.length) return;
+        const grid = document.getElementById('modalGridSpanBody');
+        if (!grid || !entries?.length) return;
 
-    removePreviewFromSchedule();
+        removePreviewFromSchedule();
 
-    const needsZero = entries.some(e => Number(e.timeStart) === 0 || Number(e.timeEnd) === 0);
-    if (needsZero) prependZeroPeriodGrid(grid);
+        // 0교시 포함 여부 확인
+        const needsZero = entries.some(e => Number(e.timeStart) === 0 || Number(e.timeEnd) === 0);
+        if (needsZero) prependZeroPeriodGrid(grid);
 
-    const courseName = entries[0].courseName;
-    const classroom  = entries[0].classroom;
-    const professor  = entries[0].professorName || '';
-    const courseCode = String(entries[0].identifyNumberOfCourse ?? '');
-    const coursePk   = entries[0].courseId != null ? String(entries[0].courseId) : null;
+        const base = entries[0];  // ★ 원본 정보 보관
+        const courseName = base.courseName;
+        const classroom  = base.classroom;
+        const professor  = base.professorName || '';
+        const courseCode = String(base.identifyNumberOfCourse ?? '');
+        const coursePk   = base.courseId != null ? String(base.courseId) : null;
 
-    const selectorByCode = `.course-block[data-course-id="${courseCode}"]`;
-    const existingExact = coursePk != null
-    ? grid.querySelectorAll(`${selectorByCode}[data-course-pk="${coursePk}"], ${selectorByCode}:not([data-course-pk])`)
-    : grid.querySelectorAll(selectorByCode);
+        // 이미 추가된 동일 과목이면 삭제 처리
+        const selectorByCode = `.course-block[data-course-id="${courseCode}"]`;
+        const existingExact = coursePk != null
+            ? grid.querySelectorAll(`${selectorByCode}[data-course-pk="${coursePk}"], ${selectorByCode}:not([data-course-pk])`)
+            : grid.querySelectorAll(selectorByCode);
 
-    if (existingExact.length){
-    existingExact.forEach(b => b.remove());
-    const phSelBase = `.cell-placeholder[data-course-id="${courseCode}"]`;
-    const phSel = coursePk != null
-    ? `${phSelBase}[data-course-pk="${coursePk}"], ${phSelBase}:not([data-course-pk])`
-    : phSelBase;
-    grid.querySelectorAll(phSel).forEach(ph=>{
-    ph.removeAttribute('data-course-id');
-    ph.removeAttribute('data-course-pk');
-    ph.style.borderBottom = '';
-});
-    window.ColorManager.free(courseCode || courseName);
-    removeZeroPeriodGridIfEmpty(grid);
-    return;
-}
+        if (existingExact.length){
+            existingExact.forEach(b => b.remove());
+            const phSelBase = `.cell-placeholder[data-course-id="${courseCode}"]`;
+            const phSel = coursePk != null
+                ? `${phSelBase}[data-course-pk="${coursePk}"], ${phSelBase}:not([data-course-pk])`
+                : phSelBase;
+            grid.querySelectorAll(phSel).forEach(ph=>{
+                ph.removeAttribute('data-course-id');
+                ph.removeAttribute('data-course-pk');
+                ph.style.borderBottom = '';
+            });
+            window.ColorManager.free(courseCode || courseName);
+            removeZeroPeriodGridIfEmpty(grid);
+            return;
+        }
 
-    const byDay = {};
-    entries.forEach(e=>{
-    const d = toPeriodNumber(e.scheduleDay,0)-1;
-    const s = toPeriodNumber(e.timeStart ?? e.periodStart, null);
-    const t = toPeriodNumber(e.timeEnd   ?? e.periodEnd   ?? e.timeStart, null);
-    if (d<0 || s==null || t==null) return;
-    (byDay[d] ||= []).push([s,t]);
-});
+        // 요일·시간대 그룹
+        const byDay = {};
+        entries.forEach(e=>{
+            const d = toPeriodNumber(e.scheduleDay,0)-1;
+            const s = toPeriodNumber(e.timeStart ?? e.periodStart, null);
+            const t = toPeriodNumber(e.timeEnd   ?? e.periodEnd   ?? e.timeStart, null);
+            if (d<0 || s==null || t==null) return;
+            (byDay[d] ||= []).push([s,t]);
+        });
 
-    const mergedByDay = {};
-    Object.entries(byDay).forEach(([dStr, ranges])=>{
-    const d = Number(dStr);
-    ranges.sort((a,b)=>a[0]-b[0]);
-    let cur=null, merged=[];
-    for (const [s,t] of ranges){
-    if (!cur) cur=[s,t];
-    else if (s <= cur[1]+1) cur[1] = Math.max(cur[1], t);
-    else { merged.push(cur); cur=[s,t]; }
-}
-    if (cur) merged.push(cur);
-    mergedByDay[d] = merged;
-});
+        // 연속 교시 병합
+        const mergedByDay = {};
+        Object.entries(byDay).forEach(([dStr, ranges])=>{
+            const d = Number(dStr);
+            ranges.sort((a,b)=>a[0]-b[0]);
+            let cur=null, merged=[];
+            for (const [s,t] of ranges){
+                if (!cur) cur=[s,t];
+                else if (s <= cur[1]+1) cur[1] = Math.max(cur[1], t);
+                else { merged.push(cur); cur=[s,t]; }
+            }
+            if (cur) merged.push(cur);
+            mergedByDay[d] = merged;
+        });
 
-    for (const [dStr, merged] of Object.entries(mergedByDay)){
-    const d = Number(dStr);
-    for (const [s, t] of merged){
-    for (let p=s; p<=t; p++){
-    const ph = grid.querySelector(`.cell-placeholder[data-day="${d}"][data-period="${p}"]`);
-    if (!ph) continue;
-    const occId = ph.getAttribute('data-course-id');
-    const occPk = ph.getAttribute('data-course-pk');
-    const sameId = occId && occId === courseCode;
-    const samePk = (coursePk == null) ? true : (occPk === coursePk);
-    const occupiedByOthers = occId && !(sameId && samePk);
-    if (occupiedByOthers){
-    alert('이미 배치된 수업 시간과 겹쳐 추가할 수 없습니다.');
-    return;
-}
-}
-}
-}
+        // 충돌 검사
+        for (const [dStr, merged] of Object.entries(mergedByDay)){
+            const d = Number(dStr);
+            for (const [s, t] of merged){
+                for (let p=s; p<=t; p++){
+                    const ph = grid.querySelector(`.cell-placeholder[data-day="${d}"][data-period="${p}"]`);
+                    if (!ph) continue;
+                    const occId = ph.getAttribute('data-course-id');
+                    const occPk = ph.getAttribute('data-course-pk');
+                    const sameId = occId && occId === courseCode;
+                    const samePk = (coursePk == null) ? true : (occPk === coursePk);
+                    const occupiedByOthers = occId && !(sameId && samePk);
 
-    const color = window.ColorManager.get(courseCode || courseName);
-    Object.entries(mergedByDay).forEach(([dStr, merged])=>{
-    const d = Number(dStr);
-    merged.forEach(([s,t])=>{
-    const block = document.createElement('div');
-    block.className = 'course-block busy';
-    block.style.gridColumn = String(d+2);
-    const startRow = gridRowForPeriod(grid, s);
-    const endRow   = gridRowForPeriod(grid, t) + 1;
-    block.style.gridRow = `${startRow} / ${endRow}`;
-    block.style.setProperty('--course-color', color);
+                    if (occupiedByOthers){
+                        alert('이미 배치된 수업 시간과 겹쳐 추가할 수 없습니다.');
+                        return;
+                    }
+                }
+            }
+        }
 
-    block.dataset.courseId = courseCode;
-    if (coursePk != null) block.dataset.coursePk = coursePk;
+        // 색상 관리
+        const color = window.ColorManager.get(courseCode || courseName);
 
-    block.innerHTML = window.renderSlotHTML(courseName, classroom, professor);
-    block.onmouseenter = () => showCourseTooltip(block, { courseName, professorName: professor, classroom, scheduleDay: d+1, timeStart: s, timeEnd: t, identifyNumberOfCourse: courseCode });
-    block.onmouseleave = hideCourseTooltip;
-    grid.appendChild(block);
+        // ★★★ 블록 생성 + 툴팁 시 원본 entries[0] 전체를 넘김 ★★★
+        Object.entries(mergedByDay).forEach(([dStr, merged])=>{
+            const d = Number(dStr);
+            merged.forEach(([s,t])=>{
+                const block = document.createElement('div');
+                block.className = 'course-block busy';
+                block.style.gridColumn = String(d+2);
 
-    for (let p=s; p<=t; p++){
-    const ph = grid.querySelector(`.cell-placeholder[data-day="${d}"][data-period="${p}"]`);
-    if (ph){
-    ph.setAttribute('data-course-id', courseCode);
-    if (coursePk != null) ph.setAttribute('data-course-pk', coursePk);
-    ph.style.borderBottom = 'none';
-}
-}
-});
-});
-}
+                const startRow = gridRowForPeriod(grid, s);
+                const endRow   = gridRowForPeriod(grid, t) + 1;
+                block.style.gridRow = `${startRow} / ${endRow}`;
+                block.style.setProperty('--course-color', color);
+
+                block.dataset.courseId = courseCode;
+                if (coursePk != null) block.dataset.coursePk = coursePk;
+
+                block.innerHTML = window.renderSlotHTML(courseName, classroom, professor);
+
+                // ⭐⭐⭐ 여기서 원본 데이터를 spread로 통째로 넘김 ⭐⭐⭐
+                block.onmouseenter = () =>
+                    showCourseTooltip(block, {
+                        ...base,        // ← 과목 전체 정보 포함(bsm, 전선전심, credit 등)
+                        scheduleDay: d+1,
+                        timeStart: s,
+                        timeEnd: t,
+                    });
+
+                block.onmouseleave = hideCourseTooltip;
+
+                grid.appendChild(block);
+
+                // placeholder 정보 기입
+                for (let p=s; p<=t; p++){
+                    const ph = grid.querySelector(`.cell-placeholder[data-day="${d}"][data-period="${p}"]`);
+                    if (ph){
+                        ph.setAttribute('data-course-id', courseCode);
+                        if (coursePk != null) ph.setAttribute('data-course-pk', coursePk);
+                        ph.style.borderBottom = 'none';
+                    }
+                }
+            });
+        });
+    }
+
 
     function attachCellEvents(){
     const grid = document.getElementById('modalGridSpanBody');

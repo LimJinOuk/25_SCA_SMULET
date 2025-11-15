@@ -1154,65 +1154,122 @@
                 const sub = subject ?? ""; const room = classroom ? `<div class="slot-room">${classroom}</div>` : "";
                 return `<div class="slot"><div class="slot-title">${sub}</div>${room}</div>`;
             }
-            function placeCourseBlockRep(item){
-                const grid = document.getElementById('repGridSpanBody'); if(!grid) return;
-                const subject = item.courseName || ''; const professor=item.professorName || ''; const classroom=item.classroom || '';
-                const courseCode = item.identify_number_of_course ?? item.courseCode ?? item.identifyNumberOfCourse ?? subject;
-                const dayIdx = (Number(item.day)||0)-1; if (dayIdx<0||dayIdx>4) return;
-                const pStart = Number(item.time_start ?? item.timeStart ?? item.periodStart);
-                const pEnd   = Number(item.time_end   ?? item.timeEnd   ?? item.periodEnd ?? pStart);
-                if (!Number.isFinite(pStart)||!Number.isFinite(pEnd)) return;
+
+            function placeCourseBlockRep(item) {
+                const grid = document.getElementById('repGridSpanBody');
+                if (!grid) return;
+
+                const info = normalizeRepCourseInfo(item);
+
+                const subject = info.courseName;
+                const professor = info.professorName || '';
+                const classroom = info.classroom || '';
+                const courseCode = info.identifyNumberOfCourse || subject;
+
+                const dayIdx = (info.scheduleDay || 0) - 1;
+                if (dayIdx < 0 || dayIdx > 4) return;
+
+                const pStart = info.timeStart;
+                const pEnd = info.timeEnd ?? info.timeStart;
+                if (!Number.isFinite(pStart) || !Number.isFinite(pEnd)) return;
 
                 const bg = ColorManager.get(courseCode);
+
                 const block = document.createElement('div');
-                block.className='course-block busy';
-                block.style.gridColumn=String(dayIdx+2);
-                block.style.gridRow = `${pStart} / ${pEnd+1}`;
+                block.className = 'course-block busy';
+                block.style.gridColumn = String(dayIdx + 2);
+                block.style.gridRow = `${pStart} / ${pEnd + 1}`;
                 block.style.setProperty('--course-color', bg);
                 block.dataset.courseId = courseCode;
+
                 block.innerHTML = renderSlotHTML(subject, classroom, professor);
+
+                // 🔥 모달 JS와 동일한 패턴의 호버 툴팁
+                block.addEventListener('mouseenter', () => {
+                    showCourseTooltip(block, info);
+                });
+                block.addEventListener('mouseleave', () => {
+                    hideCourseTooltip();
+                });
+
                 grid.appendChild(block);
 
-                for (let r=pStart; r<=pEnd; r++){
-                    const ph = grid.querySelector(`.cell-placeholder[data-day="${dayIdx}"][data-period="${r}"]`);
-                    if (ph) ph.style.borderBottom='none';
+                // 아래 placeholder들 border 정리 + 데이터 연결(필요시)
+                for (let r = pStart; r <= pEnd; r++) {
+                    const ph = grid.querySelector(
+                        `.cell-placeholder[data-day="${dayIdx}"][data-period="${r}"]`
+                    );
+                    if (ph) {
+                        ph.style.borderBottom = 'none';
+                        // 필요하면 셀에서도 툴팁 띄우려고 이 줄 추가:
+                        ph.dataset.courseId = courseCode;
+                    }
                 }
             }
 
+
             async function loadRepresentativeSchedule(getScheduleIds){
-                try{
+                try {
                     const res = await apiFetch('/getTS2TE', {
-                        method:'POST', headers:{'Content-Type':'application/json'},
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ getScheduleIds }),
                     });
                     if (!res.ok) throw new Error('대표 시간표 조회 실패');
+
                     const data = await res.json();
-                    renderRepresentativeSchedule(data);
-                } catch(err){ console.error(err); alert('대표 시간표 로딩 중 오류 발생: ' + err.message); }
-            }
-            function renderRepresentativeSchedule(scheduleData){
-                const container = document.getElementById('representativeScheduleContainer'); if (!container) return;
-                if (!document.getElementById('repGridBody')){
-                    container.innerHTML = `
-              <div class="schedule-card" id="repGridCard">
-                <div class="schedule-header">
-                  <div class="time-col"></div>
-                  <div>월</div><div>화</div><div>수</div><div>목</div><div>금</div>
-                </div>
-                <div class="schedule-body" id="repGridBody"></div>
-              </div>`;
+                    // 👉 모달의 currentCourseList처럼 대표 시간표 전용 리스트 보관
+                    repCourseList = Array.isArray(data) ? data : [];
+                    renderRepresentativeSchedule(repCourseList);
+                } catch (err) {
+                    console.error(err);
+                    alert('대표 시간표 로딩 중 오류 발생: ' + err.message);
                 }
+            }
+            function renderRepresentativeSchedule(scheduleData) {
+                const container = document.getElementById('representativeScheduleContainer');
+                if (!container) return;
+
+                if (!document.getElementById('repGridBody')) {
+                    container.innerHTML = `
+      <div class="schedule-card" id="repGridCard">
+        <div class="schedule-header">
+          <div class="time-col"></div>
+          <div>월</div><div>화</div><div>수</div><div>목</div><div>금</div>
+        </div>
+        <div class="schedule-body" id="repGridBody"></div>
+      </div>`;
+                }
+
+                // 기본 9교시 그리드 생성
                 buildRepGridSpan(9);
+
                 const repGrid = document.getElementById('repGridSpanBody');
-                if (repGrid){ repGrid.style.display='grid'; repGrid.style.gridAutoFlow='row dense'; repGrid.style.gridAutoRows='62px'; }
+                if (repGrid) {
+                    repGrid.style.display = 'grid';
+                    repGrid.style.gridAutoFlow = 'row dense';
+                    repGrid.style.gridAutoRows = '62px';
+                }
+
+                // 최대 교시 계산 (0교시가 내려올 수도 있음)
                 let needMax = 9;
-                scheduleData?.forEach(it=>{
-                    const e = Number(it.timeEnd ?? it.timeStart);
-                    if (Number.isFinite(e)) needMax = Math.max(needMax, e);
+                (scheduleData || []).forEach(it => {
+                    const end = Number(
+                        it.time_end ??
+                        it.timeEnd ??
+                        it.periodEnd ??
+                        it.time_start ??
+                        it.timeStart ??
+                        it.periodStart
+                    );
+                    if (Number.isFinite(end)) needMax = Math.max(needMax, end);
                 });
                 ensureRepGridSpanMax(needMax);
-                scheduleData?.forEach(placeCourseBlockRep);
+
+                // 실제 블록 배치
+                (scheduleData || []).forEach(placeCourseBlockRep);
             }
+
 
             async function renderRepresentativeFromServer(){
                 try { await TokenManager.refresh(); } catch {}
@@ -1294,6 +1351,94 @@
                         throw new Error('scheduleModal 스크립트 또는 프래그먼트가 준비되지 않았습니다.');
                     }
                 }
+            }
+
+            function getDivisionLabel(info) {
+                // 1) bsm / 설계
+                if (info.bsm != null) {
+                    return Number(info.bsm) === 1 ? "설계" : "bsm";
+                }
+                // 2) 전선 / 전심
+                if (info.전선전심 != null) {
+                    return Number(info.전선전심) === 1 ? "전공선택" : "전공심화";
+                }
+                return "-";
+            }
+            // ========== 공용 툴팁 함수 (모달/대표 시간표 둘 다 사용) ==========
+            function showCourseTooltip(anchor, courseInfo) {
+                hideCourseTooltip();
+
+                const division = getDivisionLabel(courseInfo);
+
+                const tooltip = document.createElement('div');
+                tooltip.className = 'course-tooltip';
+                tooltip.style.position = 'absolute';
+                tooltip.style.zIndex = 2000;
+                tooltip.style.minWidth = '180px';
+                tooltip.style.maxWidth = '260px';
+                tooltip.style.background = '#ffffffcc';
+                tooltip.style.border = '1px solid #2563eb';
+                tooltip.style.borderRadius = '10px';
+                tooltip.style.boxShadow = '0 4px 18px rgba(30,80,210,0.13)';
+                tooltip.style.padding = '14px 18px 14px 14px';
+                tooltip.style.fontSize = '0.98rem';
+                tooltip.style.pointerEvents = 'none';
+
+                tooltip.innerHTML = `
+    <b>${courseInfo.courseName}(${
+                    courseInfo.identifyNumberOfCourse
+                        ? (courseInfo.identifyNumberOfCourse.split('-')[1] || '-')
+                        : '-'
+                })</b>
+    <br>교수: ${courseInfo.professorName || '-'}
+    <br>이메일:
+    <br>강의실: ${courseInfo.classroom || ''}
+    <br>구분: ${division}
+    <br>학점: ${courseInfo.credit ?? '-'}
+    <br>학수번호: ${courseInfo.identifyNumberOfCourse || ''}
+  `;
+
+
+                document.body.appendChild(tooltip);
+                const rect = anchor.getBoundingClientRect();
+                tooltip.style.left = rect.right + 8 + 'px';
+                tooltip.style.top  = rect.top + window.scrollY + 'px';
+            }
+
+
+            function hideCourseTooltip() {
+                document.querySelectorAll('.course-tooltip').forEach(el => el.remove());
+            }
+
+            // 필요하면 전역 노출
+            window.showCourseTooltip = showCourseTooltip;
+            window.hideCourseTooltip = hideCourseTooltip;
+
+            /***********************
+             * 대표 시간표용 상태
+             ***********************/
+            let repCourseList = [];  // getTS2TE에서 받아온 과목/슬롯 데이터 전체를 그대로 보관
+
+            function normalizeRepCourseInfo(item) {
+                const termDay = Number(item.day ?? item.scheduleDay ?? 0);
+                const s = Number(item.timeStart);
+                const e = Number(
+                    item.timeEnd
+                );
+
+                return {
+                    courseName: item.courseName || '',
+                    identifyNumberOfCourse: item.identifyNumberOfCourse || '',
+                    professorName: item.professorName || '',
+                    classroom: item.classroom || '',
+                    majorOrCulture: item.majorOrCulture ?? null,
+                    bsm: item.bsm ?? null,
+                    전선전심: item.전선전심 ?? item.majarS ?? null,   // ★ 이 줄 추가
+                    credit: item.credit ?? '-',
+                    scheduleDay: Number.isFinite(termDay) ? termDay : null,
+                    timeStart: Number.isFinite(s) ? s : null,
+                    timeEnd: Number.isFinite(e) ? e : null,
+                };
             }
         </script>
         <script src="/jsCss/scheduleModal.js"></script>

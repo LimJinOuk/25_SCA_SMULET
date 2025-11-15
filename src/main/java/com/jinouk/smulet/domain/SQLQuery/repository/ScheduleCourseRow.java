@@ -1,5 +1,6 @@
 package com.jinouk.smulet.domain.SQLQuery.repository;
 
+//이 Interface는 projection Interface임
 public interface ScheduleCourseRow {
     Integer getScheduleId();
     Integer getDay();

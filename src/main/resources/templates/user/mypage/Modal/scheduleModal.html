@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>메인 페이지</title>
+    <link rel="stylesheet" href="/jsCss/scheduleModal.css">
+</head>
+<body>
+<div th:fragment="scheduleModal">
+    <div id="scheduleModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalSemesterTitle">
+        <div class="modal-wrapper">
+            <div class="modal" style="display:flex; width:90vw; max-width:1000px; height:650px; overflow:hidden; padding:30px; gap:20px;">
+            <!-- 왼쪽: 시간표 영역 -->
+                <div style="flex:2; overflow-y:auto;">
+                    <div style="text-align:right;">
+                        <button id="closeScheduleModal" style="background:#ef4444;color:#fff;border:none;border-radius:5px;padding:6px 12px;cursor:pointer;">닫기</button>
+                        <button id="saveSchedule" style="background:#4466ef;color:#fff;border:none;border-radius:5px;padding:6px 12px;cursor:pointer;">저장</button>
+                    </div>
+                    <h2 style="text-align:center; margin-bottom:15px" id="modalSemesterTitle"></h2>
+                    <div id="scheduleTableContainer"><!-- 동적 시간표 --></div>
+                </div>
+
+            <!-- 오른쪽: 수업 리스트 -->
+                <div style="flex:1; display:flex; flex-direction:column; border-left:1px solid #ddd; padding-left:10px;">
+                    <input type="text" id="searchInput" placeholder="과목명 검색"
+                       style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ccc; border-radius:6px;"
+                       oninput="renderCourseList(currentCourseList)"/>
+                    <div id="classInfoList" style="flex:1; overflow-y:auto"><!-- JS로 수업 정보가 들어옵니다 --></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/jsCss/scheduleModal.js"></script>
+</body>
+</html>

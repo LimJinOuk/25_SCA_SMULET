@@ -44,6 +44,7 @@ public class homecontroller {
     @GetMapping("/login_page")
     public String loginform(){return "user/login_page";}
 
+
     @GetMapping("my_page")
     public String mypage(@AuthenticationPrincipal Object principal, Model model)
     {
@@ -53,6 +54,12 @@ public class homecontroller {
         model.addAttribute("username", principal.toString());
         return "user/mypage/mypage"; // → templates/my_page.html 렌더링
     }
+
+    @GetMapping("/fragment/scheduleModal")
+    public String scheduleModalFragment() {
+        return "user/mypage/Modal/scheduleModal :: scheduleModal";
+    }
+
 
     @GetMapping("/userinfo")
     public Object getUserInfo(@AuthenticationPrincipal Object principal, Model model)

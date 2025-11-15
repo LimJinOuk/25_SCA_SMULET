@@ -11,4 +11,6 @@ public interface ScheduleCourseRow {
     String  getProfessorName();
     String  getIdentifyNumberOfCourse();
     String  getClassroom();
+    Integer getBsm();       // AS bsm
+    Integer get전선전심();
 }

@@ -17,6 +17,8 @@ public interface getTS2TE extends JpaRepository<scheduleOfCourse, Integer> {
         soc.time_end   AS timeEnd,
         c.id     AS courseId,
         c.name   AS courseName,
+        c.`bsm또는설계` As bsm,
+        c.`전심전선` AS 전선전심,
         c.professor_name AS professorName,
         c.identify_number_of_course AS identifyNumberOfCourse,
         c.classroom AS classroom

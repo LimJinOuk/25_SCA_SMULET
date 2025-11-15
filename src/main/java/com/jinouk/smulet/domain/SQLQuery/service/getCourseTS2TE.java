@@ -18,6 +18,7 @@ public class getCourseTS2TE {
             System.out.println("ids is null or empty");
             return Collections.emptyList();
         }
+        System.out.println("aaa" + repository.findScheduleWithCourseByIds(ids));
         return repository.findScheduleWithCourseByIds(ids);
     }
 }

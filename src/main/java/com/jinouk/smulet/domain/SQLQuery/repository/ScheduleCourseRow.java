@@ -13,4 +13,5 @@ public interface ScheduleCourseRow {
     String  getClassroom();
     Integer getBsm();       // AS bsm
     Integer get전선전심();
+    Integer getCredit();
 }

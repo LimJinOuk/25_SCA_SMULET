@@ -22,4 +22,6 @@ public class getTimeTableDTO {
     private int timeStart;
     private int timeEnd;
     private String professorName;
+    private Integer BsmOrDesign;
+    private Integer SimOrSeon;
 }

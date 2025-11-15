@@ -55,6 +55,8 @@ public class getTimeTableService {
             dto.setTimeStart(schedule.getTime_start());
             dto.setTimeEnd(schedule.getTime_end());
             dto.setProfessorName(course.getProfessor_name());
+            dto.setBsmOrDesign(course.getBsmOrDesign());
+            dto.setSimOrSeon(course.getSimOrSeon());
 
             result.add(dto);
         }

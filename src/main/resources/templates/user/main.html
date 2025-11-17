@@ -554,6 +554,7 @@
         let token = localStorage.getItem('jwtToken');
         if (!token) {
             alert("로그인이 필요합니다.");
+            window.location.href = '/login_page';
             return;
         }
 
@@ -581,17 +582,19 @@
 
         if (!res.ok) {
             console.error("❌ 마이페이지 로딩 실패:", res.status);
-            alert("마이페이지 로딩 중 오류 발생");
+            alert("로그인이 필요합니다.");
+            logout();
             return;
         }
 
         const html = await res.text();
+
         document.open();
         document.write(html);
         document.close();
     }
 
-    // === 이용안내 모달 제어 8.21 수정 ===
+
     (function () {
         const modal = document.getElementById('guideModal');
         const closeBtn = document.getElementById('guideCloseBtn');
@@ -599,7 +602,6 @@
         const gotoMyPageBtn = document.getElementById('guideGotoMyPage');
         const copyBtn = document.getElementById('guideCopyLink');
 
-        // 기존 코드를 수정하지 않기 위해 텍스트로 대상 링크 탐색
         const guideLink = Array.from(document.querySelectorAll('nav a'))
             .find(a => a.textContent && a.textContent.includes('이용안내'));
 
@@ -634,12 +636,10 @@
             if (e.key === 'Escape') { e.preventDefault(); closeGuide(); }
         });
 
-        // 바깥 클릭으로 닫기
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeGuide();
         });
 
-        // 버튼 이벤트
         closeBtn.addEventListener('click', closeGuide);
 
         if (guideLink) {
@@ -650,7 +650,6 @@
         }
 
         gotoMyPageBtn.addEventListener('click', async () => {
-            // 기존 mypage() 재사용
             closeGuide();
             try { await mypage(); } catch (_) {}
         });
@@ -665,8 +664,6 @@
                 alert('복사에 실패했어요. 수동으로 복사해주세요.');
             }
         });
-
-        // 선택: URL에 ?guide=1 이 포함되면 자동 오픈 (북마크/공유용)
         try {
             const usp = new URLSearchParams(location.search);
             if (usp.get('guide') === '1') openGuide();

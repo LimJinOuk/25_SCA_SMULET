@@ -169,6 +169,12 @@
     footer a:hover {
       text-decoration: underline;
     }
+    .course.completed-course {
+      background-color: #dbeafe;   /* 옅은 파랑 */
+      border-color: #2563eb;
+      color: #1e3a8a;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+    }
   </style>
 </head>
 <body>
@@ -284,6 +290,25 @@
 </footer>
 
 <script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      await TokenManager.refresh();
+
+      if (!TokenManager.get()) {
+        throw new Error('No access token');
+      }
+
+      await highlightCompletedCourses();
+
+    } catch (e) {
+      console.warn('Token check failed:', e);
+      alert('로그인이 필요합니다.');
+      logout();
+      window.location.href = '/login_page';
+    }
+  });
+
+
   const groups = {
     pink: ['공학설계입문', '소프트웨어공학', '캡스톤디자인 I', '캡스톤디자인 II'],
     green: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '객체지향 프로그래밍', '고급객체지향프로그래밍', '캡스톤디자인 I', '캡스톤디자인 II'],
@@ -400,14 +425,86 @@
       activeLines = [];
     });
   });
-  document.addEventListener('DOMContentLoaded', function () {
-    const token = localStorage.getItem('jwtToken');
 
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      window.location.href = "/login";
+  // ✅ 이수한 과목명들을 Set으로 가져오는 함수
+  async function  fetchCompletedCourseNames() {
+    const token = TokenManager.get();
+    if (!token) return new Set();
+
+    // ✅ 실제로 userId를 어디에 저장했는지에 맞게 바꿔줘!
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      console.warn('userId not found (localStorage 등에서 가져오도록 수정 필요)');
+      return new Set();
     }
-  });
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    };
+
+    // 1) getTC로 userId를 보내서 courseId 목록 받기
+    const tcRes = await fetch('/getTC', {   // ← 실제 엔드포인트로 변경
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ userId })
+    });
+
+    if (!tcRes.ok) {
+      throw new Error('getTC 호출 실패');
+    }
+
+    // 예: [1, 2, 3, ...] 또는 { courseIdList: [...] } 형식일 수 있음
+    const tcData = await tcRes.json();
+
+// 🔹 tcData: [{ courseId: 1, timetableId: 446 }, ...] 형태
+    const courseIdList = Array.isArray(tcData)
+            ? tcData.map(item => item.courseId)  // [1, 2, 3, ...] 이렇게 변환
+            : [];
+
+    const completedNameSet = new Set();
+
+    // 2) 각 courseId로 getTS2TE 호출해서 courseName 모으기
+    for (const courseId of courseIdList) {
+      const tsRes = await fetch('/getTS2TE', {  // ← 실제 엔드포인트로 변경
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ courseId })
+      });
+
+      if (!tsRes.ok) {
+        console.warn('getTS2TE 실패, courseId:', courseId);
+        continue;
+      }
+
+      const tsData = await tsRes.json();
+      // 예시: [{ day: 2, timeStart: 1, courseName: "이산수학", ... }, ...]
+      (tsData || []).forEach(item => {
+        if (item.courseName) {
+          completedNameSet.add(item.courseName);
+        }
+      });
+    }
+
+    return completedNameSet;
+  }
+
+  // ✅ DOM의 .course 박스에 completed-course 클래스 붙이는 함수
+  async function highlightCompletedCourses() {
+    try {
+      const completedNames = await fetchCompletedCourseNames(); // Set<string>
+
+      allCourses.forEach(course => {
+        const subject = course.dataset.subject;
+        if (completedNames.has(subject)) {
+          course.classList.add('completed-course');
+        }
+      });
+    } catch (err) {
+      console.error('이수 과목 하이라이트 중 오류:', err);
+    }
+  }
+
 </script>
 </body>
 </html>

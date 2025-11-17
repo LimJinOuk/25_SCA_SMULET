@@ -207,57 +207,84 @@
     </b>
   </footer>
 </div>
-`<script>
-  const token = localStorage.getItem('jwtToken');
+<script>
   document.addEventListener('DOMContentLoaded', function () {
-    // 로그인 상태 체크: 이미 JWT가 있으면 로그인 상태로 간주 후 리다이렉트
+    // 이미 로그인 되어 있으면 메인으로
+    const existingAccess  = localStorage.getItem('jwtToken');
+    const existingRefresh = localStorage.getItem('refreshToken'); // 아직 없을 수도 있음
 
-    if (token) {
-      // 예시: 로그인 후 대시보드로 이동
+    if (existingAccess) {
+      // 최소한 accessToken이 있으면 로그인된 걸로 보고 메인으로
       window.location.href = '/';
       return;
     }
 
     const form = document.getElementById('loginForm');
-    form.addEventListener('submit', function (event) {
+
+    form.addEventListener('submit', async function (event) {
       event.preventDefault();
 
-      const email = document.getElementById('email').value;
-      const pw = document.getElementById('pw').value;
-      fetch('/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ email, pw }),
-      })
-              .then(response => {
-                if (!response.ok) {
-                  throw new Error('아이디 혹은 비밀번호가 옳바르지 않습니다.');
-                }
-                const token = response.headers.get('Authorization');
-                return response.json().then(data=>({data, token}));
-              })
+      const email = document.getElementById('email').value.trim();
+      const pw    = document.getElementById('pw').value.trim();
 
+      if (!email || !pw) {
+        alert('학번과 비밀번호를 입력해주세요.');
+        return;
+      }
 
-              .then(({data,token}) => {
-                console.log('서버에서 받은 전체 응답:',data);
-                if (token) {
-                  // JWT 토큰 저장
-                  localStorage.setItem('jwtToken', token);
-                  alert('로그인 성공!');
-                  // 로그인 후 리다이렉트 (필요하면 경로 수정)
-                  window.location.href = '/';
-                } else {
-                  alert('로그인 실패: ' + (data.message || '알 수 없는 오류'));
-                }
-              })
-              .catch(error => {
-                alert('로그인 중 오류가 발생했습니다: ' + error.message);
-              });
+      try {
+        const res = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+            // 로그인 요청에는 Authorization 헤더 필요 없음
+          },
+          body: JSON.stringify({ email, pw })
+        });
+
+        if (!res.ok) {
+          throw new Error('아이디 혹은 비밀번호가 올바르지 않습니다.');
+        }
+
+        // 1) 서버 body는 { login_result: "success" } 형태
+        const data = await res.json();
+        console.log('서버에서 받은 전체 응답:', data);
+
+        // 2) 진짜 토큰은 응답 헤더 Authorization 에서 가져오기
+        let authHeader = res.headers.get('Authorization'); // 예: "Bearer xxx.yyy.zzz"
+        let accessToken = null;
+
+        if (authHeader) {
+          const lower = authHeader.toLowerCase();
+          if (lower.startsWith('bearer ')) {
+            accessToken = authHeader.slice(7); // "Bearer " 잘라내기
+          } else {
+            accessToken = authHeader; // 그냥 토큰만 오는 경우
+          }
+        }
+
+        // (옵션) 나중에 백엔드가 refreshToken을 body나 헤더로 주면 여기서 같이 처리
+        // const refreshToken = data.refreshToken || res.headers.get('X-Refresh-Token');
+
+        if (!accessToken) {
+          alert('로그인에는 성공했지만 토큰이 전달되지 않았습니다. 서버 응답을 확인해주세요.');
+          return;
+        }
+
+        // 3) 토큰 저장 (accessToken만 우선 저장)
+        localStorage.setItem('jwtToken', accessToken);
+        // if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
+
+        alert('로그인 성공!');
+        window.location.href = '/';
+      } catch (err) {
+        console.error('로그인 중 오류:', err);
+        alert('로그인 중 오류가 발생했습니다: ' + err.message);
+      }
     });
   });
-</script>`
+</script>
+
+
 </body>
 </html>

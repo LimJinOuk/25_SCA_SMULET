@@ -281,6 +281,23 @@
 </footer>
 
 <script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      await TokenManager.refresh();
+
+      if (!TokenManager.get()) {
+        throw new Error('No access token');
+      }
+
+    } catch (e) {
+      console.warn('Token check failed:', e);
+      alert('로그인이 필요합니다.');
+      logout();
+      window.location.href = '/login_page';
+    }
+  });
+
+
   const groups = {
     pink: ['공학설계입문', '소프트웨어공학', '캡스톤디자인 I', '캡스톤디자인 II'],
     green: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '객체지향 프로그래밍', '고급객체지향프로그래밍', '캡스톤디자인 I', '캡스톤디자인 II'],
@@ -396,15 +413,6 @@
       activeLines.forEach(line => line.remove());
       activeLines = [];
     });
-  });
-
-  document.addEventListener('DOMContentLoaded', function () {
-    const token = localStorage.getItem('jwtToken');
-
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      window.location.href = "/login";
-    }
   });
 </script>
 </body>

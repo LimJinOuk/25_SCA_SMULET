@@ -471,6 +471,27 @@
                         </div>
                     </div>
 
+                    <!-- 구분별 과목 목록 모달 -->
+                    <div id="divisionModal" class="modal-overlay hidden">
+                        <div class="modal-wrapper">
+                            <div class="modal">
+                                <div style="flex:1">
+                                    <h3 id="divisionModalTitle" style="margin-top:0; margin-bottom:12px; text-align:left;">
+                                        과목 목록
+                                    </h3>
+                                    <ul id="divisionModalList"
+                                        style="text-align:left; max-height:260px; overflow:auto; padding-left:18px; margin:0;">
+                                    </ul>
+
+                                    <div class="modal-buttons" style="margin-top:16px; justify-content:flex-end;">
+                                        <button type="button" id="divisionModalClose">닫기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
                     <div id="changePwModal" class="modal-overlay hidden">
                         <div class="modal-wrapper">
                             <div class="modal">
@@ -513,19 +534,19 @@
 
                         <!-- 가로 정렬된 박스들 -->
                         <div class="details-container">
-                            <div class="detail">
+                            <div class="detail" id="bsmDetail">
                                 <span class="label">bsm</span>
                                 <span class="value" id="bsmCredit">0</span>
                             </div>
-                            <div class="detail">
+                            <div class="detail" id="designDetail">
                                 <span class="label">설계</span>
                                 <span class="value" id="designCredit">0</span>
                             </div>
-                            <div class="detail">
+                            <div class="detail" id="majorElectiveDetail">
                                 <span class="label">전공선택</span>
                                 <span class="value" id="majorElectiveCredit">0</span>
                             </div>
-                            <div class="detail">
+                            <div class="detail" id="majorAdvancedDetail">
                                 <span class="label">전공심화</span>
                                 <span class="value" id="majorAdvancedCredit">0</span>
                             </div>
@@ -620,6 +641,7 @@
             /***********************
              * 공통 유틸
              ***********************/
+
             function toSemesterCode(semText){
                 const m = String(semText).match(/(\d{4})\D*(1|2)\D*학기?/);
                 return m ? `${m[1]}${m[2]}` : semText.replace(/\D/g,'');
@@ -750,7 +772,31 @@
             function bindGlobalEvents(){
                 document.getElementById('logoutLink')?.addEventListener('click', onLogoutClick);
                 document.getElementById('semesterSelectInline')?.addEventListener('change', onSemesterSelectInlineChange);
+
+                // ✅ 구분별 카드 클릭 시 모달 열기
+                document.getElementById('bsmDetail')?.addEventListener('click', () => {
+                    openDivisionModal('bsm');
+                });
+                document.getElementById('designDetail')?.addEventListener('click', () => {
+                    openDivisionModal('design');
+                });
+                document.getElementById('majorElectiveDetail')?.addEventListener('click', () => {
+                    openDivisionModal('majorElective');
+                });
+                document.getElementById('majorAdvancedDetail')?.addEventListener('click', () => {
+                    openDivisionModal('majorAdvanced');
+                });
+
+                // ✅ 구분별 과목 모달 닫기 이벤트
+                document.getElementById('divisionModalClose')?.addEventListener('click', closeDivisionModal);
+                document.getElementById('divisionModal')?.addEventListener('click', (e) => {
+                    if (e.target.id === 'divisionModal') {
+                        // 바깥(오버레이) 클릭 시 닫기
+                        closeDivisionModal();
+                    }
+                });
             }
+
 
             function onLogoutClick(e){
                 e.preventDefault();
@@ -1111,26 +1157,44 @@
             /***********************
              * 대표 시간표 렌더
              ***********************/
-            function buildRepGridSpan(periodCount=9){
-                const body = document.getElementById('repGridBody'); if (!body) return;
+// ✅ minPeriod ~ maxPeriod 범위로 그리드 생성 (0교시가 있으면 위에 나오도록)
+            function buildRepGridSpan(minPeriod, maxPeriod){
+                const body = document.getElementById('repGridBody');
+                if (!body) return;
+
                 body.innerHTML = '';
+
                 const grid = document.createElement('div');
-                grid.className='schedule-grid'; grid.id='repGridSpanBody';
-                const labels=['9~10시','10~11시','11~12시','12~1시','1~2시','2~3시','3~4시','4~5시','5~6시'];
-                for (let p=1;p<=periodCount;p++){
-                    const t=document.createElement('div');
-                    t.className='time-cell'; t.style.gridColumn='1'; t.style.gridRow=String(p);
-                    t.innerHTML = `${p}교시<br/><span>${labels[p-1]||''}</span>`;
+                grid.className = 'schedule-grid';
+                grid.id = 'repGridSpanBody';
+
+                // minPeriod ~ maxPeriod 까지를 "위에서부터 순서대로" 배치
+                for (let p = minPeriod; p <= maxPeriod; p++) {
+                    const rowIndex = p - minPeriod + 1; // 실제 grid-row 값
+
+                    // 왼쪽 시간 셀
+                    const t = document.createElement('div');
+                    t.className = 'time-cell';
+                    t.style.gridColumn = '1';
+                    t.style.gridRow = String(rowIndex);
+                    t.innerHTML = `${p}교시<br/><span>${periodLabel(p)}</span>`;
                     grid.appendChild(t);
-                    for (let day=0; day<5; day++){
-                        const cell=document.createElement('div'); cell.className='cell-placeholder';
-                        cell.dataset.day=String(day); cell.dataset.period=String(p);
-                        cell.style.gridColumn=String(day+2); cell.style.gridRow=String(p);
+
+                    // 월~금 placeholder
+                    for (let day = 0; day < 5; day++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell-placeholder';
+                        cell.dataset.day = String(day);
+                        cell.dataset.period = String(p); // 실제 교시값은 여기에 저장
+                        cell.style.gridColumn = String(day + 2);
+                        cell.style.gridRow = String(rowIndex);
                         grid.appendChild(cell);
                     }
                 }
+
                 body.appendChild(grid);
             }
+
             function ensureRepGridSpanMax(periodMax){
                 const grid=document.getElementById('repGridSpanBody'); if(!grid) return;
                 const curRows = grid.querySelectorAll('[data-period]').length
@@ -1159,7 +1223,7 @@
                 const grid = document.getElementById('repGridSpanBody');
                 if (!grid) return;
 
-                const info = normalizeRepCourseInfo(item);
+                const info = normalizeCourseInfo(item);
 
                 const subject = info.courseName;
                 const professor = info.professorName || '';
@@ -1172,13 +1236,18 @@
                 const pStart = info.timeStart;
                 const pEnd = info.timeEnd ?? info.timeStart;
                 if (!Number.isFinite(pStart) || !Number.isFinite(pEnd)) return;
+                const rowStart = pStart - repMinPeriod + 1;
+                const rowEnd   = pEnd   - repMinPeriod + 1;
+                if (rowStart < 1 || rowEnd < rowStart) return;
 
                 const bg = ColorManager.get(courseCode);
 
                 const block = document.createElement('div');
                 block.className = 'course-block busy';
                 block.style.gridColumn = String(dayIdx + 2);
-                block.style.gridRow = `${pStart} / ${pEnd + 1}`;
+                block.style.gridRow = `${rowStart} / ${rowEnd + 1}`;
+
+
                 block.style.setProperty('--course-color', bg);
                 block.dataset.courseId = courseCode;
 
@@ -1220,6 +1289,7 @@
                     const data = await res.json();
                     // 👉 모달의 currentCourseList처럼 대표 시간표 전용 리스트 보관
                     repCourseList = Array.isArray(data) ? data : [];
+                    console.log(repCourseList);
                     renderRepresentativeSchedule(repCourseList);
                 } catch (err) {
                     console.error(err);
@@ -1241,8 +1311,39 @@
       </div>`;
                 }
 
-                // 기본 9교시 그리드 생성
-                buildRepGridSpan(9);
+                const data = Array.isArray(scheduleData) ? scheduleData : [];
+
+                // ✅ 실제 데이터 기준으로 최소/최대 교시 계산 (0교시 고려)
+                let minPeriod = Infinity;
+                let maxPeriod = -Infinity;
+
+                data.forEach(it => {
+                    const s = Number(
+                        it.time_start ?? it.timeStart ?? it.periodStart
+                    );
+                    const e = Number(
+                        it.time_end ?? it.timeEnd ?? it.periodEnd ?? s
+                    );
+
+                    if (Number.isFinite(s)) minPeriod = Math.min(minPeriod, s);
+                    if (Number.isFinite(e)) maxPeriod = Math.max(maxPeriod, e);
+                });
+
+                // 데이터가 없으면 기본 1~9교시
+                if (!Number.isFinite(minPeriod) || !Number.isFinite(maxPeriod)) {
+                    minPeriod = 1;
+                    maxPeriod = 9;
+                } else {
+                    // 최소는 0 또는 1, 최대는 최소 9교시까지 보장
+                    minPeriod = Math.min(minPeriod, 1);  // 0교시가 있으면 0, 아니면 1
+                    maxPeriod = Math.max(maxPeriod, 9);
+                }
+
+                // 전역 상태로 저장 (블록 배치 때 사용)
+                repMinPeriod = minPeriod;
+
+                // ✅ minPeriod ~ maxPeriod로 그리드 재구성
+                buildRepGridSpan(minPeriod, maxPeriod);
 
                 const repGrid = document.getElementById('repGridSpanBody');
                 if (repGrid) {
@@ -1251,24 +1352,10 @@
                     repGrid.style.gridAutoRows = '62px';
                 }
 
-                // 최대 교시 계산 (0교시가 내려올 수도 있음)
-                let needMax = 9;
-                (scheduleData || []).forEach(it => {
-                    const end = Number(
-                        it.time_end ??
-                        it.timeEnd ??
-                        it.periodEnd ??
-                        it.time_start ??
-                        it.timeStart ??
-                        it.periodStart
-                    );
-                    if (Number.isFinite(end)) needMax = Math.max(needMax, end);
-                });
-                ensureRepGridSpanMax(needMax);
-
                 // 실제 블록 배치
-                (scheduleData || []).forEach(placeCourseBlockRep);
+                data.forEach(placeCourseBlockRep);
             }
+
 
 
             async function renderRepresentativeFromServer(){
@@ -1343,22 +1430,18 @@
                 await loaduserinfo();
                 return UserId;
             };
-            async function ensureModalReady(timeout = 1) {
-                const start = Date.now();
-                while (!(window.openScheduleModal && document.getElementById('scheduleModal'))) {
-                    await sleep(50);
-                    if (Date.now() - start > timeout) {
-                        throw new Error('scheduleModal 스크립트 또는 프래그먼트가 준비되지 않았습니다.');
-                    }
+
+            async function ensureModalReady() {
+                if (!(window.openScheduleModal && document.getElementById('scheduleModal'))) {
+                    throw new Error('scheduleModal 스크립트 또는 프래그먼트가 준비되지 않았습니다.');
                 }
             }
 
+
             function getDivisionLabel(info) {
-                // 1) bsm / 설계
                 if (info.bsm != null) {
                     return Number(info.bsm) === 1 ? "설계" : "bsm";
                 }
-                // 2) 전선 / 전심
                 if (info.전선전심 != null) {
                     return Number(info.전선전심) === 1 ? "전공선택" : "전공심화";
                 }
@@ -1369,6 +1452,7 @@
                 hideCourseTooltip();
 
                 const division = getDivisionLabel(courseInfo);
+
 
                 const tooltip = document.createElement('div');
                 tooltip.className = 'course-tooltip';
@@ -1418,28 +1502,137 @@
              * 대표 시간표용 상태
              ***********************/
             let repCourseList = [];  // getTS2TE에서 받아온 과목/슬롯 데이터 전체를 그대로 보관
+            let repMinPeriod = 1;
 
-            function normalizeRepCourseInfo(item) {
+
+            /***********************
+             * 과목 정보 정규화 (공용)
+             ***********************/
+            function normalizeCourseInfo(item) {
+                if (!item) return {
+                    courseName: '',
+                    identifyNumberOfCourse: '',
+                    professorName: '',
+                    classroom: '',
+                    majorOrCulture: null,
+                    bsm: null,
+                    전선전심: null,
+                    credit: '-',
+                    scheduleDay: null,
+                    timeStart: null,
+                    timeEnd: null,
+                };
+
                 const termDay = Number(item.day ?? item.scheduleDay ?? 0);
-                const s = Number(item.timeStart);
-                const e = Number(
-                    item.timeEnd
-                );
+                const s = Number(item.timeStart ?? item.time_start ?? item.periodStart);
+                const e = Number(item.timeEnd   ?? item.time_end   ?? item.periodEnd ?? s);
 
                 return {
                     courseName: item.courseName || '',
-                    identifyNumberOfCourse: item.identifyNumberOfCourse || '',
+                    identifyNumberOfCourse:
+                        item.identifyNumberOfCourse ??
+                        item.identify_number_of_course ??
+                        item.courseCode ??
+                        '',
                     professorName: item.professorName || '',
                     classroom: item.classroom || '',
                     majorOrCulture: item.majorOrCulture ?? null,
                     bsm: item.bsm ?? null,
-                    전선전심: item.전선전심 ?? item.majarS ?? null,   // ★ 이 줄 추가
+                    // 전선/전심 필드는 여러 이름으로 올 수 있으니 한 번에 정리
+                    전선전심: item.전선전심 ?? item.majarS ?? item.majorS ?? null,
                     credit: item.credit ?? '-',
                     scheduleDay: Number.isFinite(termDay) ? termDay : null,
                     timeStart: Number.isFinite(s) ? s : null,
-                    timeEnd: Number.isFinite(e) ? e : null,
+                    timeEnd:   Number.isFinite(e) ? e : null,
                 };
             }
+
+            /***********************
+             * 구분별 과목 모달
+             ***********************/
+            function closeDivisionModal() {
+                const modal = document.getElementById('divisionModal');
+                if (!modal) return;
+                modal.classList.add('hidden');
+                document.body.classList.remove('modal-open');
+            }
+
+            async function openDivisionModal(kind) {
+                const modal = document.getElementById('divisionModal');
+                const titleEl = document.getElementById('divisionModalTitle');
+                const listEl  = document.getElementById('divisionModalList');
+                if (!modal || !titleEl || !listEl) return;
+
+                if (!repCourseList || repCourseList.length === 0) {
+                    try { await renderRepresentativeFromServer(); } catch (e) { console.error(e); }
+                }
+
+                if (!repCourseList || repCourseList.length === 0) {
+                    alert('대표 시간표가 설정되지 않았거나 과목 정보가 없습니다.');
+                    return;
+                }
+
+                const labelMap = {
+                    bsm: 'BSM',
+                    design: '설계',
+                    majorElective: '전공선택',
+                    majorAdvanced: '전공심화',
+                };
+
+                // 1) 먼저 해당 구분에 맞는 과목 필터링
+                let filtered = repCourseList
+                    .map(normalizeCourseInfo)
+                    .filter(info => {
+                        const division = getDivisionLabel(info);
+                        if (kind === 'bsm')            return division === 'bsm';
+                        if (kind === 'design')         return division === '설계';
+                        if (kind === 'majorElective')  return division === '전공선택';
+                        if (kind === 'majorAdvanced')  return division === '전공심화';
+                        return false;
+                    });
+
+                // 2) 학수번호 기준 중복 제거 (identifyNumberOfCourse)
+                const uniqueMap = new Map();
+                filtered.forEach(info => {
+                    const code = info.identifyNumberOfCourse;
+                    if (!uniqueMap.has(code)) {
+                        uniqueMap.set(code, info);
+                    }
+                });
+
+                // 3) 리스트 다시 구성 (중복 제거된 순수 배열)
+                filtered = Array.from(uniqueMap.values());
+
+                // 4) 모달 렌더링
+                titleEl.textContent = `${labelMap[kind] || ''} 과목 목록`;
+                listEl.innerHTML = '';
+
+                if (filtered.length === 0) {
+                    const li = document.createElement('li');
+                    li.textContent = '해당 구분에 해당되는 과목이 없습니다.';
+                    listEl.appendChild(li);
+                } else {
+                    filtered.forEach(info => {
+                        const li = document.createElement('li');
+                        li.style.marginBottom = '6px';
+
+                        li.innerHTML =
+                            `${info.courseName || '-'} `
+                            + `(${info.identifyNumberOfCourse || '-'}) `
+                            + ` - ${info.credit ?? '-'}학점`;
+
+                        listEl.appendChild(li);
+                    });
+                }
+
+                modal.classList.remove('hidden');
+                document.body.classList.add('modal-open');
+            }
+
+
+            // 대표 시간표에서 쓰려고 전역 노출
+            window.normalizeCourseInfo = normalizeCourseInfo;
+
         </script>
         <script src="/jsCss/scheduleModal.js"></script>
         </body>

@@ -56,7 +56,6 @@ public class SecurityConfig {
                                 "/PWupdate_button",
                                 "/update",
                                 "/userinfo",
-                                "/tech_tree",
                                 "/my_page1",
                                 "/a",
                                 "/addTimetable",
@@ -68,7 +67,8 @@ public class SecurityConfig {
                                 "/getbsm",
                                 "/get설계",
                                 "/get전심",
-                                "/get전선"
+                                "/get전선",
+                                "/tech_tree/**"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )

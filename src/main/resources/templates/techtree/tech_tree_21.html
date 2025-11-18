@@ -169,11 +169,17 @@
     footer a:hover {
       text-decoration: underline;
     }
+    .course.completed-course {
+      background-color: #fda4af;   /* 톤다운된 코랄 */
+      border-color: #be123c;       /* 라즈베리 레드 */
+      color: #831843;
+      box-shadow: 0 0 0 2px rgba(190, 18, 60, 0.35);
+    }
   </style>
 </head>
 <body>
 <header>
-  <h1><a href="/static">SMULET</a></h1>
+  <h1><a href="/">SMULET</a></h1>
   <nav>
     <a href="#"><b>이용안내</b></a>
     <a href="/Register"><b>회원가입</b></a>
@@ -258,14 +264,14 @@
     <div class = 'year'>4학년</div>
     <div class="semester-container">
       <div class = "semester-label">1학기</div>
-      <div class="course design" data-subject="캡스톤디자인 I">캡스톤디자인 I</div>
+      <div class="course design" data-subject="캡스톤디자인1">캡스톤디자인 I</div>
       <div class="course design" data-subject="빅데이터응용">빅데이터응용</div>
       <div class="course" data-subject="클라우드 프로그래밍">클라우드 프로그래밍</div>
       <div class="course" data-subject="네트워크보안">네트워크보안</div>
     </div>
     <div class="semester-container">
       <div class = "semester-label">2학기</div>
-      <div class="course design" data-subject="캡스톤디자인 II">캡스톤디자인 II</div>
+      <div class="course design" data-subject="캡스톤디자인2">캡스톤디자인 II</div>
       <div class="course" data-subject="웹프로그래밍">웹프로그래밍</div>
       <div class="course" data-subject="컴파일러">컴파일러</div>
       <div class="course" data-subject="ICT 학점이수 인턴제">ICT 학점이수 인턴제</div>
@@ -284,6 +290,96 @@
 </footer>
 
 <script>
+  /***********************
+   * JWT 토큰 / 공통 fetch
+   ***********************/
+  const TokenManager = (() => {
+    let accessToken = null;
+    let refreshingPromise = null;
+
+    const set = (t) => { accessToken = t || null; };
+    const get = () => accessToken;
+
+    const refresh = async () => {
+      if (refreshingPromise) return refreshingPromise;
+
+      refreshingPromise = (async () => {
+        const res = await fetch('/refreshT', {
+          method: 'POST',
+          credentials: 'include',   // 🔹 refresh 토큰 쿠키 사용
+        });
+
+        if (!res.ok) {
+          set(null);
+          throw new Error('Refresh failed');
+        }
+
+        const auth = res.headers.get('Authorization');
+        if (!auth || !auth.startsWith('Bearer ')) {
+          set(null);
+          throw new Error('No Authorization header');
+        }
+
+        const token = auth.slice('Bearer '.length);
+        set(token);
+        return token;
+      })();
+
+      try {
+        return await refreshingPromise;
+      } finally {
+        refreshingPromise = null;
+      }
+    };
+
+    return { get, set, refresh };
+  })();
+
+  async function apiFetch(input, init = {}) {
+    const headers = new Headers(init.headers || {});
+    const token = TokenManager.get();
+
+    // 🔹 accessToken 있으면 Authorization 헤더 자동 세팅
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    let res = await fetch(input, {
+      ...init,
+      headers,
+      credentials: 'include',   // 🔹 항상 쿠키도 같이 보냄
+    });
+
+    // 🔹 401이면 한번만 refresh 재시도
+    if (res.status === 401) {
+      try {
+        const newToken = await TokenManager.refresh();
+        const retryHeaders = new Headers(init.headers || {});
+        retryHeaders.set('Authorization', `Bearer ${newToken}`);
+
+        res = await fetch(input, {
+          ...init,
+          headers: retryHeaders,
+          credentials: 'include',
+        });
+      } catch (e) {
+        TokenManager.set(null);
+        throw e;
+      }
+    }
+
+    return res;
+  }
+
+  function logout() {
+    // 필요하면 서버 로그아웃 엔드포인트도 호출 가능
+    TokenManager.set(null);
+  }
+
+  let UserId = null;
+
+
+
   document.addEventListener('DOMContentLoaded', async () => {
     try {
       await TokenManager.refresh();
@@ -291,11 +387,14 @@
       if (!TokenManager.get()) {
         throw new Error('No access token');
       }
+
+      await highlightCompletedCourses();
+
     } catch (e) {
       console.warn('Token check failed:', e);
       alert('로그인이 필요합니다.');
       logout();
-      window.location.href = '/login_page'; // 프로젝트 로그인 URL에 맞게 유지
+      window.location.href = '/login_page';
     }
   });
 
@@ -414,6 +513,109 @@
       activeLines = [];
     });
   });
+
+  async function fetchCompletedCourseNames() {
+    // accessToken 없으면 그냥 빈 Set
+    if (!TokenManager.get()) return new Set();
+
+    // 1) /userinfo에서 UserId 가져오기 (한 번만)
+    if (!UserId) {
+      try {
+        const res = await apiFetch('/userinfo', { method: 'GET' });
+        if (!res.ok) {
+          throw new Error('사용자 정보 불러오기 실패');
+        }
+        const data = await res.json();
+
+        UserId =
+                data.userId ??
+                data.id ??
+                (Array.isArray(data.timetables) && data.timetables.length > 0
+                        ? data.timetables[0].userId
+                        : null);
+
+        if (!UserId) {
+          console.warn('userId not found in /userinfo response');
+          return new Set();
+        }
+      } catch (err) {
+        console.error('사용자 정보를 불러오는데 실패했습니다:', err);
+        return new Set();
+      }
+    }
+
+    // 2) /getTC에서 내가 가진 courseId 리스트 조회
+    const tcRes = await apiFetch('/getTC', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(UserId),   // 마이페이지와 동일하게 UserId만 전송
+    });
+
+    if (!tcRes.ok) {
+      console.error('getTC 호출 실패:', tcRes.status);
+      return new Set();
+    }
+
+    const tcData = await tcRes.json();
+    console.log('[TechTree] tcData:', tcData);
+
+    // 3) timetableId로 굳이 나누지 않고, 내가 수강한 모든 courseId 사용
+    const courseIdList = Array.from(new Set(
+            (Array.isArray(tcData) ? tcData : [])
+                    .map(r => r.courseId ?? null)
+                    .filter(v => v != null && String(v).trim() !== '')
+                    .map(v => Number(v))
+    ));
+
+    console.log('[TechTree] courseIdList 최종:', courseIdList);
+
+    if (courseIdList.length === 0) {
+      return new Set();
+    }
+
+    // 4) /getTS2TE에서 courseName 목록 가져오기
+    const tsRes = await apiFetch('/getTS2TE', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ getScheduleIds: courseIdList }),
+    });
+
+    if (!tsRes.ok) {
+      const failTxt = await tsRes.text();
+      console.error('[TechTree] /getTS2TE 실패', tsRes.status, failTxt);
+      return new Set();
+    }
+
+    const tsData = await tsRes.json();
+    console.log('[TechTree] getTS2TE data:', tsData);
+
+    // 5) 과목 이름을 Set으로 정리
+    const completedNameSet = new Set();
+    (tsData || []).forEach(item => {
+      if (item.courseName) {
+        completedNameSet.add(item.courseName);
+      }
+    });
+
+    return completedNameSet;
+  }
+
+
+  // ✅ DOM의 .course 박스에 completed-course 클래스 붙이는 함수
+  async function highlightCompletedCourses() {
+    try {
+      const completedNames = await fetchCompletedCourseNames();
+
+      allCourses.forEach(course => {
+        const subject = course.dataset.subject;
+        if (completedNames.has(subject)) {
+          course.classList.add('completed-course');
+        }
+      });
+    } catch (err) {
+      console.error('이수 과목 하이라이트 중 오류:', err);
+    }
+  }
 </script>
 </body>
 </html>

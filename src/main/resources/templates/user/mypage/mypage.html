@@ -901,12 +901,18 @@
                 const year = select.value;
                 if (!TokenManager.get()){ alert('로그인 토큰이 없습니다.'); return; }
                 if (!year) { alert('학번을 선택하세요.'); return; }
-
+/*
                 apiFetch(`/tech_tree?year=${year}`, { method:'GET' })
                     .then(res => { if (res.ok) return res.text(); else throw new Error('Unauthorized'); })
                     .then(html => { document.open(); document.write(html); document.close(); })
                     .catch(err => { console.error(err); window.location.href='/'; });
+
+ */
+
+                window.location.href = `/tech_tree?year=${year}`;
             }
+
+
 
             /***********************
              * 학기/시간표 관리
@@ -1296,6 +1302,81 @@
                     alert('대표 시간표 로딩 중 오류 발생: ' + err.message);
                 }
             }
+
+            /***********************
+             * 전체 과목 리스트 로딩
+             ***********************/
+            async function ensureAllCourseListLoaded() {
+                // 이미 로딩되어 있으면 재요청 X
+                if (allCourseList && allCourseList.length > 0) return;
+
+                try {
+                    // UserId가 없다면 먼저 불러오기
+                    const uid = UserId || (await window.getUserId?.());
+                    if (!uid) {
+                        console.warn('UserId를 찾을 수 없습니다.');
+                        return;
+                    }
+
+                    // 1) /getTC에서 전체 courseId 목록 가져오기 (timetableId로 필터 X)
+                    const byUid = await apiFetch('/getTC', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(uid),
+                    });
+
+                    if (!byUid.ok) {
+                        const failTxt = await byUid.text();
+                        console.error('ensureAllCourseListLoaded: /getTC 실패', byUid.status, failTxt);
+                        return;
+                    }
+
+                    let all;
+                    try {
+                        const txt = await byUid.text();
+                        all = JSON.parse(txt);
+                    } catch (e) {
+                        console.error('ensureAllCourseListLoaded: /getTC JSON 파싱 실패', e);
+                        return;
+                    }
+
+                    const rows = Array.isArray(all) ? all : [];
+                    const courseIds = Array.from(
+                        new Set(
+                            rows
+                                .map(r => r.courseId ?? r.course_id ?? null)
+                                .filter(v => v != null && String(v).trim() !== '')
+                        )
+                    );
+
+                    if (courseIds.length === 0) {
+                        console.warn('ensureAllCourseListLoaded: courseId가 없습니다.');
+                        allCourseList = [];
+                        return;
+                    }
+
+                    // 2) /getTS2TE에 전체 courseId를 보내서 상세 정보 가져오기
+                    const detailRes = await apiFetch('/getTS2TE', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ getScheduleIds: courseIds }),
+                    });
+
+                    if (!detailRes.ok) {
+                        const msg = await detailRes.text();
+                        console.error('ensureAllCourseListLoaded: /getTS2TE 실패', detailRes.status, msg);
+                        return;
+                    }
+
+                    const detail = await detailRes.json();
+                    allCourseList = Array.isArray(detail) ? detail : [];
+                    console.log('✅ allCourseList 로딩 완료:', allCourseList.length, '개');
+                } catch (err) {
+                    console.error('ensureAllCourseListLoaded 오류:', err);
+                }
+            }
+
+
             function renderRepresentativeSchedule(scheduleData) {
                 const container = document.getElementById('representativeScheduleContainer');
                 if (!container) return;
@@ -1502,6 +1583,7 @@
              * 대표 시간표용 상태
              ***********************/
             let repCourseList = [];  // getTS2TE에서 받아온 과목/슬롯 데이터 전체를 그대로 보관
+            let allCourseList = [];
             let repMinPeriod = 1;
 
 
@@ -1563,12 +1645,12 @@
                 const listEl  = document.getElementById('divisionModalList');
                 if (!modal || !titleEl || !listEl) return;
 
-                if (!repCourseList || repCourseList.length === 0) {
-                    try { await renderRepresentativeFromServer(); } catch (e) { console.error(e); }
-                }
+                // ✅ 대표 시간표가 아니라 "전체 수강 과목" 기준으로 모달을 띄우기
+                await ensureAllCourseListLoaded();
 
-                if (!repCourseList || repCourseList.length === 0) {
-                    alert('대표 시간표가 설정되지 않았거나 과목 정보가 없습니다.');
+                // 그래도 없으면 안내
+                if (!allCourseList || allCourseList.length === 0) {
+                    alert('수강한 과목 정보가 없습니다. (전체 courseId 기준 데이터가 비어 있습니다.)');
                     return;
                 }
 
@@ -1579,8 +1661,8 @@
                     majorAdvanced: '전공심화',
                 };
 
-                // 1) 먼저 해당 구분에 맞는 과목 필터링
-                let filtered = repCourseList
+                // 1) 먼저 해당 구분에 맞는 과목 필터링 (전체 과목 리스트 사용)
+                let filtered = allCourseList
                     .map(normalizeCourseInfo)
                     .filter(info => {
                         const division = getDivisionLabel(info);
@@ -1599,11 +1681,9 @@
                         uniqueMap.set(code, info);
                     }
                 });
-
-                // 3) 리스트 다시 구성 (중복 제거된 순수 배열)
                 filtered = Array.from(uniqueMap.values());
 
-                // 4) 모달 렌더링
+                // 3) 모달 렌더링
                 titleEl.textContent = `${labelMap[kind] || ''} 과목 목록`;
                 listEl.innerHTML = '';
 
@@ -1628,6 +1708,7 @@
                 modal.classList.remove('hidden');
                 document.body.classList.add('modal-open');
             }
+
 
 
             // 대표 시간표에서 쓰려고 전역 노출

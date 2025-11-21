@@ -246,22 +246,22 @@
         <div class = "semester-label">1학기</div>
         <div class="course design advanced" data-subject="소프트웨어공학">소프트웨어공학</div>
         <div class="course advanced" data-subject="운영체제">운영체제</div>
-        <div class="course advanced" data-subject="데이터모델링과마이닝">데이터모델링과마이닝</div>
-        <div class="course" data-subject="컴퓨터네트워크">컴퓨터네트워크</div>
+        <div class="course advanced" data-subject="데이터모델링과 마이닝">데이터모델링과 마이닝</div>
+        <div class="course" data-subject="컴퓨터네트워크">컴퓨터 네트워크</div>
         <div class="course advanced" data-subject="디지털 신호처리">디지털 신호처리</div>
-        <div class="course design advanced" data-subject="GPU 프로그래밍">GPU 프로그래밍</div>
+        <div class="course design advanced" data-subject="GPU프로그래밍">GPU프로그래밍</div>
         <div class="course design" data-subject="심층학습">심층학습</div>
         <div class="course advanced" data-subject="영상처리">영상처리</div>
       </div>
       <div class="semester-container">
         <div class = "semester-label">2학기</div>
-        <div class="course" data-subject="고급객체지향프로그래밍">고급객체지향프로그래밍</div>
+        <div class="course" data-subject="고급객체지향 프로그래밍">고급객체지향 프로그래밍</div>
         <div class="course design advanced" data-subject="지능형 사용자인터페이스">지능형 사용자인터페이스</div>
         <div class="course advanced" data-subject="분산시스템">분산시스템</div>
         <div class="course advanced" data-subject="프로그래밍언어론">프로그래밍언어론</div>
         <div class="course design advanced" data-subject="유닉스 프로그래밍">유닉스 프로그래밍</div>
         <div class="course advanced" data-subject="암호학">암호학</div>
-        <div class="course design advanced" data-subject="사물인터넷프로그래밍">사물인터넷프로그래밍</div>
+        <div class="course design advanced" data-subject="사물인터넷 프로그래밍">사물인터넷 프로그래밍</div>
         <div class="course" data-subject="음성 및 오디오처리">음성 및 오디오처리</div>
       </div>
     </div>
@@ -269,14 +269,14 @@
       <div class = 'year'>4학년</div>
       <div class="semester-container">
         <div class = "semester-label">1학기</div>
-        <div class="course design" data-subject="캡스톤디자인 I">캡스톤디자인1</div>
+        <div class="course design" data-subject="캡스톤디자인1">캡스톤디자인 I</div>
         <div class="course" data-subject="클라우드 프로그래밍">클라우드 프로그래밍</div>
         <div class="course advanced" data-subject="컴퓨터비전">컴퓨터비전</div>
         <div class="course design advanced" data-subject="네트워크보안">네트워크보안</div>
       </div>
       <div class="semester-container">
         <div class = "semester-label">2학기</div>
-        <div class="course design" data-subject="캡스톤디자인 II">캡스톤디자인2</div>
+        <div class="course design" data-subject="캡스톤디자인2">캡스톤디자인 II</div>
         <div class="course" data-subject="클라우드 플랫폼">클라우드 플랫폼</div>
         <div class="course advanced" data-subject="고급 알고리즘">고급 알고리즘</div>
       </div>
@@ -404,28 +404,33 @@
 
 
     const groups = {
-      pink: ['공학설계입문', '소프트웨어공학', '캡스톤디자인 I', '캡스톤디자인 II'],
-      green: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '객체지향 프로그래밍', '고급객체지향프로그래밍', '캡스톤디자인 I', '캡스톤디자인 II'],
+      pink: ['공학설계입문', '소프트웨어공학', '캡스톤디자인1', '캡스톤디자인2'],
+      green: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '객체지향 프로그래밍', '고급객체지향 프로그래밍'],
       purple: ['선형대수학 I', '선형대수학 II', '디지털 신호처리'],
-      orange: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '시스템 소프트웨어', '운영체제', '유닉스 프로그래밍'],
-      navy: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '자료구조', '데이터베이스', '데이터모델링과마이닝', '빅데이터응용'],
+      orange: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '유닉스 프로그래밍','클라우드 프로그래밍','클라우드 플랫폼'],
+      navy: ['자료구조', '데이터베이스', '데이터모델링과 마이닝'],
       mint: ['이산수학', '프로그래밍 언어론', '컴파일러'],
-      gray: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '시스템 소프트웨어', '운영체제', '유닉스 프로그래밍'],
-      cobalt: ['선형대수학 I', '선형대수학 II', '인공지능'],
-      brown: ['정보보호', '암호학', '네트워크보안'],
-      red: ['클라우드 프로그래밍', '클라우드 플랫폼'],
-      gold: ['컴퓨터네트워크', '데이터 통신'],
-      wine: ['통계적 분석', '인공지능'],
+      gray: ['시스템 소프트웨어', '운영체제', '유닉스 프로그래밍','클라우드 프로그래밍','클라우드 플랫폼'],
+      cobalt: ['선형대수학 I', '선형대수학 II','디지털 신호처리'],
+      brown: ['컴퓨터수학','정보보호', '암호학', '네트워크보안'],
+      red: ['컴퓨터네트워크','사물인터넷 프로그래밍'],
+      gold: ['컴퓨터네트워크', '분산시스템'],
+      wine: ['통계적분석', '인공지능', '심층학습'],
       coral: ['자료구조', '알고리즘'],
-      beige: ['이산수학', '알고리즘'],
-      orchid: ['논리회로', '컴퓨터구조'],
+      beige: ['컴퓨터수학', '이산수학', '알고리즘','고급 알고리즘'],
+      orchid: ['논리회로', '컴퓨터구조','운영체제','유닉스 프로그래밍'],
+      a: ['신호 및 시스템','영상처리','컴퓨터비전'],
+      b: ['신호 및 시스템','디지털 신호처리','음성 및 오디오처리'],
+      c: ['객체지향 프로그래밍','GPU프로그래밍','컴퓨터비전'],
+      d: ['자료구조','알고리즘','고급 알고리즘'],
+      e: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '객체지향 프로그래밍','프로그래밍언어론']
     };
 
     const allCourses = document.querySelectorAll('.course');
     let activeLines = [];
 
-    function findGroup(subjectName) {
-      return Object.values(groups).find(group => group.includes(subjectName));
+    function findGroups(subjectName) {
+      return Object.values(groups).filter(group => group.includes(subjectName));
     }
 
     function drawLines(groupNames) {
@@ -500,16 +505,22 @@
     allCourses.forEach(course => {
       course.addEventListener('mouseenter', () => {
         const subject = course.dataset.subject;
-        const group = findGroup(subject);
-        if (group) {
+        const matchedGroups = findGroups(subject);   // [group1, group2, ...]
+
+        if (matchedGroups.length > 0) {
+          const visibleNames = new Set(
+                  matchedGroups.flat()
+          );
+
           allCourses.forEach(el => {
-            if (group.includes(el.dataset.subject)) {
+            if (visibleNames.has(el.dataset.subject)) {
               el.classList.remove('dimmed');
             } else {
               el.classList.add('dimmed');
             }
           });
-          activeLines = drawLines(group);
+
+          activeLines = matchedGroups.flatMap(group => drawLines(group));
         }
       });
 

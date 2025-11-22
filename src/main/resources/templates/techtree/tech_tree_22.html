@@ -400,8 +400,9 @@
 
 
   const groups = {
-    pink: ['공학설계입문', '소프트웨어공학', '캡스톤디자인 I', '캡스톤디자인 II'],
-    green: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '객체지향 프로그래밍', '고급객체지향프로그래밍', '캡스톤디자인 I', '캡스톤디자인 II'],
+    pink: ['공학설계입문', '소프트웨어공학', '캡스톤디자인1', '캡스톤디자인2'],
+    green: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '객체지향 프로그래밍', '고급객체지향프로그래밍'],
+    black: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '객체지향 프로그래밍', '캡스톤디자인1', '캡스톤디자인2'],
     purple: ['선형대수학 I', '선형대수학 II', '디지털 신호처리'],
     orange: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '시스템 소프트웨어', '운영체제', '유닉스 프로그래밍'],
     navy: ['파이썬 프로그래밍', 'C프로그래밍 I', 'C프로그래밍 II', '자료구조', '데이터베이스', '데이터모델링과마이닝', '빅데이터응용'],
@@ -420,9 +421,10 @@
   const allCourses = document.querySelectorAll('.course');
   let activeLines = [];
 
-  function findGroup(subjectName) {
-    return Object.values(groups).find(group => group.includes(subjectName));
+  function findGroups(subjectName) {
+    return Object.values(groups).filter(group => group.includes(subjectName));
   }
+
 
   function drawLines(groupNames) {
     const lines = [];
@@ -496,16 +498,22 @@
   allCourses.forEach(course => {
     course.addEventListener('mouseenter', () => {
       const subject = course.dataset.subject;
-      const group = findGroup(subject);
-      if (group) {
+      const matchedGroups = findGroups(subject);   // [group1, group2, ...]
+
+      if (matchedGroups.length > 0) {
+        const visibleNames = new Set(
+                matchedGroups.flat()
+        );
+
         allCourses.forEach(el => {
-          if (group.includes(el.dataset.subject)) {
+          if (visibleNames.has(el.dataset.subject)) {
             el.classList.remove('dimmed');
           } else {
             el.classList.add('dimmed');
           }
         });
-        activeLines = drawLines(group);
+
+        activeLines = matchedGroups.flatMap(group => drawLines(group));
       }
     });
 
@@ -515,6 +523,7 @@
       activeLines = [];
     });
   });
+
 
   async function fetchCompletedCourseNames() {
     // accessToken 없으면 그냥 빈 Set

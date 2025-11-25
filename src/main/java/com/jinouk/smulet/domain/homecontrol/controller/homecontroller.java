@@ -44,6 +44,9 @@ public class homecontroller {
     @GetMapping("/login_page")
     public String loginform(){return "user/login_page";}
 
+    @GetMapping("/policy_page")
+    public String policyform(){return "user/policy";}
+
 
     @GetMapping("my_page")
     public String mypage(@AuthenticationPrincipal Object principal, Model model)

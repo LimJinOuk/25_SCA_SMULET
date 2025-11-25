@@ -46,7 +46,8 @@ public class SecurityConfig {
                                 "/getTC",
                                 "/deleteTimetable",
                                 "/Modal/**",
-                                "/fragment/scheduleModal"
+                                "/fragment/scheduleModal",
+                                "policy_page"
                         ).permitAll()
                         .requestMatchers(
                                 "/member/delete",

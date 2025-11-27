@@ -182,7 +182,7 @@
   <h1><a href="/">SMULET</a></h1>
   <nav>
     <a href="#"><b>이용안내</b></a>
-    <a href="/Register"><b>회원가입</b></a>
+    <a id = "logoutLink"><b>로그아웃</b></a>
   </nav>
 </header>
 
@@ -207,7 +207,7 @@
     <div class="semester-container">
       <div class = "semester-label">1학기</div>
       <div class="course bsm" data-subject="컴퓨터수학">컴퓨터수학</div>
-      <div class="course" data-subject="파이썬 프로그래밍">파이썬 프로그래밍</div>
+      <div class="course" data-subject="파이썬프로그래밍">파이썬프로그래밍</div>
     </div>
     <div class="semester-container">
       <div class = "semester-label">2학기</div>
@@ -228,11 +228,11 @@
     </div>
     <div class="semester-container">
       <div class = "semester-label">2학기</div>
-      <div class="course" data-subject="객체지향 프로그래밍">객체지향 프로그래밍</div>
+      <div class="course" data-subject="객체지향프로그래밍">객체지향 프로그래밍</div>
       <div class="course" data-subject="데이터베이스">데이터베이스</div>
       <div class="course" data-subject="알고리즘">알고리즘</div>
       <div class="course bsm" data-subject="통계적분석">통계적분석</div>
-      <div class="course design" data-subject="시스템 소프트웨어">시스템 소프트웨어</div>
+      <div class="course design" data-subject="시스템소프트웨어">시스템 소프트웨어</div>
       <div class="course" data-subject="컴퓨터구조">컴퓨터구조</div>
       <div class="course" data-subject="정보보호">정보보호</div>
     </div>
@@ -243,19 +243,19 @@
       <div class = "semester-label">1학기</div>
       <div class="course design advanced" data-subject="소프트웨어공학">소프트웨어공학</div>
       <div class="course advanced" data-subject="운영체제">운영체제</div>
-      <div class="course" data-subject="데이터모델링과 마이닝">데이터모델링과마이닝</div>
+      <div class="course" data-subject="데이터모델링과마이닝">데이터모델링과마이닝</div>
       <div class="course advanced" data-subject="인공지능">인공지능</div>
       <div class="course advanced" data-subject="컴퓨터네트워크">컴퓨터네트워크</div>
-      <div class="course" data-subject="디지털 신호처리">디지털 신호처리</div>
+      <div class="course" data-subject="디지털신호처리">디지털 신호처리</div>
     </div>
     <div class="semester-container">
       <div class = "semester-label">2학기</div>
-      <div class="course advanced" data-subject="고급객체지향 프로그래밍">고급객체지향프로그래밍</div>
+      <div class="course advanced" data-subject="고급객체지향프로그래밍">고급객체지향프로그래밍</div>
       <div class="course" data-subject="사용자인터페이스">사용자인터페이스</div>
       <div class="course" data-subject="GPU프로그래밍">GPU 프로그래밍</div>
       <div class="course" data-subject="분산시스템">분산시스템</div>
-      <div class="course advanced" data-subject="프로그래밍 언어론">프로그래밍 언어론</div>
-      <div class="course advanced" data-subject="유닉스 프로그래밍">유닉스 프로그래밍</div>
+      <div class="course advanced" data-subject="프로그래밍언어론">프로그래밍 언어론</div>
+      <div class="course advanced" data-subject="유닉스프로그래밍">유닉스 프로그래밍</div>
       <div class="course" data-subject="데이터통신">데이터 통신</div>
       <div class="course advanced" data-subject="암호학">암호학</div>
     </div>
@@ -266,7 +266,7 @@
       <div class = "semester-label">1학기</div>
       <div class="course design" data-subject="캡스톤디자인1">캡스톤디자인 I</div>
       <div class="course design" data-subject="빅데이터응용">빅데이터응용</div>
-      <div class="course" data-subject="클라우드 프로그래밍">클라우드 프로그래밍</div>
+      <div class="course" data-subject="클라우드프로그래밍">클라우드 프로그래밍</div>
       <div class="course" data-subject="네트워크보안">네트워크보안</div>
     </div>
     <div class="semester-container">
@@ -274,7 +274,7 @@
       <div class="course design" data-subject="캡스톤디자인2">캡스톤디자인 II</div>
       <div class="course" data-subject="웹프로그래밍">웹프로그래밍</div>
       <div class="course" data-subject="컴파일러">컴파일러</div>
-      <div class="course" data-subject="ICT 학점이수 인턴제">ICT 학점이수 인턴제</div>
+      <div class="course" data-subject="ICT학점이수인턴제">ICT 학점이수 인턴제</div>
     </div>
   </div>
 
@@ -371,15 +371,23 @@
   }
 
   function logout() {
-    // 필요하면 서버 로그아웃 엔드포인트도 호출 가능
-    TokenManager.set(null);
+    localStorage.removeItem('jwtToken');
+    localStorage.removeItem('refreshToken');
+    alert('로그아웃되었습니다.');
+    window.location.href = '/login_page';
   }
 
   let UserId = null;
 
 
-
   document.addEventListener('DOMContentLoaded', async () => {
+    const logoutLink = document.getElementById('logoutLink');
+
+    logoutLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      logout();
+    });
+
     try {
       await TokenManager.refresh();
 
@@ -399,20 +407,20 @@
 
   const groups = {
     pink: ['공학설계입문', '소프트웨어공학', '캡스톤디자인1', '캡스톤디자인2'],
-    green: ['파이썬 프로그래밍', 'C프로그래밍1', 'C프로그래밍2', '객체지향 프로그래밍', '캡스톤디자인1', '캡스톤디자인2'],
-    purple: ['선형대수학1', '선형대수학2', '디지털 신호처리'],
-    orange: ['파이썬 프로그래밍', 'C프로그래밍1', 'C프로그래밍2', '시스템 소프트웨어', '운영체제', '유닉스 프로그래밍'],
-    navy: ['파이썬 프로그래밍', 'C프로그래밍1', 'C프로그래밍2', '자료구조', '데이터베이스', '데이터모델링과 마이닝', '빅데이터응용'],
-    mint: ['이산수학', '프로그래밍 언어론', '컴파일러'],
+    green: ['파이썬프로그래밍', 'C프로그래밍1', 'C프로그래밍2', '객체지향프로그래밍', '캡스톤디자인1', '캡스톤디자인2'],
+    purple: ['선형대수학1', '선형대수학2', '디지털신호처리'],
+    orange: ['파이썬프로그래밍', 'C프로그래밍1', 'C프로그래밍2', '시스템소프트웨어', '운영체제', '유닉스프로그래밍'],
+    navy: ['파이썬프로그래밍', 'C프로그래밍1', 'C프로그래밍2', '자료구조', '데이터베이스', '데이터모델링과마이닝', '빅데이터응용'],
+    mint: ['이산수학', '프로그래밍언어론', '컴파일러'],
     gray: ['이산수학','알고리즘'],
     cobalt: [],
     brown: ['컴퓨터수학','정보보호', '암호학', '네트워크보안'],
     gold: ['컴퓨터네트워크', '데이터통신'],
-    wine: ['통계적 분석', '인공지능'],
-    coral: ['파이썬 프로그래밍', 'C프로그래밍1', 'C프로그래밍2','자료구조', '알고리즘'],
+    wine: ['통계적분석', '인공지능'],
+    coral: ['파이썬프로그래밍', 'C프로그래밍1', 'C프로그래밍2','자료구조', '알고리즘'],
     beige: ['이산수학', '알고리즘'],
     orchid: ['논리회로', '컴퓨터구조'],
-    a: ['파이썬 프로그래밍', 'C프로그래밍1', 'C프로그래밍2', '객체지향 프로그래밍', '고급객체지향 프로그래밍'],
+    a: ['파이썬프로그래밍', 'C프로그래밍1', 'C프로그래밍2', '객체지향프로그래밍', '고급객체지향프로그래밍'],
     b: ['통계적분석','인공지능'],
   };
 

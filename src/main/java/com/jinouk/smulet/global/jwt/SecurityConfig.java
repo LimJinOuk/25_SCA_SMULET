@@ -47,7 +47,8 @@ public class SecurityConfig {
                                 "/deleteTimetable",
                                 "/Modal/**",
                                 "/fragment/scheduleModal",
-                                "policy_page"
+                                "policy_page",
+                                "/tech_tree/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/member/delete",
@@ -68,8 +69,7 @@ public class SecurityConfig {
                                 "/getbsm",
                                 "/get설계",
                                 "/get전심",
-                                "/get전선",
-                                "/tech_tree/**"
+                                "/get전선"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )

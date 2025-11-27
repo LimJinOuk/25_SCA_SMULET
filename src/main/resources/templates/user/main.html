@@ -565,7 +565,7 @@
     </form>
 </dialog>
 
-<!-- 이용안내 모달 11.24 수정 -->
+<!-- 이용안내 모달 11.26 수정 -->
 <div class="guide-backdrop" id="guideModal" aria-hidden="true">
     <div class="guide-modal" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
         <header class="guide-head">
@@ -580,6 +580,11 @@
                     <div class="step"><strong>1) 로그인/회원가입</strong> — 우측 상단에서 진행합니다. 토큰 만료 시 자동 재발급 실패하면 재로그인하세요.</div>
                     <div class="step"><strong>2) 마이페이지</strong> — 시간표 만들기/불러오기, 과목 추가·삭제, 저장을 할 수 있어요.</div>
                     <div class="step"><strong>3) 대표 시간표 지정</strong> — 가장 최근 학기를 대표로 설정하면 메인에 표시됩니다.</div>
+                    <div class="step">
+                        <strong>4) 테크트리</strong> — 21~25학번 테크트리를 선택하면
+                        BSM·설계·전공선택·전공심화 이수 학점을 확인하고,<br>
+                        과목별 선이수·후이수 관계를 한눈에 볼 수 있어요.
+                    </div>
                 </div>
             </section>
 
@@ -590,6 +595,12 @@
                     <li><strong>마이페이지 이동 오류(401)</strong> — 자동 재발급 시도 후 실패하면 로그아웃 안내 및 재로그인 필요.</li>
                     <li><strong>시간표 입력 팁</strong> — 같은 시간대 중복 추가 방지, 시작·종료 시간이 같으면 단일 시간 표시.</li>
                     <li><strong>대표 시간표</strong> — 여러 학기 중 대표로 지정하면 메인 박스에 렌더링됩니다.</li>
+                    <li>
+                        <strong>테크트리 학번별 이수 현황</strong> — 21~25학번별 테크트리를 제공하며,
+                        사용자의 수강 내역을 기반으로 BSM·설계·전공선택·전공심화 영역별 이수 학점이 자동 집계됩니다.
+                        각 과목의 선이수·후이수 관계를 시각적으로 보여 주어
+                        어떤 과목을 먼저 듣고 이후에 무엇을 들을지 학년별 흐름을 쉽게 파악할 수 있습니다.
+                    </li>
                 </ul>
             </section>
 

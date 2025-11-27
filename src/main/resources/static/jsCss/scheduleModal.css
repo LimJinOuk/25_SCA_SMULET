@@ -331,43 +331,49 @@ body.modal-open { overflow: hidden; }
     position: relative;
 }
 
-/* 과목 블록 (공통) */
-.course-block {
-    border-radius: 10px;
-    border: 2px solid rgba(0,0,0,.12);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 3px 10px rgba(0,0,0,.08);
-    color: #0f172a;
-    display: flex; align-items: center; justify-content: center;
-    padding: 8px 10px; text-align: center;
-    overflow: hidden;
-}
+ /* 과목 블록 (공통) */
+ .course-block {
+     /* 모서리를 부드럽게 둥글게 처리 */
+     border-radius: 8px;
 
-/* 바쁜 상태(실제 배치) 시 배경 • 테두리 컬러 적용 */
-.course-block.busy {
-    --c: var(--course-color, #a5d8ff);
-    --stroke: color-mix(in oklab, var(--c) 85%, black);
-    background:
-            radial-gradient(
-                    circle at 50% 45%,
-                    #ffffff 0%,
-                    color-mix(in oklab, #ffffff 92%, var(--c)) 28%,
-                    color-mix(in oklab, #ffffff 88%, var(--c)) 48%,
-                    color-mix(in oklab, #ffffff 82%, var(--c)) 68%,
-                    color-mix(in oklab, #ffffff 75%, var(--c)) 100%
-            );
-    border: 2px solid var(--stroke);
-}
+     /* 기본 테두리는 매우 연하게 처리 */
+     border: 1px solid rgba(0, 0, 0, 0.1);
 
-/* 블록 내부 텍스트 */
-.course-block .slot { line-height: 1.3; }
-.course-block .slot-title {
-    font-size: 13px; font-weight: 800;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.course-block .slot-room {
-    margin-top: 2px; font-size: 12px; font-weight: 600;
-    opacity: .9; color: var(--muted);
-}
+     /* 블록을 살짝 띄우는 느낌의 미묘한 그림자 (입체감 최소화) */
+     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+     color: #0f172a; /* 텍스트 색상 유지 */
+     display: flex; align-items: center; justify-content: center;
+     padding: 8px 10px; text-align: center;
+     overflow: hidden;
+ }
+
+ /* 바쁜 상태(실제 배치) 시 배경 • 테두리 컬러 적용 */
+ .course-block.busy {
+     /* 기본 색상 변수 설정 */
+     --c: var(--course-color, #a5d8ff);
+
+     /* 배경은 흰색 바탕에 수업 색상을 아주 옅게 섞어 가독성을 높임 */
+     background: color-mix(in srgb, var(--c) 8%, white);
+
+     /* 기존의 복잡한 그라데이션 및 테두리 제거 */
+     border: none;
+
+     /* 수업 구분을 위해 왼쪽에 굵은 색상 악센트 추가 */
+     border-left: 6px solid var(--c);
+ }
+
+ /* 블록 내부 텍스트 */
+ .course-block .slot { line-height: 1.3; }
+ .course-block .slot-title {
+     font-size: 13px; font-weight: 800;
+     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+ }
+ .course-block .slot-room {
+     margin-top: 2px; font-size: 12px; font-weight: 600;
+     /* 'var(--muted)'가 정의되지 않았을 경우를 대비해 폴백 색상 사용 */
+     opacity: .85; color: var(--muted, #64748b);
+ }
 
 /* 프리뷰(미리보기) 블록 */
 .preview-block {
@@ -379,11 +385,4 @@ body.modal-open { overflow: hidden; }
     padding: 8px 10px; text-align: center;
     pointer-events: none;
     z-index: 9;
-}
-
-/* Responsive trims */
-@media (max-width: 560px) {
-    .schedule-header,
-    .schedule-grid { grid-template-columns: 80px repeat(5, 1fr); }
-    .time-cell { font-size: 12px; }
 }

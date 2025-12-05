@@ -38,8 +38,8 @@ public class getTimeTableService {
         return map;
     }
 
-    public List<getTimeTableDTO> allCourse() {
-        List<course> courses = courserepository.findAll();
+    public List<getTimeTableDTO> allCourse(int year) {
+        List<course> courses = courserepository.findByYear(year);
         List<getTimeTableDTO> result = new ArrayList<>();
 
         for (course course : courses) {

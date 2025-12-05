@@ -386,3 +386,12 @@ body.modal-open { overflow: hidden; }
     pointer-events: none;
     z-index: 9;
 }
+ .no-scrollbar {
+     -ms-overflow-style: none;  /* IE, 옛날 Edge */
+     scrollbar-width: none;     /* Firefox */
+ }
+
+ /* Chrome, Safari, 최신 Edge */
+ .no-scrollbar::-webkit-scrollbar {
+     display: none;
+ }

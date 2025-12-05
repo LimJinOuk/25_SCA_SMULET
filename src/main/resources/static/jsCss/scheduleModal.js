@@ -394,7 +394,6 @@ function addCourseToScheduleTableGrid(entries){
 
             block.innerHTML = window.renderSlotHTML(courseName, classroom, professor);
 
-            // ⭐⭐⭐ 여기서 원본 데이터를 spread로 통째로 넘김 ⭐⭐⭐
             block.onmouseenter = () =>
                 showCourseTooltip(block, {
                     ...normalizedBase,        // ← 과목 전체 정보 포함(bsm, 전선전심, credit 등)
@@ -499,8 +498,10 @@ async function onClickSaveSchedule() {
         if (!res.ok) { const txt = await res.text(); throw new Error(`저장 실패: ${txt || ('HTTP ' + res.status)}`); }
 
         alert('저장 완료!');
-        await window.renderRepresentativeFromServer?.();
+        await window.ensureAllCourseListLoaded?.();
         await window.hydrateSemestersFromServer?.();
+        await window.loaduserinfo?.();
+        await window.loadCredits?.();
     } catch (err) {
         console.error('[addTC] Exception:', err);
         alert(`저장 중 오류: ${err.message}`);
@@ -593,7 +594,6 @@ async function openScheduleModal(semester){
         .catch(err=>console.error('getTC/슬롯 로드 오류:', err));
 
     // 2) 수업 목록
-// 2) 수업 목록
     const semesterCode = currentSemesterCode;
 
 
@@ -607,10 +607,9 @@ async function openScheduleModal(semester){
             attachCellEvents();
         })
         .catch(err => {
-            listContainer.innerHTML = '<p style="color:red;">수업 목록을 불러오지 못했습니다.</p>';
+            listContainer.innerHTML = `<p style="color:red;">수업 목록을 불러오지 못했습니다.</p>`;
             console.error(err);
         });
-
     // 저장 버튼(중복 제거 후 바인딩)
     const saveBtn = document.getElementById('saveSchedule');
     saveBtn.replaceWith(saveBtn.cloneNode(true));

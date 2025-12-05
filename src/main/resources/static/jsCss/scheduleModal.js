@@ -499,8 +499,10 @@ async function onClickSaveSchedule() {
         if (!res.ok) { const txt = await res.text(); throw new Error(`저장 실패: ${txt || ('HTTP ' + res.status)}`); }
 
         alert('저장 완료!');
-        await window.renderRepresentativeFromServer?.();
+        await window.ensureAllCourseListLoaded?.();
         await window.hydrateSemestersFromServer?.();
+        await window.loaduserinfo?.();
+        await window.loadCredits?.();
     } catch (err) {
         console.error('[addTC] Exception:', err);
         alert(`저장 중 오류: ${err.message}`);

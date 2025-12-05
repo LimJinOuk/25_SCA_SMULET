@@ -5,7 +5,7 @@
                 <title>My page</title>
                 <link
                         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
-                        rel="stylesheet"
+                        rel="stylesheet" th:href="@{/jsCss/scheduleModal.css}"
                 />
                 <style>
                     /* ========== Tokens ========== */
@@ -15,7 +15,7 @@
                         --brand: #2563eb;
                         --brand-weak: #e6efff;
                         --danger: #ef4444;
-                        --shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+                        --shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
                         --preview-color: rgba(99, 179, 237, 0.25); /* 프리뷰 박스 배경 */
                     }
 
@@ -185,7 +185,7 @@
                     .representative-box {
                         background-color: #fff;
                         border-radius: 10px;
-                        box-shadow: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
+                        box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
                         padding: 30px; box-sizing: border-box;
                     }
                     /* 대표 시간표 폭 지정 & 중앙 정렬 */
@@ -484,24 +484,50 @@
                     }
 
 
-                    /* ========== Tech Tree Small Cards ========== */
                     .details-container {
                         display: grid;
                         grid-template-columns: repeat(4, minmax(0, 1fr));
-                        gap: 10px; margin-top: 10px;
+                        gap: 10px;
+                        margin-top: 10px;
                     }
+
                     @media (max-width: 420px) {
                         .details-container { grid-template-columns: repeat(2, 1fr); }
                     }
+
                     .detail {
-                        border: 1px solid var(--line); border-radius: 10px; background-color: #fff;
-                        height: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+                        border: 1px solid var(--line);
+                        border-radius: 10px;
+                        background-color: #fff;
+                        height: 70px;
+                        display: flex;
+                        flex-direction: column;      /* 위에 label, 아래에 값 */
+                        justify-content: center;
+                        align-items: center;
                         box-shadow: 0 2px 6px rgba(0,0,0,.1);
                         transition: transform .2s ease-in-out, box-shadow .2s ease-in-out;
                     }
+
+                    /* 3 / 12 를 가로로 */
+                    .value-row {
+                        display: flex;
+                        align-items: baseline;
+                        gap: 2px;
+                    }
+
+                    /* 파란 글씨 */
+                    .value {
+                        color: #007bff;
+                        font-weight: 600;
+                    }
+                    .value.small {
+                        font-size: 12px;
+                        opacity: 1;
+                    }
+
                     .detail:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,.15); cursor: pointer; }
                     .detail .label { font-size: 17px; font-weight: bold; margin-bottom: 4px; }
-                    .detail .value { font-size: 20px; font-weight: 700; color: #007bff; }
+                    .detail .value{ font-size: 20px; font-weight: 650; color: #007bff; display: inline-block; flex-direction: row;/* 또는 inline */}
 
                     .box .desc-list { margin: 8px 0 14px; }
                     .box .desc-list div { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
@@ -696,6 +722,16 @@
                         .schedule-grid { grid-template-columns: 80px repeat(5, 1fr); }
                         .time-cell { font-size: 12px; }
                     }
+                    .no-scrollbar {
+                        -ms-overflow-style: none;  /* IE, 옛날 Edge */
+                        scrollbar-width: none;     /* Firefox */
+                    }
+
+                    /* Chrome, Safari, 최신 Edge */
+                    .no-scrollbar::-webkit-scrollbar {
+                        display: none;
+                    }
+
 
                 </style>
             </head>
@@ -835,21 +871,31 @@
                             <div class="details-container">
                                 <div class="detail" id="bsmDetail">
                                     <span class="label">bsm</span>
-                                    <span class="value" id="bsmCredit">0</span>
+                                    <div class="value-row">
+                                        <span class="value" id="bsmCredit">3</span>
+                                        <span class="value small">/12</span>
+                                    </div>
                                 </div>
+
                                 <div class="detail" id="designDetail">
                                     <span class="label">설계</span>
-                                    <span class="value" id="designCredit">0</span>
+                                    <div class="value-row">
+                                        <span class="value" id="designCredit">0</span>
+                                        <span class="value small">/12</span>
+                                    </div>
                                 </div>
+
                                 <div class="detail" id="majorElectiveDetail">
                                     <span class="label">전공선택</span>
                                     <span class="value" id="majorElectiveCredit">0</span>
                                 </div>
+
                                 <div class="detail" id="majorAdvancedDetail">
                                     <span class="label">전공심화</span>
                                     <span class="value" id="majorAdvancedCredit">0</span>
                                 </div>
                             </div>
+
                         </div>
 
                         <div class="box box3">

@@ -11,7 +11,7 @@
         <div class="modal-wrapper">
             <div class="modal schedule-modal" style="display:flex; width:90vw; max-width:1000px; height:650px; overflow:hidden; padding:30px; gap:20px;">
             <!-- 왼쪽: 시간표 영역 -->
-                <div style="flex:2; overflow-y:auto;">
+                <div  class="no-scrollbar" style="flex:2; overflow-y:auto;">
                     <div style="text-align:right;">
                         <button id="closeScheduleModal"
                                 style="background:#e0e0e0; color:#333; border:none;
@@ -33,7 +33,7 @@
                     <input type="text" id="searchInput" placeholder="과목명 검색"
                        style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ccc; border-radius:6px;"
                        oninput="renderCourseList(currentCourseList)"/>
-                    <div id="classInfoList" style="flex:1; overflow-y:auto"><!-- JS로 수업 정보가 들어옵니다 --></div>
+                    <div id="classInfoList"  class="no-scrollbar" style="flex:1; overflow-y:auto"><!-- JS로 수업 정보가 들어옵니다 --></div>
                 </div>
             </div>
         </div>

@@ -47,8 +47,8 @@ public class sqlcontroller {
     }
 
     @GetMapping("/a") //모든 과목 조회 기능
-    public List<getTimeTableDTO> getAllCourseList () {
-        List<getTimeTableDTO> courseList = sqlservice.allCourse();
+    public List<getTimeTableDTO> getAllCourseList (@RequestParam int semester) {
+        List<getTimeTableDTO> courseList = sqlservice.allCourse(semester);
         return courseList;
     }
 

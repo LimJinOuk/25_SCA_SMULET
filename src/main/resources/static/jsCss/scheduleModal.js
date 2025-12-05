@@ -593,15 +593,21 @@ async function openScheduleModal(semester){
         .catch(err=>console.error('getTC/슬롯 로드 오류:', err));
 
     // 2) 수업 목록
-    window.apiFetch('/a')
-        .then(res=>res.json())
-        .then(data=>{
+// 2) 수업 목록
+    const semesterCode = currentSemesterCode;
+
+
+
+    console.log(semesterCode);
+    window.apiFetch(`/a?semester=${encodeURIComponent(semesterCode)}`)
+        .then(res => res.json())
+        .then(data => {
             currentCourseList = data || [];
             renderCourseList(currentCourseList);
             attachCellEvents();
         })
-        .catch(err=>{
-            listContainer.innerHTML = `<p style="color:red;">수업 목록을 불러오지 못했습니다.</p>`;
+        .catch(err => {
+            listContainer.innerHTML = '<p style="color:red;">수업 목록을 불러오지 못했습니다.</p>';
             console.error(err);
         });
 

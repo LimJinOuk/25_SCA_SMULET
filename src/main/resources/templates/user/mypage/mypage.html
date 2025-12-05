@@ -1168,7 +1168,8 @@
 
                 function onLogoutClick(e){
                     e.preventDefault();
-                    TokenManager.set(null);
+                    localStorage.removeItem('jwtToken');
+                    localStorage.removeItem('refreshToken');
                     alert('로그아웃 되었습니다.');
                     window.location.href = '/';
                 }

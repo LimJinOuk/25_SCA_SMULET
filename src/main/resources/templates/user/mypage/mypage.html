@@ -1606,6 +1606,7 @@
                         li.addEventListener('click', async () => {
                             try {
                                 await ensureModalReady();
+                                console.log(sem);
                                 window.openScheduleModal(sem);
                             } catch (e) {
                                 console.error(e);

@@ -624,8 +624,8 @@ function renderScheduleFromTS2TE(scheduleData){
     if (!grid || !Array.isArray(scheduleData)) return;
 
     const hasZero = scheduleData.some(it => {
-        const s = Number(it.timeStart ?? it.time_start);
-        const e = Number(it.timeEnd   ?? it.time_end   ?? s);
+        const s = Number(it.timeStart);
+        const e = Number(it.timeEnd - 1);
         return s === 0 || e === 0;
     });
     if (hasZero) prependZeroPeriodGrid(grid);
@@ -633,7 +633,7 @@ function renderScheduleFromTS2TE(scheduleData){
     let needMax = 9;
     scheduleData.forEach(it => {
         const info = normalizeCourseInfo(it);
-        const e = toPeriodNumber(it.timeEnd ?? it.timeStart, null);
+        const e = toPeriodNumber(it.timeEnd - 1);
         if (e != null) needMax = Math.max(needMax, e);
     });
     ensureModalGridSpanMax(needMax);
@@ -646,8 +646,8 @@ function renderScheduleFromTS2TE(scheduleData){
         const courseCode = item.identify_number_of_course ?? item.identifyNumberOfCourse ?? item.courseCode ?? subject;
 
         const dayIdx = toPeriodNumber(item.day ?? item.scheduleDay, 0) - 1;
-        const pStart = toPeriodNumber(item.time_start ?? item.timeStart ?? item.periodStart, null);
-        const pEnd   = toPeriodNumber(item.time_end   ?? item.timeEnd   ?? item.periodEnd ?? pStart, null);
+        const pStart = toPeriodNumber(item.timeStart, null);
+        const pEnd   = toPeriodNumber(item.timeEnd - 1, null);
         if (dayIdx < 0 || pStart == null || pEnd == null) return;
 
         const color = window.ColorManager.get(courseCode);

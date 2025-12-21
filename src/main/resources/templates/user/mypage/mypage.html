@@ -4,9 +4,14 @@
                 <meta charset="UTF-8" />
                 <title>My page</title>
                 <link
+                        rel="stylesheet"
                         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
-                        rel="stylesheet" th:href="@{/jsCss/scheduleModal.css}"
                 />
+                <link
+                        rel="stylesheet"
+                        th:href="@{/jsCss/scheduleModal.css}"
+                />
+
                 <style>
                     /* ========== Tokens ========== */
                     :root {
@@ -19,6 +24,11 @@
                         --preview-color: rgba(99, 179, 237, 0.25); /* 프리뷰 박스 배경 */
                     }
 
+                    header,
+                    footer {
+                        width: 100%;
+                        box-sizing: border-box;
+                    }
                     /* ========== Base ========== */
                     body {
                         margin: 0;
@@ -521,13 +531,13 @@
                         font-weight: 600;
                     }
                     .value.small {
-                        font-size: 12px;
-                        opacity: 1;
+                        font-size: 15px !important;
+                        opacity: 0.9;
                     }
 
                     .detail:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,.15); cursor: pointer; }
                     .detail .label { font-size: 17px; font-weight: bold; margin-bottom: 4px; }
-                    .detail .value{ font-size: 20px; font-weight: 650; color: #007bff; display: inline-block; flex-direction: row;/* 또는 inline */}
+                    .detail .value{ font-size: 19px; font-weight: 650; color: #007bff; display: inline-block; flex-direction: row;/* 또는 inline */}
 
                     .box .desc-list { margin: 8px 0 14px; }
                     .box .desc-list div { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
@@ -537,12 +547,12 @@
                         font-size: .85rem; line-height: 1.4; color: var(--muted); margin-top: 4px;
                     }
 
-                    /* ========== Schedule (Grid-based) ========== */
                     /* 시간표 모달 전용 (가로로 넓게 사용) */
                     .schedule-modal {
                         max-width: 980px;
                         width: min(980px, 96vw);
-                        flex-direction: row;   /* 시간표 모달은 가로 레이아웃 유지 */
+                        flex-direction: row;
+                        overflow-x: auto;
                     }
 
                     .schedule-card {
@@ -559,9 +569,9 @@
                     .schedule-header > div { padding: 12px; font-weight: 700; text-align: center; }
                     .schedule-body { display: flex; flex-direction: column; }
 
-                    /* Grid 본체 */
                     .schedule-grid {
                         display: grid;
+                        min-width: 700px;
                         grid-template-columns: 120px repeat(5, 1fr); /* 시간열 + 월~금 */
                         grid-auto-rows: 80px;                        /* 교시 높이 (모달/대표에서 JS로 조정 가능) */
                         grid-auto-flow: row dense;
@@ -680,15 +690,18 @@
                         --c: var(--course-color, #a5b4fc); /* 주 색상 변수 */
 
                         /* 배경: 주 색상의 매우 연한 버전을 사용하여 블록을 채움 */
-                        background-color: color-mix(in srgb, var(--c) 17%, #ffffff);
+                        background-color: color-mix(in srgb, var(--c) 20%, #ffffff);
 
                         /* 좌측에 두꺼운 색상 악센트 라인 추가 (미니멀 디자인의 핵심) */
                         border-left: 4px solid var(--c);
 
                         /* 블록에 얇고 미세한 테두리 추가 (색상 기반) */
+                        /*
                         border-top: 2px solid color-mix(in srgb, var(--c) 30%, #ffffff);
                         border-right: 2px solid color-mix(in srgb, var(--c) 30%, #ffffff);
                         border-bottom: 2px solid color-mix(in srgb, var(--c) 30%, #ffffff);
+
+                         */
                     }
 
                     /* 호버 시 깔끔한 입체감 추가 */
@@ -703,17 +716,17 @@
                         line-height: 1.4;
                     }
                     .course-block .slot-title {
-                        font-size: 14px;
-                        font-weight: 700; /* 제목은 확실하게 */
-                        white-space: normal;
-                        font-family: 'Inter', 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+                        font-size: 14.5px;        /* 🔼 살짝 키움 */
+                        font-weight: 700;       /* 🔼 확실히 강조 */
+                        line-height: 1.3;
+                        letter-spacing: -0.2px;
                     }
                     .course-block .slot-room {
-                        margin-top: 3px;
-                        font-size: 11px;
-                        font-weight: 500;
+                        margin-top: 8px;
+                        font-size: 12px;        /* 🔼 너무 작지 않게 */
+                        font-weight: 550;
+                        color: #374151;         /* 기존보다 살짝 진하게 */
                         opacity: 0.8;
-                        color: #4b5563; /* 어두운 회색으로 설정하여 색상 대비 확보 */
                     }
 
                     /* Responsive trims */
@@ -887,12 +900,20 @@
 
                                 <div class="detail" id="majorElectiveDetail">
                                     <span class="label">전공선택</span>
-                                    <span class="value" id="majorElectiveCredit">0</span>
+
+                                    <div class="value-row">
+                                        <span class="value" id="majorElectiveCredit">0</span>
+                                        <span class="value small">/45</span>
+                                    </div>
                                 </div>
 
                                 <div class="detail" id="majorAdvancedDetail">
                                     <span class="label">전공심화</span>
-                                    <span class="value" id="majorAdvancedCredit">0</span>
+
+                                    <div class="value-row">
+                                        <span class="value" id="majorAdvancedCredit">0</span>
+                                        <span class="value small">/15</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1009,6 +1030,7 @@
                     '2021년 2학기','2021년 1학기',
                 ];
                 const pastelPalette = [
+                    /*
                     "#A5D8FF", // 밝은 파랑
                     "#B2F2BB", // 밝은 연두
                     "#FFD8A8", // 연한 오렌지
@@ -1019,6 +1041,16 @@
                     "#F4C2D7", // 밝은 자홍
                     "#C9E4A7", // 연한 녹색
                     "#C7D2FE"  // 연한 인디고
+
+                     */
+                    "#2563EB", // Blue
+                    "#16A34A", // Green
+                    "#DC2626", // Red
+                    "#EA580C", // Orange
+                    "#7C3AED", // Purple
+                    "#0891B2", // Teal
+                    "#CA8A04", // Yellow (mustard)
+                    "#4338CA"  // Indigo
                 ];
 
                 const ColorManager = (() => {
@@ -1327,14 +1359,12 @@
 
                     select.value = "";
 
-                    // ✅ 새 탭 열기: _blank + features 없음
                     const tab = window.open('', '_blank');
                     if (!tab) {
                         alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');
                         return;
                     }
 
-                    // 여기는 기존처럼 apiFetch 사용 (Authorization 헤더 포함)
                     apiFetch(`/tech_tree?year=${encodeURIComponent(year)}`, { method: 'GET' })
                         .then(res => {
                             if (res.ok) return res.text();
@@ -1353,8 +1383,6 @@
                         });
                 }
 
-
-                // ===================== 이용안내 모달 (메인 페이지와 동일 동작) =====================
                 (function () {
                     const modal = document.getElementById('guideModal');
                     const closeBtn = document.getElementById('guideCloseBtn');
@@ -1362,7 +1390,6 @@
                     const gotoMyPageBtn = document.getElementById('guideGotoMyPage');
                     const copyBtn = document.getElementById('guideCopyLink');
 
-                    // nav 안에서 "이용안내" 텍스트 가진 a 태그 찾기
                     const guideLink = Array.from(document.querySelectorAll('nav a'))
                         .find(a => a.textContent && a.textContent.includes('이용안내'));
 
@@ -1387,7 +1414,6 @@
                         }
                     }
 
-                    // 포커스 트랩 & ESC
                     modal?.addEventListener('keydown', (e) => {
                         if (e.key === 'Tab') {
                             const focusables = modal.querySelectorAll(
@@ -1412,15 +1438,12 @@
                             closeGuide();
                         }
                     });
-
-                    // 바깥 클릭 시 닫기
                     modal?.addEventListener('click', (e) => {
                         if (e.target === modal) closeGuide();
                     });
 
                     closeBtn?.addEventListener('click', closeGuide);
 
-                    // 상단 네비 "이용안내" 클릭 시 열기
                     if (guideLink) {
                         guideLink.addEventListener('click', (e) => {
                             e.preventDefault();
@@ -1428,15 +1451,10 @@
                         });
                     }
 
-                    // 마이페이지에서는 이미 마이페이지 안이니까 그냥 닫기만 하거나 새로고침 정도로 사용
                     gotoMyPageBtn?.addEventListener('click', () => {
-                        // 이미 /my_page 안이라면 닫기만
                         closeGuide();
-                        // 혹시 주소 강제 이동을 원하면 아래처럼:
-                        // window.location.href = '/my_page';
                     });
 
-                    // "이 안내 복사" 버튼
                     copyBtn?.addEventListener('click', async () => {
                         const text = content?.innerText.trim() ?? '';
                         try {
@@ -1447,8 +1465,6 @@
                             alert('복사에 실패했어요. 수동으로 복사해주세요.');
                         }
                     });
-
-                    // ?guide=1 쿼리로 바로 열기 지원 (선택 사항, 메인과 동일)
                     try {
                         const usp = new URLSearchParams(location.search);
                         if (usp.get('guide') === '1') openGuide();
@@ -1602,7 +1618,6 @@
                         actions.appendChild(delBtn);
                         actions.appendChild(label);
 
-                        // ✅ 클릭 시 모달 열기 (모달 준비 대기 포함)
                         li.addEventListener('click', async () => {
                             try {
                                 await ensureModalReady();
@@ -1614,7 +1629,6 @@
                             }
                         });
 
-                        // ✅ append는 반드시 리스너 "바깥"에서!
                         li.appendChild(nameSpan);
                         li.appendChild(actions);
                         list.appendChild(li);
@@ -1708,7 +1722,6 @@
                 /***********************
                  * 대표 시간표 렌더
                  ***********************/
-    // ✅ minPeriod ~ maxPeriod 범위로 그리드 생성 (0교시가 있으면 위에 나오도록)
                 function buildRepGridSpan(minPeriod, maxPeriod){
                     const body = document.getElementById('repGridBody');
                     if (!body) return;
@@ -1719,7 +1732,6 @@
                     grid.className = 'schedule-grid';
                     grid.id = 'repGridSpanBody';
 
-                    // minPeriod ~ maxPeriod 까지를 "위에서부터 순서대로" 배치
                     for (let p = minPeriod; p <= maxPeriod; p++) {
                         const rowIndex = p - minPeriod + 1; // 실제 grid-row 값
 
@@ -1736,7 +1748,7 @@
                             const cell = document.createElement('div');
                             cell.className = 'cell-placeholder';
                             cell.dataset.day = String(day);
-                            cell.dataset.period = String(p); // 실제 교시값은 여기에 저장
+                            cell.dataset.period = String(p);
                             cell.style.gridColumn = String(day + 2);
                             cell.style.gridRow = String(rowIndex);
                             grid.appendChild(cell);
@@ -1785,7 +1797,7 @@
                     if (dayIdx < 0 || dayIdx > 4) return;
 
                     const pStart = info.timeStart;
-                    const pEnd = info.timeEnd ?? info.timeStart;
+                    const pEnd = info.timeEnd - 1;
                     if (!Number.isFinite(pStart) || !Number.isFinite(pEnd)) return;
                     const rowStart = pStart - repMinPeriod + 1;
                     const rowEnd   = pEnd   - repMinPeriod + 1;
@@ -1814,14 +1826,12 @@
 
                     grid.appendChild(block);
 
-                    // 아래 placeholder들 border 정리 + 데이터 연결(필요시)
                     for (let r = pStart; r <= pEnd; r++) {
                         const ph = grid.querySelector(
                             `.cell-placeholder[data-day="${dayIdx}"][data-period="${r}"]`
                         );
                         if (ph) {
                             ph.style.borderBottom = 'none';
-                            // 필요하면 셀에서도 툴팁 띄우려고 이 줄 추가:
                             ph.dataset.courseId = courseCode;
                         }
                     }
@@ -1838,7 +1848,6 @@
                         if (!res.ok) throw new Error('대표 시간표 조회 실패');
 
                         const data = await res.json();
-                        // 👉 모달의 currentCourseList처럼 대표 시간표 전용 리스트 보관
                         repCourseList = Array.isArray(data) ? data : [];
                         console.log(repCourseList);
                         renderRepresentativeSchedule(repCourseList);
@@ -1852,18 +1861,15 @@
                  * 전체 과목 리스트 로딩
                  ***********************/
                 async function ensureAllCourseListLoaded() {
-                    // 이미 로딩되어 있으면 재요청 X
                     if (allCourseList && allCourseList.length > 0) return;
 
                     try {
-                        // UserId가 없다면 먼저 불러오기
                         const uid = UserId || (await window.getUserId?.());
                         if (!uid) {
                             console.warn('UserId를 찾을 수 없습니다.');
                             return;
                         }
 
-                        // 1) /getTC에서 전체 courseId 목록 가져오기 (timetableId로 필터 X)
                         const byUid = await apiFetch('/getTC', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -1900,7 +1906,6 @@
                             return;
                         }
 
-                        // 2) /getTS2TE에 전체 courseId를 보내서 상세 정보 가져오기
                         const detailRes = await apiFetch('/getTS2TE', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },

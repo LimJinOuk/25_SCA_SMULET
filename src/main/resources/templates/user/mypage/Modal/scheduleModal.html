@@ -3,7 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>메인 페이지</title>
-    <link rel="stylesheet" href="/jsCss/scheduleModal.css">
+    <!-- Google Fonts (외부 리소스, Thymeleaf 절대 섞지 않기) -->
+    <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+    />
+
+    <!-- scheduleModal 전용 CSS -->
+    <link
+            rel="stylesheet"
+            href="/jsCss/scheduleModal.css"
+            th:href="@{/jsCss/scheduleModal.css}"
+    />
+
 </head>
 <body>
 <div th:fragment="scheduleModal">
